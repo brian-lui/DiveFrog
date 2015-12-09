@@ -1,0 +1,24 @@
+TODO:
+
+-2. Fix bug where don't get a special if pressed on same frame (don't use callback, look up keybuffer in love.update)
+
+-1. self.life = 96. When KOed, decrease self.life by 1 each frame and draw the quad. if self.life < 96 then love.graphics.draw etc.
+
+0. HP bars and timer
+
+1. alternate character colors (can probably use love.graphics.setColor() for this)
+
+2. alternate gothit physics (e.g. wallsplat)
+
+3. threading / multiple polling
+	3b. netplay
+
+4. Headshots
+
+5. AI behavior
+
+6. More fighters
+	A guy who has testament's web things that freeze the opponent on contact
+
+7. Somehow make the camera scroll around the stage?
+	7b. Camera zoom on Frog Factor
