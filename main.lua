@@ -264,17 +264,32 @@ function love.draw()
   cam:render(canvas, function ()
     if game.current_screen == "maingame" then
       drawMainBackground()
+      
+      -- drawing sprites
+        -- need to shift the sprites back if we flipped the image
+      local p1shift = 0
+      local p2shift = 0
+        -- shift sprites if facing left
+      if p2:getFacing() == -1 then p2shift = p2:getSprite_Width() end
+      if p1:getFacing() == -1 then p1shift = p1:getSprite_Width() end
+      
+      love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
+      love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
 
-      -- draw sprites
-      love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v())
-      love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v())
+      for i = 1, #p1.drawfx do
+        -- draw extra fx
+      end
+
+      for i = 1, #p2.drawfx do
+        -- draw extra fx
+      end
 
       if frame - frame0 < 110 then drawRoundStart() end
 
       if round_end_frame > 0 then endRound() end
 
       --drawDebugSprites() -- debug: draw sprite box, center, and facing
-      --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+      drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
     end
 
     if game.current_screen == "charselect" then drawCharSelect() end
@@ -319,10 +334,10 @@ function love.update(dt)
 
     -- read keystate from keybuffer and call the associated functions
     if not input_frozen then
-      if keybuffer[frame][1] and not p1:getFrozen() then p1:jump_key_press() end
-      if keybuffer[frame][2] and not p1:getFrozen() then p1:attack_key_press() end
-      if keybuffer[frame][3] and not p2:getFrozen() then p2:jump_key_press() end
-      if keybuffer[frame][4] and not p2:getFrozen() then p2:attack_key_press() end
+      if keybuffer[frame][1] and not p1:getFrozen() and not keybuffer[frame-1][1] then p1:jump_key_press() end
+      if keybuffer[frame][2] and not p1:getFrozen() and not keybuffer[frame-1][2] then p1:attack_key_press() end
+      if keybuffer[frame][3] and not p2:getFrozen() and not keybuffer[frame-1][2] then p2:jump_key_press() end
+      if keybuffer[frame][4] and not p2:getFrozen() and not keybuffer[frame-1][2] then p2:attack_key_press() end
     end
 
     -- update character positions
@@ -331,20 +346,34 @@ function love.update(dt)
     p2:updatePos(p1:get_Center())
     t1 = love.timer.getTime()
 
-    -- check if KO
-    if check_p1_got_hit() and check_p2_got_hit() then
+    -- check if KO. [1] is for KO, [2] is for headshot. If headshot, KO is always true
+    if check_p1_got_hit()[1] and check_p2_got_hit()[1] then
       round_end_frame = frame
       input_frozen = true
       p1:gotHit()
       p2:gotHit()
 
-    elseif check_p1_got_hit() then
+    elseif check_p1_got_hit()[2] then
+      round_end_frame = frame
+      input_frozen = true
+      p1:gotHit("Headshot")
+      p2:hitOpponent()
+
+      print("HEADSHOT!!!!!")
+    elseif check_p1_got_hit()[1] then
       round_end_frame = frame
       input_frozen = true
       p1:gotHit()
       p2:hitOpponent()
 
-    elseif check_p2_got_hit() then
+    elseif check_p2_got_hit()[2] then
+      round_end_frame = frame
+      input_frozen = true
+      p2:gotHit("Headshot")
+      p1:hitOpponent()
+
+      print("HEADSHOT!!!!!")
+    elseif check_p2_got_hit()[1] then
       round_end_frame = frame
       input_frozen = true
       p2:gotHit()
