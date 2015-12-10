@@ -95,6 +95,11 @@ function drawMainBackground()
     love.graphics.setLineWidth(12)
     love.graphics.setColor(44, 212, 44) -- thick bar
     love.graphics.line(31, screen.heightPx - 22.5, 31 + p1:getSuper(), screen.heightPx - 22.5)
+    if (frame % 48) * 2 < p1:getSuper() then -- super bar white line ornament
+      love.graphics.setLineWidth(4)
+      love.graphics.setColor(255, 255, 255, 180)
+      love.graphics.line((frame % 48) * 2 + 31, screen.heightPx - 30, (frame % 48) * 2 + 31, screen.heightPx - 17)
+    end
   else -- if super full, draw frog factor
     local frogfactorQuad = love.graphics.newQuad(0, 0, frogfactor:getWidth() * (p1:getSuper() / 96), frogfactor:getHeight(), frogfactor:getDimensions())
     love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
@@ -111,6 +116,12 @@ function drawMainBackground()
     love.graphics.setLineWidth(12)
     love.graphics.setColor(44, 212, 44) -- thick bar
     love.graphics.line(screen.widthPx - 31, screen.heightPx - 22.5, screen.widthPx - 31 - p2:getSuper(), screen.heightPx - 22.5)
+    if (frame % 48) * 2 < p2:getSuper() then -- super bar white line ornament
+      love.graphics.setLineWidth(4)
+      love.graphics.setColor(255, 255, 255, 180)
+      love.graphics.line(screen.widthPx - ((frame % 48) * 2 + 31), screen.heightPx - 30, screen.widthPx - ((frame % 48) * 2 + 31), screen.heightPx - 17)
+    end
+
   else -- if super full, draw frog factor
     local frogfactorQuad = love.graphics.newQuad(0, 0, frogfactor:getWidth() * (p2:getSuper() / 96), frogfactor:getHeight(), frogfactor:getDimensions())
     love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
