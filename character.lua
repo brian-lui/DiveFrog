@@ -3,6 +3,7 @@ local screen = require 'screen' -- for checking floor/walls
 local buttons = require 'controls' -- mapping of keyboard controls
 local music = require 'music' -- background music
 require 'utilities'
+require 'particles'
 
 --[[---------------------------------------------------------------------------
                                 FIGHTER SUPERCLASS
@@ -16,6 +17,7 @@ function Fighter:initialize(init_facing)
   self.frozen = 0 -- only update sprite if this is 0. Used for e.g. super freeze
   self.score = 0
   self.in_air = false
+  self.life = 280 -- 280 pixels in the life bar
   self.ko = false
   self.won = false
   self.attacking = false
@@ -45,7 +47,6 @@ function Fighter:initialize(init_facing)
   self.hurtboxes = {{0, 0, 0, 0}}
   self.headboxes = {{0, 0, 0, 0}}
   self.hitboxes = {{0, 0, 0, 0}}
-  self.drawfx = {} -- particles to draw
   self.opp_center = 400 -- center of opponent's sprite
   self.waiting = 0 -- number of frames to wait. used for pre-jump frames etc.
   self.waiting_state = "" -- buffer the action that will be executed if special isn't pressed
@@ -225,12 +226,12 @@ end
   end
 
 function Fighter:gotHit(type) -- execute this one time, when character gets hit
-  if type == "Headshot" then
-    -- headshot code
+  if type == "Mugshot" then
+    mugshot_on = true -- maybe can add this to particles later
   end
 
   if type == "Wallsplat" then
-    -- wallsplat code
+    wallsplat_on = true
   end
   self.vel_multiple = 1.0
   self.ko = true 
@@ -242,17 +243,22 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
   if frame - round_end_frame < 60 then    
     self.vel = {0, 0}
     self.gravity = 0
+    if self.life > 0 then self.life = math.max(self.life - 6, 0) end
   end
   if frame - round_end_frame == 60 then
+    self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
     playSFX2(self.got_hit_sfx) 
+    if wallsplat_on and self.facing == 1 then self.vel[1] = -50 self.gravity = 0.2
+    elseif wallsplat_on and self.facing == -1 then self.vel[1] = 50 self.gravity = 0.2 end -- refactor this sometime
   end
   if frame - round_end_frame > 60 then
-    self.gravity = 2
     self.friction_on = true
     self:updateImage(5)
     self.current_hurtboxes = self.hurtboxes_ko
     self.current_headboxes = self.headboxes_ko
+    mugshot_on = false
+    wallsplat_on = false
   end
 end
 
@@ -319,6 +325,7 @@ function Fighter:setFrozen(frames) self.frozen = frames end
 function Fighter:setNewRound()
   self.in_air = false
   self.ko = false
+  self.life = 280
   self.won = false
   self.attacking = false
   self.super_on = false
@@ -829,6 +836,7 @@ end
     self.attacking = true -- needed to activate hitboxes
     self.hit_type = "Wallsplat"
 
+    Explosion:loadFX(self.pos[1] + 75 + 150 * self.facing, self.pos[2] + 86, h_vel * self.facing, 0, 0.9, 0)
     self.vel[1] = h_vel * self.facing
     self:updateImage(6)
     self.current_hurtboxes = self.hurtboxes_pilebunker
@@ -860,6 +868,7 @@ end
       self.waiting_state = ""
       self.hit_type = ""
       playSFX1(self.ground_special_sfx)
+      WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
       self:land()
       p1:setFrozen(15)
       p2:setFrozen(15)
@@ -867,6 +876,7 @@ end
       self.super = self.super - 16
       self.waiting_state = ""
       playSFX1(self.ground_special_sfx)
+      WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
       self:land()
       p1:setFrozen(15)
       p2:setFrozen(15)
@@ -948,8 +958,8 @@ function Jean:setNewRound()
   self.hit_type = ""
 end
 
-function Jean:gotHit()
-  Fighter.gotHit(self)
+function Jean:gotHit(type)
+  Fighter.gotHit(self, type)
   self.pilebunking = false
   self.dandy = false
   self.friction_on = true
