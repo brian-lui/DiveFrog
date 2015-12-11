@@ -6,6 +6,7 @@ local buttons = require 'controls'  -- mapping of keyboard controls
 local cam = require 'camera'  -- camera, focuses on specified area of the screen
 local music = require 'music' -- background music
 local character = require 'character' -- base character class
+local particles = require 'particles' -- graphical effects
 local game = {current_screen = "title"}
 
 -- load images
@@ -20,6 +21,7 @@ local frogfactor = love.graphics.newImage('images/FrogFactor.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
 local greenlight = love.graphics.newImage('images/GreenLight.png')
 local redlight = love.graphics.newImage('images/RedLight.png')
+local mugshot = love.graphics.newImage('images/Mugshot.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
 -- load fonts
@@ -56,17 +58,42 @@ function love.load()
   best_to_x = 5
   p1_won_match = false
   p2_won_match = false
-  keybuffer = {}
+  mugshot_on = false -- move to drawbuffer later
+  keybuffer = {} 
+  drawbuffer = {} -- pre-load draw instructions into future frames
 
 end
 
 function drawMainBackground()
+  -- prepare for refactoring
+  local CENTER = screen.widthPx / 2
+  local LEFT = p1
+  local LEFT_SIGN = -1
+  local RIGHT = p2
+  local RIGHT_SIGN = 1
+
+
   -- background first!
   love.graphics.draw(background, backgroundQuad, 0, 0) 
 
   -- HP bars
   love.graphics.draw(hpbar, 65, 20)
   love.graphics.draw(hpbar, 735, 47, math.pi)
+  if p1.life < 280 then
+    love.graphics.push("all")
+    love.graphics.setColor(220, 0, 0, 255)
+    love.graphics.setLineWidth(23)
+    love.graphics.line(CENTER - 333, 34, CENTER - 333 + (280 - p1.life), 34)
+    love.graphics.pop()
+  end
+
+  if p2.life < 280 then
+    love.graphics.push("all")
+    love.graphics.setColor(220, 0, 0, 255)
+    love.graphics.setLineWidth(23)
+    love.graphics.line(CENTER + 333, 34, CENTER + 333 - (280 - p2.life), 34)
+    love.graphics.pop()
+  end    
 
   -- timer
   love.graphics.push("all")
@@ -234,6 +261,11 @@ end
 function endRound() -- A draw helper function. also adds points for win, and calls newRound() / matchEnd()
   local light = 255 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 255 at 150
 
+  if frame - round_end_frame <= 90 and frame - round_end_frame > 20 and mugshot_on then
+    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.draw(mugshot, 100, 200)
+    -- play Mugshot sfx
+  end
   -- end of round win message
   if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
     love.graphics.setFont(titleFont)
@@ -271,7 +303,6 @@ end
 
 function love.draw()
   canvas:clear(0, 0, 0)
-
   cam:render(canvas, function ()
     if game.current_screen == "maingame" then
       drawMainBackground()
@@ -287,20 +318,19 @@ function love.draw()
       love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
       love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
 
-      for i = 1, #p1.drawfx do
-        -- draw extra fx
+      -- draw extra fx
+      if drawbuffer[frame] then
+        love.graphics.draw(unpack(drawbuffer[frame]))
+        drawbuffer[frame] = nil
       end
-
-      for i = 1, #p2.drawfx do
-        -- draw extra fx
-      end
+      
 
       if frame - frame0 < 110 then drawRoundStart() end
 
       if round_end_frame > 0 then endRound() end
 
       --drawDebugSprites() -- debug: draw sprite box, center, and facing
-      drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+      --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
     end
 
     if game.current_screen == "charselect" then drawCharSelect() end
@@ -357,7 +387,7 @@ function love.update(dt)
     p2:updatePos(p1:get_Center())
     t1 = love.timer.getTime()
 
-    -- check if KO. [1] is for KO, [2] is for headshot. If headshot, KO is always true
+    -- check if KO. [1] is for KO, [2] is for mugshot. If mugshot, KO is always true
     if check_p1_got_hit()[1] and check_p2_got_hit()[1] then
       round_end_frame = frame
       input_frozen = true
@@ -367,27 +397,25 @@ function love.update(dt)
     elseif check_p1_got_hit()[2] then
       round_end_frame = frame
       input_frozen = true
-      p1:gotHit("Headshot")
+      p1:gotHit("Mugshot")
       p2:hitOpponent()
 
-      print("HEADSHOT!!!!!")
     elseif check_p1_got_hit()[1] then
       round_end_frame = frame
       input_frozen = true
-      p1:gotHit()
+      p1:gotHit(p2.hit_type)
       p2:hitOpponent()
 
     elseif check_p2_got_hit()[2] then
       round_end_frame = frame
       input_frozen = true
-      p2:gotHit("Headshot")
+      p2:gotHit("Mugshot")
       p1:hitOpponent()
 
-      print("HEADSHOT!!!!!")
     elseif check_p2_got_hit()[1] then
       round_end_frame = frame
       input_frozen = true
-      p2:gotHit()
+      p2:gotHit(p1.hit_type)
       p1:hitOpponent()
     end
     
@@ -516,6 +544,10 @@ function love.keypressed(key, isrepeat)
         for bufferframe, buffervalue in pairs(keybuffer) do
           print(bufferframe, buffervalue[1], buffervalue[2], buffervalue[3], buffervalue[4])
         end
+      end
+      -- debug
+      if key == 'x' then
+        WireSea:loadFX(100, 100)
       end
   end
 
