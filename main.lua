@@ -55,7 +55,7 @@ function love.load()
   round_end_frame = 0
   input_frozen = true
   current_round = 1
-  best_to_x = 5
+  best_to_x = 1
   p1_won_match = false
   p2_won_match = false
   mugshot_on = false -- move to drawbuffer later
@@ -231,6 +231,7 @@ function drawMatchEnd()
       love.graphics.pop()
 
     -- fade in
+    frame = frame + 1
     local fadein = 255 - ((frame - frame0) * 255 / 60)
     if frame - frame0 < 60 then 
       love.graphics.setColor(0, 0, 0, fadein)
@@ -331,6 +332,7 @@ function love.draw()
 
       --drawDebugSprites() -- debug: draw sprite box, center, and facing
       --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+      --print(keybuffer[frame][1], keybuffer[frame][2], keybuffer[frame][3], keybuffer[frame][4])
     end
 
     if game.current_screen == "charselect" then drawCharSelect() end
