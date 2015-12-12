@@ -25,8 +25,9 @@ end
 WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'), {610, 122}, {122, 122})
 
 function WireSea:loadFX(pos_h, pos_v)
+  local TIME_DIV = 3
   for i = frame, (frame + 14) do
-    local index = math.floor((i - frame) / 3)
+    local index = math.floor((i - frame) / TIME_DIV)
     drawbuffer[i] = WireSea:getDrawable(index, pos_h, pos_v)
   end
 end
@@ -36,9 +37,12 @@ end
 Explosion = Particle:new(love.graphics.newImage('images/Explosion.png'), {768, 64}, {64, 64})
 
 function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
+  local TIME_DIV = 2
   for i = frame, (frame + 23) do
-    local index = math.floor((i - frame) / 2)
-    local h_displacement = pos_h + (vel_h * index) -- so much for calculus!
-    drawbuffer[i] = Explosion:getDrawable(index, pos_h + (vel_h * index), pos_v + (vel_v * index))
+    local index = math.floor((i - frame) / TIME_DIV)
+    local h_displacement = (vel_h / (friction - 1)) * math.exp((friction - 1) * index / TIME_DIV) - vel_h / (friction - 1)
+      -- index / (2) because character velocity is calculated twice per index
+    drawbuffer[i] = Explosion:getDrawable(index, pos_h + h_displacement, pos_v + (vel_v * index))
+
   end
 end
