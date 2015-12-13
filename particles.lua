@@ -28,6 +28,14 @@ function Particle:getIndex(i)
   return PARTICLE_INDEX
 end
 
+---------------------------------- DIZZY --------------------------------------
+-- example for a single-image particle, with no need to cycle through
+Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), {70, 50}, {70, 50})
+function Dizzy:loadFX(pos_h, pos_v)
+  if not drawbuffer[frame] then drawbuffer[frame] = {} end
+  drawbuffer[frame][Dizzy:getIndex(frame)] = Dizzy:getDrawable(0, pos_h, pos_v)
+end
+
 -------------------------------- WIRE SEA -------------------------------------
 WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'), {610, 122}, {122, 122})
 
@@ -54,3 +62,4 @@ function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
     drawbuffer[i][Explosion:getIndex(i)] = Explosion:getDrawable(index, pos_h + h_displacement, pos_v + (vel_v * index))
   end
 end
+

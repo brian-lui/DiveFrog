@@ -45,7 +45,7 @@ function love.load()
 
   setBGM("Intro.mp3")
   
-  min_dt = 1/30 -- frames per second
+  min_dt = 1/60 -- frames per second
   next_time = love.timer.getTime()
   frame = 0 -- framecount
   frame0 = 0 -- timer for start of round fade in
@@ -55,7 +55,7 @@ function love.load()
   round_end_frame = 0
   input_frozen = true
   current_round = 1
-  best_to_x = 1
+  best_to_x = 5
   p1_won_match = false
   p2_won_match = false
   mugshot_on = false -- move to drawbuffer later
@@ -421,7 +421,7 @@ function love.update(dt)
       p2:gotHit(p1.hit_type)
       p1:hitOpponent()
     end
-    
+
     -- check if timeout
     if round_timer == 0 and not input_frozen then
       round_end_frame = frame

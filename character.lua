@@ -21,7 +21,7 @@ function Fighter:initialize(init_facing)
   self.ko = false
   self.won = false
   self.attacking = false
-  self.headfrogged = 0 -- frames the character is headfrogged for
+  self.mugshotted = 0 -- frames the character is mugshotted for
   self.hit_type = "" -- type of hit, passed through to gotHit(). E.g. for wall splat
   self.super = 0 -- max 96
   self.super_on = false -- trigger super mode
@@ -41,7 +41,7 @@ function Fighter:initialize(init_facing)
   self.friction = 0.9 -- horizontal velocity multiplied each frame
   self.friction_on = false
   self.vel_multiple = 1.0
-  self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.6 for Headfrogged
+  self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.7 for Mugshotted
   self.hit_wall = false -- if player has hit wall or not. Used for wallsplat and some special moves
   self.hurtboxes = {{0, 0, 0, 0}}
   self.headboxes = {{0, 0, 0, 0}}
@@ -223,11 +223,11 @@ end
 
 function Fighter:gotHit(type) -- execute this one time, when character gets hit
   if type == "Mugshot" then
-    mugshot_on = true -- maybe can add this to particles later
+    self.mugshot_on = true -- maybe can add this to particles later
   end
 
   if type == "Wallsplat" then
-    wallsplat_on = true
+    self.wallsplat_on = true
   end
   self.vel_multiple = 1.0
   self.ko = true 
@@ -253,7 +253,6 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
     self:updateImage(5)
     self.current_hurtboxes = self.hurtboxes_ko
     self.current_headboxes = self.headboxes_ko
-    mugshot_on = false
     wallsplat_on = false
   end
 end
@@ -336,6 +335,10 @@ function Fighter:setNewRound()
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_headboxes = self.headboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
+  if self.mugshot_on then
+    self.mugshotted = 270 -- add 90 frames to this, because of round start fade-in
+    self.mugshot_on = false
+  end
 end
 
 function Fighter:updateImage(image_index)
@@ -429,11 +432,12 @@ function Fighter:updatePos(opp_center)
     if self.ko then self:koRoutine() end
     if self.won then self:wonRoundRoutine() end
 
-    -- check if headfrogged. If so, set slowdown and reduce counter
-    if self.headfrogged > 0 then
-      self.vel_multiple = 0.6
-      self.headfrogged = self.headfrogged - 1
-      if self.headfrogged == 0 then self.vel_multiple = 1.0 end
+    -- check if mugshotted. If so, set slowdown and reduce counter
+    if self.mugshotted > 0 then
+      self.vel_multiple = 0.7
+      self.mugshotted = self.mugshotted - 1
+      Dizzy:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2])
+      if self.mugshotted == 0 then self.vel_multiple = 1.0 end
     end
 
     -- update position with velocity, then apply gravity if airborne, then apply inertia
@@ -490,6 +494,8 @@ function Fighter:updatePos(opp_center)
       self.super_on = false
       self.vel_multipler = 1.0
     end
+
+
     self:extraStuff() -- any character-specific routines
     return self.pos
   elseif self.frozen > 0 then
