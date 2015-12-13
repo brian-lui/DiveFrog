@@ -21,7 +21,6 @@ function Fighter:initialize(init_facing)
   self.ko = false
   self.won = false
   self.attacking = false
-  self.specialing = false
   self.headfrogged = 0 -- frames the character is headfrogged for
   self.hit_type = "" -- type of hit, passed through to gotHit(). E.g. for wall splat
   self.super = 0 -- max 96
@@ -184,7 +183,6 @@ end
   function Fighter:land() -- called when character lands on floor
     self.in_air = false
     self.attacking = false
-    self.specialing = false
     self.hit_wall = false
     if not self.ko then
       self.vel = {0, 0}
@@ -208,18 +206,16 @@ end
   end
 
   function Fighter:air_special()
-    if self.super >= 16 and not self.super_on and not self.specialing then
+    if self.super >= 16 and not self.super_on then
       self.super = self.super - 16
-      self.specialing = true
       self.waiting_state = ""
       playSFX1(self.air_special_sfx)
     end
   end
 
   function Fighter:ground_special()
-    if self.super >= 16 and not self.super_on and not self.specialing then
+    if self.super >= 16 and not self.super_on then
       self.super = self.super - 16
-      self.specialing = true
       self.waiting_state = ""
       playSFX1(self.ground_special_sfx)
     end
@@ -614,20 +610,18 @@ end
   end
 
   function Konrad:air_special()
-    if self.super >= 16 and not self.attacking and not self.super_on and not self.specialing then
+    if self.super >= 16 and not self.attacking and not self.super_on then
       self.super = self.super - 16
       self.waiting_state = ""
-      self.specialing = true
       playSFX1(self.air_special_sfx)
       self:attack(10, 12)
     end
   end
 
   function Konrad:ground_special()
-    if self.super >= 16 and not self.super_on and not self.specialing then
+    if self.super >= 16 and not self.super_on then
       self.super = self.super - 16
       self.waiting_state = ""
-      self.specialing = true
       playSFX1(self.ground_special_sfx)
       self:jump(0, 24, 1.0)
     end
@@ -646,7 +640,6 @@ end
   function Konrad:land() -- called when character lands on floor
     self.in_air = false
     self.attacking = false
-    self.specialing = false
     self.double_jump = false
     if not self.ko then
       self.vel = {0, 0}
@@ -849,15 +842,13 @@ end
   end
 
   function Jean:air_special()
-    if self.super_on and not self.specialing then
+    if self.super_on then
       self.waiting_state = ""
-      self.specialing = true
       playSFX1(self.air_special_sfx)
       self:jump(0, -30)
-    elseif self.super >= 8 and not self.attacking and not self.specialing then
+    elseif self.super >= 8 and not self.attacking then
       self.super = self.super - 8
       self.waiting_state = ""
-      self.specialing = true
       playSFX1(self.air_special_sfx)
       self:jump(0, -30)
     end

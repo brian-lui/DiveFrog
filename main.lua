@@ -379,10 +379,9 @@ function love.update(dt)
     if not input_frozen then
       if keybuffer[frame][1] and not p1:getFrozen() and not keybuffer[frame-1][1] then p1:jump_key_press() end
       if keybuffer[frame][2] and not p1:getFrozen() and not keybuffer[frame-1][2] then p1:attack_key_press() end
-      if keybuffer[frame][3] and not p2:getFrozen() and not keybuffer[frame-1][2] then p2:jump_key_press() end
-      if keybuffer[frame][4] and not p2:getFrozen() and not keybuffer[frame-1][2] then p2:attack_key_press() end
+      if keybuffer[frame][3] and not p2:getFrozen() and not keybuffer[frame-1][3] then p2:jump_key_press() end
+      if keybuffer[frame][4] and not p2:getFrozen() and not keybuffer[frame-1][4] then p2:attack_key_press() end
     end
-
     -- update character positions
     t0 = love.timer.getTime()
     p1:updatePos(p2:get_Center())
