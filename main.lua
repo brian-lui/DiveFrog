@@ -321,8 +321,8 @@ function love.draw()
 
       -- draw extra fx
       if drawbuffer[frame] then
-        for i = 1, #drawbuffer[frame] do
-          love.graphics.draw(unpack(drawbuffer[frame][i]))
+        for particle_index, particle_value in pairs(drawbuffer[frame]) do
+          love.graphics.draw(unpack(drawbuffer[frame][particle_index]))
         end
       end
       drawbuffer[frame] = nil
