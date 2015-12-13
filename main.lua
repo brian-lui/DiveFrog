@@ -81,79 +81,79 @@ function drawMainBackground()
   love.graphics.draw(hpbar, 735, 47, math.pi)
   if p1.life < 280 then
     love.graphics.push("all")
-    love.graphics.setColor(220, 0, 0, 255)
-    love.graphics.setLineWidth(23)
-    love.graphics.line(CENTER - 333, 34, CENTER - 333 + (280 - p1.life), 34)
+      love.graphics.setColor(220, 0, 0, 255)
+      love.graphics.setLineWidth(23)
+      love.graphics.line(CENTER - 333, 34, CENTER - 333 + (280 - p1.life), 34)
     love.graphics.pop()
   end
 
   if p2.life < 280 then
     love.graphics.push("all")
-    love.graphics.setColor(220, 0, 0, 255)
-    love.graphics.setLineWidth(23)
-    love.graphics.line(CENTER + 333, 34, CENTER + 333 - (280 - p2.life), 34)
+      love.graphics.setColor(220, 0, 0, 255)
+      love.graphics.setLineWidth(23)
+      love.graphics.line(CENTER + 333, 34, CENTER + 333 - (280 - p2.life), 34)
     love.graphics.pop()
   end    
 
   -- timer
   love.graphics.push("all")
-  love.graphics.setColor(230, 147, 5)
-  love.graphics.setFont(timerFont)
-  love.graphics.printf(math.ceil(round_timer * min_dt), 0, 6, screen.widthPx, "center")
+    love.graphics.setColor(230, 147, 5)
+    love.graphics.setFont(timerFont)
+    love.graphics.printf(math.ceil(round_timer * min_dt), 0, 6, screen.widthPx, "center")
   love.graphics.pop()
 
   -- if low on time, draw midline
   if round_timer <= 180 then
     love.graphics.push("all")
-    love.graphics.setColor(110, 0, 0, 100)
-    love.graphics.setLineWidth(12)
-    love.graphics.line(screen.widthPx / 2, 0, screen.widthPx / 2, screen.heightPx)
+      love.graphics.setColor(110, 0, 0, 100)
+      love.graphics.setLineWidth(12)
+      love.graphics.line(screen.widthPx / 2, 0, screen.widthPx / 2, screen.heightPx)
     love.graphics.pop()
   end
 
   -- super bars/frog factor
   love.graphics.push("all")
-  if not p1:getSuperOn() then
-    love.graphics.setLineWidth(1)
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(superbar, 25, screen.heightPx - 35, 0, 2) -- super bars image
-    love.graphics.setColor(17, 94, 17) -- dark line
-    love.graphics.line(32, screen.heightPx - 30, math.max(32, 30 + p1:getSuper()), screen.heightPx - 30)
-    love.graphics.setLineWidth(12)
-    love.graphics.setColor(44, 212, 44) -- thick bar
-    love.graphics.line(31, screen.heightPx - 22.5, 31 + p1:getSuper(), screen.heightPx - 22.5)
-    if (frame % 48) * 2 < p1:getSuper() then -- super bar white line ornament
-      love.graphics.setLineWidth(4)
-      love.graphics.setColor(255, 255, 255, 180)
-      love.graphics.line((frame % 48) * 2 + 31, screen.heightPx - 30, (frame % 48) * 2 + 31, screen.heightPx - 17)
+    if not p1:getSuperOn() then
+      love.graphics.setLineWidth(1)
+      love.graphics.setColor(255, 255, 255)
+      love.graphics.draw(superbar, 25, screen.heightPx - 35, 0, 2) -- super bars image
+      love.graphics.setColor(17, 94, 17) -- dark line
+      love.graphics.line(32, screen.heightPx - 30, math.max(32, 30 + p1:getSuper()), screen.heightPx - 30)
+      love.graphics.setLineWidth(12)
+      love.graphics.setColor(44, 212, 44) -- thick bar
+      love.graphics.line(31, screen.heightPx - 22.5, 31 + p1:getSuper(), screen.heightPx - 22.5)
+      if (frame % 48) * 2 < p1:getSuper() then -- super bar white line ornament
+        love.graphics.setLineWidth(4)
+        love.graphics.setColor(255, 255, 255, 180)
+        love.graphics.line((frame % 48) * 2 + 31, screen.heightPx - 30, (frame % 48) * 2 + 31, screen.heightPx - 17)
+      end
+    else -- if super full, draw frog factor
+      local frogfactorQuad = love.graphics.newQuad(0, 0, frogfactor:getWidth() * (p1:getSuper() / 96), frogfactor:getHeight(), frogfactor:getDimensions())
+      love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
+      love.graphics.draw(frogfactor, frogfactorQuad, 10, screen.heightPx - 60)
     end
-  else -- if super full, draw frog factor
-    local frogfactorQuad = love.graphics.newQuad(0, 0, frogfactor:getWidth() * (p1:getSuper() / 96), frogfactor:getHeight(), frogfactor:getDimensions())
-    love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
-    love.graphics.draw(frogfactor, frogfactorQuad, 10, screen.heightPx - 60)
-  end
   love.graphics.pop()
   love.graphics.push("all")
-  if not p2:getSuperOn() then
-    love.graphics.setLineWidth(1)
-    love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(superbar, screen.widthPx - 108 - 25, screen.heightPx - 35, 0, 2) -- super bars image
-    love.graphics.setColor(17, 94, 17) -- dark line
-    love.graphics.line(screen.widthPx - 32, screen.heightPx - 30, math.min(screen.widthPx - 32, screen.widthPx - 30 - p2:getSuper()), screen.heightPx - 30)
-    love.graphics.setLineWidth(12)
-    love.graphics.setColor(44, 212, 44) -- thick bar
-    love.graphics.line(screen.widthPx - 31, screen.heightPx - 22.5, screen.widthPx - 31 - p2:getSuper(), screen.heightPx - 22.5)
-    if (frame % 48) * 2 < p2:getSuper() then -- super bar white line ornament
-      love.graphics.setLineWidth(4)
-      love.graphics.setColor(255, 255, 255, 180)
-      love.graphics.line(screen.widthPx - ((frame % 48) * 2 + 31), screen.heightPx - 30, screen.widthPx - ((frame % 48) * 2 + 31), screen.heightPx - 17)
-    end
+    if not p2:getSuperOn() then
+      love.graphics.setLineWidth(1)
+      love.graphics.setColor(255, 255, 255)
+      love.graphics.draw(superbar, screen.widthPx - 108 - 25, screen.heightPx - 35, 0, 2) -- super bars image
+      love.graphics.setColor(17, 94, 17) -- dark line
+      love.graphics.line(screen.widthPx - 32, screen.heightPx - 30, math.min(screen.widthPx - 32, screen.widthPx - 30 - p2:getSuper()), screen.heightPx - 30)
+      love.graphics.setLineWidth(12)
+      love.graphics.setColor(44, 212, 44) -- thick bar
+      love.graphics.line(screen.widthPx - 31, screen.heightPx - 22.5, screen.widthPx - 31 - p2:getSuper(), screen.heightPx - 22.5)
+      if (frame % 48) * 2 < p2:getSuper() then -- super bar white line ornament
+        love.graphics.setLineWidth(4)
+        love.graphics.setColor(255, 255, 255, 180)
+        love.graphics.line(screen.widthPx - ((frame % 48) * 2 + 31), screen.heightPx - 30, screen.widthPx - ((frame % 48) * 2 + 31), screen.heightPx - 17)
+      end
 
-  else -- if super full, draw frog factor
-    local frogfactorQuad = love.graphics.newQuad(0, 0, frogfactor:getWidth() * (p2:getSuper() / 96), frogfactor:getHeight(), frogfactor:getDimensions())
-    love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
-    love.graphics.draw(frogfactor, frogfactorQuad, screen.widthPx - 150, screen.heightPx - 60) 
-  end
+    else -- if super full, draw frog factor
+      local frogfactorQuad = love.graphics.newQuad(0, 0, frogfactor:getWidth() * (p2:getSuper() / 96), frogfactor:getHeight(), frogfactor:getDimensions())
+      love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
+      love.graphics.draw(frogfactor, frogfactorQuad, screen.widthPx - 150, screen.heightPx - 60) 
+    end
   love.graphics.pop()
 
   -- win points
@@ -181,26 +181,25 @@ function drawCharSelect()
     love.graphics.draw(charselectscreen, 0, 0, 0) -- background
     love.graphics.draw(portraits, portraitsQuad, 473, 130) -- character portrait
     love.graphics.push("all")
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.setFont(charInfoFont)
-    love.graphics.printf(char_text[p1_char][1], 516, 350, 300) -- character movelist
-    love.graphics.printf(char_text[p1_char][2], 516, 384, 300) -- character movelist
-    love.graphics.printf(char_text[p1_char][3], 513, 425, 300) -- character movelist
-    love.graphics.printf(char_text[p1_char][4], 430, 469, 300) -- character movelist
-    --p1 rectangle
-    love.graphics.setFont(charSelectorFont)
-    love.graphics.setLineWidth(2)
-    love.graphics.setColor(14, 28, 232)
-    love.graphics.printf("P1", 42, 20 + (p1_char * 70), 50) -- helptext
-    if frame % 45 < 7 then love.graphics.setColor(164, 164, 255) end -- flashing rectangle
-    love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
-    
-    --p2 rectangle
-    love.graphics.setColor(14, 232, 54)
-    love.graphics.printf("P2", 355, 20 + (p2_char * 70), 50)
-    if frame % 45 < 7 then love.graphics.setColor(164, 255, 164) end
-    love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
-    
+      love.graphics.setColor(0, 0, 0)
+      love.graphics.setFont(charInfoFont)
+      love.graphics.printf(char_text[p1_char][1], 516, 350, 300) -- character movelist
+      love.graphics.printf(char_text[p1_char][2], 516, 384, 300) -- character movelist
+      love.graphics.printf(char_text[p1_char][3], 513, 425, 300) -- character movelist
+      love.graphics.printf(char_text[p1_char][4], 430, 469, 300) -- character movelist
+      --p1 rectangle
+      love.graphics.setFont(charSelectorFont)
+      love.graphics.setLineWidth(2)
+      love.graphics.setColor(14, 28, 232)
+      love.graphics.printf("P1", 42, 20 + (p1_char * 70), 50) -- helptext
+      if frame % 45 < 7 then love.graphics.setColor(164, 164, 255) end -- flashing rectangle
+      love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
+      
+      --p2 rectangle
+      love.graphics.setColor(14, 232, 54)
+      love.graphics.printf("P2", 355, 20 + (p2_char * 70), 50)
+      if frame % 45 < 7 then love.graphics.setColor(164, 255, 164) end
+      love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
     love.graphics.pop()
   end)
 end
@@ -220,7 +219,7 @@ function drawMatchEnd()
       win_portrait = p2:getWin_Portrait()
       win_quote = p2:getWin_Quote()
     end
-      love.graphics.push("all")
+    love.graphics.push("all")
       love.graphics.setFont(gameoverFont)
       love.graphics.draw(win_portrait, 100, 50)
       love.graphics.setColor(31, 39, 84)
@@ -228,14 +227,16 @@ function drawMatchEnd()
       love.graphics.setColor(31, 39, 84) -- placeholder
       love.graphics.setFont(charSelectorFont) -- placeholder
       love.graphics.printf("Press return/enter please", 600, 540, 190) -- placeholder
-      love.graphics.pop()
+    love.graphics.pop()
 
     -- fade in
     frame = frame + 1
     local fadein = 255 - ((frame - frame0) * 255 / 60)
-    if frame - frame0 < 60 then 
-      love.graphics.setColor(0, 0, 0, fadein)
-      love.graphics.rectangle("fill", 0, 0, screen.widthPx, screen.heightPx) 
+    if frame - frame0 < 60 then
+      love.graphics.push("all") 
+        love.graphics.setColor(0, 0, 0, fadein)
+        love.graphics.rectangle("fill", 0, 0, screen.widthPx, screen.heightPx) 
+      love.graphics.pop()
     end
 
   end)  
@@ -243,18 +244,22 @@ end
 
 function drawRoundStart() -- also unfreezes inputs after frame 90
   local fadein = 255 - ((frame - frame0) * 255 / 60)
-    if frame - frame0 < 60 then 
-      love.graphics.setColor(0, 0, 0, fadein)
-      love.graphics.rectangle("fill", 0, 0, screen.widthPx, screen.heightPx) 
+    if frame - frame0 < 60 then
+      love.graphics.push("all") 
+        love.graphics.setColor(0, 0, 0, fadein)
+        love.graphics.rectangle("fill", 0, 0, screen.widthPx, screen.heightPx) 
+      love.graphics.pop()
       if p1:getScore() == best_to_x - 1 and p2:getScore() == best_to_x - 1 then setBGMspeed(2 ^ (4/12)) end -- speed up music!
     end
     if frame - frame0 > 48 and frame - frame0 < 90 then
-      love.graphics.setFont(titleFont)
-      love.graphics.setColor(255, 255, 255)
-      love.graphics.printf("Round " .. current_round, 0, 100, screen.widthPx, "center")
-      if p1:getScore() == best_to_x - 1 and p2:getScore() == best_to_x - 1 then
-        love.graphics.printf("Final round!", 0, 200, screen.widthPx, "center")
-      end
+      love.graphics.push("all")
+        love.graphics.setFont(titleFont)
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.printf("Round " .. current_round, 0, 100, screen.widthPx, "center")
+        if p1:getScore() == best_to_x - 1 and p2:getScore() == best_to_x - 1 then
+          love.graphics.printf("Final round!", 0, 200, screen.widthPx, "center")
+        end
+      love.graphics.pop()
     end
     if frame - frame0 > 90 then input_frozen = false end -- unfreeze inputs after fade in
 end
@@ -263,24 +268,32 @@ function endRound() -- A draw helper function. also adds points for win, and cal
   local light = 255 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 255 at 150
 
   if frame - round_end_frame <= 90 and frame - round_end_frame > 20 and mugshot_on then
-    love.graphics.setColor(255, 255, 255, 255)
-    love.graphics.draw(mugshot, 100, 200)
+    love.graphics.push("all")
+      love.graphics.setColor(255, 255, 255, 255)
+      love.graphics.draw(mugshot, 100, 200)
+    love.graphics.pop()
     -- play Mugshot sfx
+    -- move to drawbuffer later
   end
   -- end of round win message
   if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
-    love.graphics.setFont(titleFont)
-    love.graphics.setColor(255, 255, 255)
-    if p1:getWon() then love.graphics.printf(p1:getFighter_Name() .. " wins.", 0, 200, screen.widthPx, "center")
-    elseif p2:getWon() then love.graphics.printf(p2:getFighter_Name() .. " wins.", 0, 200, screen.widthPx, "center")
-    else love.graphics.printf("Double K.O.", 0, 200, screen.widthPx, "center")
-    end
+    love.graphics.push("all")
+      love.graphics.setFont(titleFont)
+      love.graphics.setColor(255, 255, 255)
+      if p1:getWon() then love.graphics.printf(p1:getFighter_Name() .. " wins.", 0, 200, screen.widthPx, "center")
+      elseif p2:getWon() then love.graphics.printf(p2:getFighter_Name() .. " wins.", 0, 200, screen.widthPx, "center")
+      else love.graphics.printf("Double K.O.", 0, 200, screen.widthPx, "center")
+      end
+    love.graphics.pop()
   end
 
   -- end of round fade out
   if frame - round_end_frame > 120 and frame - round_end_frame < 150 then
-    love.graphics.setColor(0, 0, 0, light)
-    love.graphics.rectangle("fill", 0, 0, screen.widthPx, screen.heightPx) end
+    love.graphics.push("all")
+      love.graphics.setColor(0, 0, 0, light)
+      love.graphics.rectangle("fill", 0, 0, screen.widthPx, screen.heightPx)
+    love.graphics.pop()
+  end
 
   -- add point if player won round, call newRound()
   if frame - round_end_frame > 144 then
@@ -343,10 +356,10 @@ function love.draw()
 
     if game.current_screen == "title" then love.graphics.draw(titlescreen, 0, 0, 0) end
   end) -- end for cam:render()
-
-  love.graphics.setColor(255, 255, 255)
-  love.graphics.draw(canvas, 0, 0, 0, window.scale) -- draws the entire canvas to the screen
-
+  love.graphics.push("all")
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.draw(canvas, 0, 0, 0, window.scale) -- draws the entire canvas to the screen
+  love.graphics.pop()
   local cur_time = love.timer.getTime()
   if cur_time - next_time >= 0 then next_time = cur_time -- time needed to sleep until the next frame (?)
     return
