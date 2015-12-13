@@ -321,9 +321,11 @@ function love.draw()
 
       -- draw extra fx
       if drawbuffer[frame] then
-        love.graphics.draw(unpack(drawbuffer[frame]))
-        drawbuffer[frame] = nil
+        for i = 1, #drawbuffer[frame] do
+          love.graphics.draw(unpack(drawbuffer[frame][i]))
+        end
       end
+      drawbuffer[frame] = nil
       
 
       if frame - frame0 < 110 then drawRoundStart() end

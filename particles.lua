@@ -28,7 +28,8 @@ function WireSea:loadFX(pos_h, pos_v)
   local TIME_DIV = 3
   for i = frame, (frame + 14) do
     local index = math.floor((i - frame) / TIME_DIV)
-    drawbuffer[i] = WireSea:getDrawable(index, pos_h, pos_v)
+    if not drawbuffer[i] then drawbuffer[i] = {} end
+    drawbuffer[i][1] = WireSea:getDrawable(index, pos_h, pos_v)
   end
 end
 
@@ -42,7 +43,8 @@ function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
     local index = math.floor((i - frame) / TIME_DIV)
     local h_displacement = (vel_h / (friction - 1)) * math.exp((friction - 1) * index / TIME_DIV) - vel_h / (friction - 1)
       -- index / (2) because character velocity is calculated twice per index
-    drawbuffer[i] = Explosion:getDrawable(index, pos_h + h_displacement, pos_v + (vel_v * index))
+    if not drawbuffer[i] then drawbuffer[i] = {} end
+    drawbuffer[i][1] = Explosion:getDrawable(index, pos_h + h_displacement, pos_v + (vel_v * index))
 
   end
 end
