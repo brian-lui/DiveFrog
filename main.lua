@@ -45,7 +45,7 @@ function love.load()
 
   setBGM("Intro.mp3")
   
-  min_dt = 1/60 -- frames per second
+  min_dt = 1/30 -- frames per second
   next_time = love.timer.getTime()
   frame = 0 -- framecount
   frame0 = 0 -- timer for start of round fade in

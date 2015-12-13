@@ -836,7 +836,7 @@ end
     self.current_headboxes = self.headboxes_pilebunker    
     self.current_hitboxes = self.hitboxes_pilebunker
     if self.super < 96 and not self.super_on then 
-      self.super = math.min(self.super + 16, 96)
+      self.super = math.min(self.super + 10, 96)
       if self.super == 96 then playSFX1(super_sfx) end
     end
   end
