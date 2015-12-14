@@ -21,11 +21,9 @@ local frogfactor = love.graphics.newImage('images/FrogFactor.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
 local greenlight = love.graphics.newImage('images/GreenLight.png')
 local redlight = love.graphics.newImage('images/RedLight.png')
-local mugshot = love.graphics.newImage('images/Mugshot.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
 -- load fonts
---local defaultFont = love.graphics.getFont()
 local titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 60)
 local charInfoFont = love.graphics.newFont('/fonts/CharSelect.ttf', 21)
 local charSelectorFont = love.graphics.newFont('/fonts/GoodDog.otf', 18)
@@ -58,9 +56,9 @@ function love.load()
   best_to_x = 5
   p1_won_match = false
   p2_won_match = false
-  mugshot_on = false -- move to drawbuffer later
   keybuffer = {} 
-  drawbuffer = {} -- pre-load draw instructions into future frames
+  drawprebuffer = {} -- pre-load draw instruction into future frames behind sprite
+  drawbuffer = {} -- pre-load draw instructions into future frames over sprite
 
 end
 
@@ -267,14 +265,6 @@ end
 function endRound() -- A draw helper function. also adds points for win, and calls newRound() / matchEnd()
   local light = 255 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 255 at 150
 
-  if frame - round_end_frame <= 90 and frame - round_end_frame > 20 and mugshot_on then
-    love.graphics.push("all")
-      love.graphics.setColor(255, 255, 255, 255)
-      love.graphics.draw(mugshot, 100, 200)
-    love.graphics.pop()
-    -- play Mugshot sfx
-    -- move to drawbuffer later
-  end
   -- end of round win message
   if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
     love.graphics.push("all")
@@ -328,11 +318,23 @@ function love.draw()
         -- shift sprites if facing left
       if p2:getFacing() == -1 then p2shift = p2:getSprite_Width() end
       if p1:getFacing() == -1 then p1shift = p1:getSprite_Width() end
+
+      -- draw extra fx underneath sprites
+      if drawprebuffer[frame] then
+        love.graphics.push("all")
+        for particle_index, particle_value in pairs(drawprebuffer[frame]) do
+          love.graphics.setColor(drawprebuffer[frame][particle_index][12]) -- RGB table
+          love.graphics.draw(unpack(drawprebuffer[frame][particle_index]))
+        end
+        love.graphics.pop()
+      end
+      drawprebuffer[frame] = nil
+      
       
       love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
       love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
 
-      -- draw extra fx
+      -- draw extra fx over sprites
       if drawbuffer[frame] then
         for particle_index, particle_value in pairs(drawbuffer[frame]) do
           love.graphics.draw(unpack(drawbuffer[frame][particle_index]))

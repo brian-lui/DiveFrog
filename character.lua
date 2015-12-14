@@ -223,7 +223,9 @@ end
 
 function Fighter:gotHit(type) -- execute this one time, when character gets hit
   if type == "Mugshot" then
-    self.mugshot_on = true -- maybe can add this to particles later
+    self.mugshot_on = true -- toggle to set dizzy at start of next round
+    Mugshot:loadFX() -- display Mugshot graphic
+    -- Mugshot SFX
   end
 
   if type == "Wallsplat" then
@@ -245,8 +247,8 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
     playSFX2(self.got_hit_sfx) 
-    if wallsplat_on and self.facing == 1 then self.vel[1] = -50 self.gravity = 0.2
-    elseif wallsplat_on and self.facing == -1 then self.vel[1] = 50 self.gravity = 0.2 end -- refactor this sometime
+    if self.wallsplat_on and self.facing == 1 then self.vel[1] = -50 self.gravity = 0.2
+    elseif self.wallsplat_on and self.facing == -1 then self.vel[1] = 50 self.gravity = 0.2 end -- refactor this sometime
   end
   if frame - round_end_frame > 60 then
     self.friction_on = true
@@ -287,6 +289,15 @@ function Fighter:wonRoundRoutine() -- keep calling this if self.won is true
   end
 end
 
+function Fighter:getSelfNeutral()
+  print(self.frozen, self.in_air, self.ko, self.attacking)
+  if not self.in_air and not self.ko and not self.attacking then
+    return true
+  else
+    return false
+  end
+end
+
 function Fighter:getStart_Pos() return self.start_pos end
 function Fighter:getPos_h() return self.pos[1] end
 function Fighter:getPos_v() return self.pos[2] end
@@ -311,6 +322,9 @@ function Fighter:getSuperOn() return self.super_on end
 function Fighter:getHit_Wall() return self.hit_wall end
 function Fighter:getHit_Type() return self.hit_type end
 function Fighter:getFrozen() if self.frozen > 0 then return true else return false end end
+
+
+
 
 function Fighter:gotKO() return self.ko end
 function Fighter:addScore() self.score = self.score + 1 end
@@ -347,7 +361,7 @@ function Fighter:updateImage(image_index)
 end
 
 function Fighter:fix_Facing() -- change character facing if over center of opponent
-  if not self.in_air then
+  if self:getSelfNeutral() then
     if self.facing == 1 and self.my_center > self.opp_center then
       self.facing = -1
     elseif self.facing == -1 and self.my_center < self.opp_center then
@@ -489,12 +503,20 @@ function Fighter:updatePos(opp_center)
       p2:setFrozen(30)
       -- extra code for background palette greying out
     end
-    if self.super_on and not (self.ko or self.won) then self.super = self.super - self.super_drainspeed end
+
+    if self.super_on and not (self.ko or self.won) then
+      self.super = self.super - self.super_drainspeed
+      -- after-images
+      local shadow = AfterImage(self.image, self.image_size, self.sprite_size)
+      local shift = 0
+      if self.facing == -1 then shift = self:getSprite_Width() end
+      shadow:loadFX(self.pos[1], self.pos[2], self.sprite, self.facing, shift)
+    end
+
     if self.super <= 0 then
       self.super_on = false
       self.vel_multipler = 1.0
     end
-
 
     self:extraStuff() -- any character-specific routines
     return self.pos
@@ -962,6 +984,13 @@ function Jean:gotHit(type)
   self.friction_on = true
 end
 
+function Jean:getSelfNeutral() -- don't check for facing if in dandy/pilebunker
+  if not self.in_air and not self.ko and not self.attacking and not self.dandy and not self.pilebunking then
+    return true
+  else
+    return false
+  end
+end
 
 
 --[[---------------------------------------------------------------------------
