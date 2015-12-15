@@ -255,7 +255,7 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
     self:updateImage(5)
     self.current_hurtboxes = self.hurtboxes_ko
     self.current_headboxes = self.headboxes_ko
-    wallsplat_on = false
+    self.wallsplat_on = false
   end
 end
 
@@ -828,6 +828,7 @@ end
     self.current_hurtboxes = self.hurtboxes_attacking
     self.current_headboxes = self.headboxes_attacking    
     self.current_hitboxes = self.hitboxes_attacking
+    self.hit_type = ""
     if self.super < 96 and not self.super_on then 
       self.super = math.min(self.super + 8, 96)
       if self.super == 96 then playSFX1(super_sfx) end
@@ -884,7 +885,6 @@ end
   function Jean:ground_special()
     if self.super_on and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.waiting_state = ""
-      self.hit_type = ""
       playSFX1(self.ground_special_sfx)
       WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
       self:land()
@@ -923,7 +923,6 @@ end
     -- stop pilebunking, and change to recovery frames
     if self.pilebunking and math.abs(self.vel[1]) >= 0.001 and math.abs(self.vel[1]) < 1 then
       self.attacking = false
-      self.hit_type = ""
       self:updateImage(7)
       self.current_hurtboxes = self.hurtboxes_pilebunkerB
       self.current_headboxes = self.headboxes_pilebunkerB      
@@ -973,7 +972,6 @@ function Jean:setNewRound()
   self.pilebunking = false
   self.dandy = false
   self.friction_on = false
-  self.hit_type = ""
 end
 
 function Jean:gotHit(type)

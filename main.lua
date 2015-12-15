@@ -10,10 +10,10 @@ local particles = require 'particles' -- graphical effects
 local game = {current_screen = "title"}
 
 -- load images
-local background = love.graphics.newImage('images/background.jpg')
+local background = love.graphics.newImage('images/Background.jpg')
 local backgroundQuad = love.graphics.newQuad(240, 120, stage.width, stage.height, background:getDimensions())
-local charselectscreen = love.graphics.newImage('images/CharSelectscreen.png')
-local titlescreen = love.graphics.newImage('images/Titlescreen.png')  
+local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
+local titlescreen = love.graphics.newImage('images/Title.jpg')  
 local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
 local hpbar = love.graphics.newImage('images/HPBar.png')
 local superbar = love.graphics.newImage('images/SuperBar.png')
@@ -53,7 +53,7 @@ function love.load()
   round_end_frame = 0
   input_frozen = true
   current_round = 0
-  best_to_x = 2
+  best_to_x = 5
   p1_won_match = false
   p2_won_match = false
   keybuffer = {} 
@@ -348,12 +348,6 @@ function love.update(dt)
     love.keyboard.isDown(buttons.p2jump),
     love.keyboard.isDown(buttons.p2attack)}
 
-    -- can we delete this part?
-    if game.setBGM then
-      setBGM(game.setBGM)
-      game.setBGM = nil
-    end
-
     -- read keystate from keybuffer and call the associated functions
     if not input_frozen then
       if keybuffer[frame][1] and not p1:getFrozen() and not keybuffer[frame-1][1] then p1:jump_key_press() end
@@ -405,13 +399,13 @@ function love.update(dt)
       input_frozen = true
       local p1_from_center = math.abs((stage.center) - p1:get_Center())
       local p2_from_center = math.abs((stage.center) - p2:get_Center())
-      if p1_from_center < p2_from_center and round_timer == 0 then -- inelegant, refactor later
+      if p1_from_center < p2_from_center then -- inelegant, refactor later
         p2:gotHit()
         p1:hitOpponent()
-      elseif p2_from_center < p1_from_center and round_timer == 0 then
+      elseif p2_from_center < p1_from_center then
         p1:gotHit()
         p2:hitOpponent()
-      elseif p1_from_center == p2_from_center and round_timer == 0 then
+      else
         p1:gotHit()
         p2:gotHit()
       end 
@@ -471,10 +465,10 @@ function startGame()
   p2 = available_chars[p2_char](-1)
 
   -- put the move/flip/offset stuff for draw operations in p1/p2
-  p1_draws = {move = -1, flip = 1, offset = 0}
-  p2_draws = {move = 1, flip = -1, offset = 1}
+  p1_draw_ops = {move = -1, flip = 1, offset = 0}
+  p2_draw_ops = {move = 1, flip = -1, offset = 1}
 
-  PLAYERS = {[p1] = p1_draws, [p2] = p2_draws}
+  PLAYERS = {[p1] = p1_draw_ops, [p2] = p2_draw_ops}
 
   setBGM("DetectiveDog.mp3")
 
