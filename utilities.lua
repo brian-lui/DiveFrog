@@ -1,4 +1,14 @@
-local screen = require 'screen'
+local stage = require 'stage'
+
+function math.clamp(x, min, max)
+  if x < min then
+    return min
+  elseif x > max then
+    return max
+  else
+    return x
+  end
+end
 
 function quadOverlap(quad1, quad2)
   left1, top1, right1, bottom1 = unpack(quad1)
@@ -62,9 +72,9 @@ function check_p2_got_hit() -- returns a table of {got hit, got headshot}
 end
 
 function drawDebugSprites()
-  love.graphics.line(p1.my_center, 0, p1.my_center, screen.heightPx)
+  love.graphics.line(p1.my_center, 0, p1.my_center, stage.height)
   love.graphics.line(p1.my_center, 20, p1.my_center + 30 * p1.facing, 20)
-  love.graphics.line(p2.my_center, 0, p2.my_center, screen.heightPx)
+  love.graphics.line(p2.my_center, 0, p2.my_center, stage.height)
   love.graphics.line(p2.my_center, 40, p2.my_center + 30 * p2.facing, 40)
   love.graphics.rectangle("line", p1.pos[1], p1.pos[2], p1.sprite_size[1], p1.sprite_size[2])
   love.graphics.rectangle("line", p2.pos[1], p2.pos[2], p2.sprite_size[1], p2.sprite_size[2])
