@@ -1,5 +1,5 @@
 local class = require 'middleclass'
-local screen = require 'screen' -- for checking floor/walls
+local stage = require 'stage' -- for checking floor/walls
 local buttons = require 'controls' -- mapping of keyboard controls
 local music = require 'music' -- background music
 require 'utilities'
@@ -29,7 +29,7 @@ function Fighter:initialize(init_facing)
   self.start_pos = {1, 1} -- Starting position at beginning of round
   self.pos = {1, 1} -- Top left corner of sprite
   self.icon = initpic -- corner icon
-  self.win_portrait = initpic -- win screen large portrait
+  self.win_portrait = initpic -- win stage large portrait
   self.win_quote = "Win Quote"
   self.image = initpic -- Entire tiled image
   self.image_size = {2, 2}
@@ -76,9 +76,9 @@ function Fighter:initialize(init_facing)
   -- Copy the below stuff after the new initialization variables for each new character
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   self.facing = init_facing -- 1 for facing right, -1 for facing left
-  if init_facing == 1 then self.start_pos[1] = screen.widthPx / 2 - (screen.widthPx / 5) - (self.sprite_size[1] / 2) -- the last item is to adjust for whitespace in image tile
-  else self.start_pos[1] = screen.widthPx / 2 + (screen.widthPx / 5) - (self.sprite_size[1] / 2) end
-  self.start_pos[2] = screen.heightPx - (screen.heightPx / 12) - (self.sprite_size[2] / 2)
+  if init_facing == 1 then self.start_pos[1] = stage.center - (stage.width / 5) - (self.sprite_size[1] / 2) -- the last item is to adjust for whitespace in image tile
+  else self.start_pos[1] = stage.center + (stage.width / 5) - (self.sprite_size[1] / 2) end
+  self.start_pos[2] = stage.height - (stage.height / 12) - (self.sprite_size[2] / 2)
   self.my_center = self.pos[1] + self.sprite_size[1]
   self.gravity = self.default_gravity
   self.current_hurtboxes = self.hurtboxes_standing
@@ -147,8 +147,8 @@ end
     
     -- attack if in air and not already attacking and going up and more than 50 pixels above the ground.
     if self.in_air and not self.attacking and 
-      (self.pos[2] + self.sprite_size[2] < screen.floor - 50 or
-      (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < screen.floor - 30)) then
+      (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
+      (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
         self.waiting = 3
         self.waiting_state = "Attack"
         
@@ -290,7 +290,6 @@ function Fighter:wonRoundRoutine() -- keep calling this if self.won is true
 end
 
 function Fighter:getSelfNeutral()
-  print(self.frozen, self.in_air, self.ko, self.attacking)
   if not self.in_air and not self.ko and not self.attacking then
     return true
   else
@@ -467,18 +466,18 @@ function Fighter:updatePos(opp_center)
     end  
      
     -- check if character has landed
-    if self.pos[2] + self.sprite_size[2] > screen.floor then 
-      self.pos[2] = screen.floor - self.sprite_size[2]
+    if self.pos[2] + self.sprite_size[2] > stage.floor then 
+      self.pos[2] = stage.floor - self.sprite_size[2]
       self:land()
     end
 
     -- check if character is at left or right edges of playing field
-    if self.pos[1] < screen.left - self.sprite_wallspace then
-      self.pos[1] = screen.left - self.sprite_wallspace
+    if self.pos[1] < stage.left - self.sprite_wallspace then
+      self.pos[1] = stage.left - self.sprite_wallspace
       self.hit_wall = true
     end
-    if self.pos[1] + self.sprite_size[1] > screen.right + self.sprite_wallspace then
-      self.pos[1] = screen.right - self.sprite_size[1] + self.sprite_wallspace
+    if self.pos[1] + self.sprite_size[1] > stage.right + self.sprite_wallspace then
+      self.pos[1] = stage.right - self.sprite_size[1] + self.sprite_wallspace
       self.hit_wall = true
     end
 
@@ -567,9 +566,9 @@ function Konrad:initialize(init_facing)
   self.double_jump = false
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
 
-  if init_facing == 1 then self.start_pos[1] = screen.widthPx / 2 - (screen.widthPx / 5) - (self.sprite_size[1] / 2) -- the last item is to adjust for whitespace in image tile
-  else self.start_pos[1] = screen.widthPx / 2 + (screen.widthPx / 5) - (self.sprite_size[1] / 2) end
-  self.start_pos[2] = screen.heightPx - (screen.heightPx / 12) - (self.sprite_size[2] / 2)
+  if init_facing == 1 then self.start_pos[1] = stage.center - (stage.width / 5) - (self.sprite_size[1] / 2) -- the last item is to adjust for whitespace in image tile
+  else self.start_pos[1] = stage.center + (stage.width / 5) - (self.sprite_size[1] / 2) end
+  self.start_pos[2] = stage.height - (stage.height / 12) - (self.sprite_size[2] / 2)
 
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
@@ -625,8 +624,8 @@ end
   function Konrad:attack_key_press()
     -- attack if in air and not already attacking and either: >50 above floor, or landing and >30 above.
     if self.in_air and not self.attacking and 
-      (self.pos[2] + self.sprite_size[2] < screen.floor - 50 or
-      (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < screen.floor - 30)) then
+      (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
+      (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
         self.waiting = 3
         self.waiting_state = "Attack"
     -- if on ground, kickback
@@ -744,9 +743,9 @@ function Jean:initialize(init_facing)
   self.pilebunk_ok = false
   self.pilebunking = false
   
-  if init_facing == 1 then self.start_pos[1] = screen.widthPx / 2 - (screen.widthPx / 5) - (self.sprite_size[1] / 2)
-  else self.start_pos[1] = screen.widthPx / 2 + (screen.widthPx / 5) - (self.sprite_size[1] / 2) end
-  self.start_pos[2] = screen.heightPx - (screen.heightPx / 12) - self.sprite_size[2] 
+  if init_facing == 1 then self.start_pos[1] = stage.center - (stage.width / 5) - (self.sprite_size[1] / 2)
+  else self.start_pos[1] = stage.center + (stage.width / 5) - (self.sprite_size[1] / 2) end
+  self.start_pos[2] = stage.height - (stage.height / 12) - self.sprite_size[2] 
 
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
@@ -796,8 +795,8 @@ end
   function Jean:attack_key_press()
     -- attack if in air and not already attacking.
     if self.in_air and not self.attacking and 
-      (self.pos[2] + self.sprite_size[2] < screen.floor - 50 or
-      (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < screen.floor - 30)) then
+      (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
+      (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
         self.waiting = 3
         self.waiting_state = "Attack"
     -- dandy step replaces kickback, only do if in neutral state

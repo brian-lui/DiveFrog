@@ -29,14 +29,12 @@ end
 
 function AfterImage:loadFX(pos_h, pos_v, quad, facing, shift, RGBTable)
   draw_count = draw_count + 1
-  -- 'more solid' afterimage
-  if not drawprebuffer[frame + 10] then drawprebuffer[frame + 10] = {} end
-  drawprebuffer[frame + 10][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, {255, 180, 0, 200}}
+  prebuffer[frame + 10] = prebuffer[frame + 10] or {}
+  prebuffer[frame + 10][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, {255, 180, 0, 200}}
 
   draw_count = draw_count + 1
-  -- 'less solid' afterimage  
-  if not drawprebuffer[frame + 20] then drawprebuffer[frame + 20] = {} end
-  drawprebuffer[frame + 20][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, {255, 180, 0, 120}}
+  prebuffer[frame + 20] = prebuffer[frame + 20] or {}
+  prebuffer[frame + 20][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, {255, 180, 0, 120}}
 end
 
 --------------------------------- MUGSHOTTED ----------------------------------
@@ -47,8 +45,8 @@ function Mugshot:loadFX()
   draw_count = draw_count + 1
   
   for i = (frame + 20), (frame + 90) do
-    if not drawbuffer[i] then drawbuffer[i] = {} end
-    drawbuffer[i][draw_count] = Mugshot:getDrawable(0, 400, 200)
+    postbuffer[i] = postbuffer[i] or {}
+    postbuffer[i][draw_count] = Mugshot:getDrawable(0, 400, 200)
   end
 end
   
@@ -60,9 +58,9 @@ Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), {70, 50}, {70, 
 function Dizzy:loadFX(pos_h, pos_v)
   draw_count = draw_count + 1
 
-  -- write the animation frames to drawbuffer
-  if not drawbuffer[frame] then drawbuffer[frame] = {} end
-  drawbuffer[frame][draw_count] = Dizzy:getDrawable(0, pos_h, pos_v)
+  -- write the animation frames to postbuffer
+  postbuffer[frame] = postbuffer[frame] or {}
+  postbuffer[frame][draw_count] = Dizzy:getDrawable(0, pos_h, pos_v)
 end
 
 
@@ -79,9 +77,9 @@ function WireSea:loadFX(pos_h, pos_v)
   for i = frame, (frame + 14) do
     local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
 
-    -- write the animation frames to drawbuffer
-    if not drawbuffer[i] then drawbuffer[i] = {} end
-    drawbuffer[i][draw_count] = WireSea:getDrawable(index, pos_h, pos_v)
+    -- write the animation frames to postbuffer
+    postbuffer[i] = postbuffer[i] or {}
+    postbuffer[i][draw_count] = WireSea:getDrawable(index, pos_h, pos_v)
   end
 end
 
@@ -96,9 +94,9 @@ function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
     local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
     local h_displacement = (vel_h / (friction - 1)) * math.exp((friction - 1) * index / TIME_DIV) - vel_h / (friction - 1)
 
-    -- write the animation frames to drawbuffer
-    if not drawbuffer[i] then drawbuffer[i] = {} end
-    drawbuffer[i][draw_count] = Explosion:getDrawable(index, pos_h + h_displacement, pos_v + (vel_v * index))
+    -- write the animation frames to postbuffer
+    postbuffer[i] = postbuffer[i] or {}
+    postbuffer[i][draw_count] = Explosion:getDrawable(index, pos_h + h_displacement, pos_v + (vel_v * index))
   end
 end
 
