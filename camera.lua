@@ -1,55 +1,87 @@
 require 'utilities'
-local screen = require 'screen'
+local stage = require 'stage'
 
-local Camera = {}
-Camera.__index = Camera
+camera = {}
+camera._x = 0
+camera._y = 0
+camera.scaleX = 1
+camera.scaleY = 1
+camera.rotation = 0
+camera.layers = {}
 
-Camera.margin = 0
-
-function Camera.new()
-  return setmetatable({
-    x = 0,
-    y = 0
-  }, Camera)
+function camera:newLayer(scale, func)
+  table.insert(self.layers, { draw = func, scale = scale })
+  table.sort(self.layers, function(a, b) return a.scale < b.scale end)
 end
 
-local cam = Camera.new()
-cam.margin = 0
-
--- this updated the camera position (?)
-function Camera.update(c, p)
-  local px, py = p:pixel()
-
-  local targetX = clamp(
-    -c.margin,
-    math.floor(px - screen.widthPx / 2),
-    map:widthPx() - screen.widthPx + c.margin
-  )
-
-  local targetY = clamp(
-    -c.margin,
-    math.floor(py - 5 - screen.heightPx / 2),
-    map:heightPx() - screen.heightPx + c.margin
-  )
-
-  if math.abs(targetX - c.x) > 10 then
-    c.x = c.x + (targetX - c.x) / 3
-  else
-    c.x = targetX
-  end
-
-  if math.abs(targetY - c.y) > 10 then
-    c.y = c.y + (targetY - c.y) / 3
-  else
-    c.y = targetY
+function camera:draw()
+  local bx, by = self._x, self._y
+  
+  for _, v in ipairs(self.layers) do
+    self._x = bx * v.scale
+    self._y = by * v.scale
+    camera:set()
+    v.draw()
+    camera:unset()
   end
 end
 
-function Camera.render(c, canvas, fun)
+function camera:set()
   love.graphics.push()
-  love.graphics.translate(-c.x, -c.y)
-  canvas:renderTo(fun)
+  love.graphics.rotate(-self.rotation)
+  love.graphics.scale(1 / self.scaleX, 1 / self.scaleY)
+  love.graphics.translate(-self._x, -self._y)
+end
+
+function camera:unset()
   love.graphics.pop()
 end
 
-return cam
+function camera:move(dx, dy)
+  self._x = self._x + (dx or 0)
+  self._y = self._y + (dy or 0)
+end
+
+function camera:rotate(dr)
+  self.rotation = self.rotation + dr
+end
+
+function camera:scale(sx, sy)
+  sx = sx or 1
+  self.scaleX = self.scaleX * sx
+  self.scaleY = self.scaleY * (sy or sx)
+end
+
+function camera:setX(value)
+  if self._bounds then
+    self._x = clamp(value, self._bounds.x1, self._bounds.x2)
+  else
+    self._x = value
+  end
+end
+
+function camera:setY(value)
+  if self._bounds then
+    self._y = clamp(value, self._bounds.y1, self._bounds.y2)
+  else
+    self._y = value
+  end
+end
+
+function camera:setPosition(x, y)
+  if x then self:setX(x) end
+  if y then self:setY(y) end
+end
+
+function camera:setScale(sx, sy)
+  self.scaleX = sx or self.scaleX
+  self.scaleY = sy or self.scaleY
+end
+
+function camera:getBounds()
+  return unpack(self._bounds)
+end
+
+function camera:setBounds(x1, y1, x2, y2)
+  self._bounds = { x1 = x1, y1 = y1, x2 = x2, y2 = y2 }
+end
