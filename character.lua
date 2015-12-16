@@ -1,5 +1,6 @@
 local class = require 'middleclass'
 local stage = require 'stage' -- for checking floor/walls
+local window = require 'window'
 local buttons = require 'controls' -- mapping of keyboard controls
 local music = require 'music' -- background music
 require 'utilities'
@@ -31,6 +32,8 @@ function Fighter:initialize(init_facing)
   self.icon = initpic -- corner icon
   self.win_portrait = initpic -- win stage large portrait
   self.win_quote = "Win Quote"
+  self.stage_background = initpic
+  self.BGM = "dummy.mp3"
   self.image = initpic -- Entire tiled image
   self.image_size = {2, 2}
   self.image_index = 0 -- Horizontal offset starting at 0
@@ -38,7 +41,7 @@ function Fighter:initialize(init_facing)
   self.sprite_wallspace = 0 -- how many pixels to reduce when checking against stage wall
   self.vel = {0, 0}
   self.default_gravity = 0.25
-  self.friction = 0.9 -- horizontal velocity multiplied each frame
+  self.friction = 0.95 -- horizontal velocity multiplied each frame
   self.friction_on = false
   self.vel_multiple = 1.0
   self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.7 for Mugshotted
@@ -76,9 +79,8 @@ function Fighter:initialize(init_facing)
   -- Copy the below stuff after the new initialization variables for each new character
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   self.facing = init_facing -- 1 for facing right, -1 for facing left
-  if init_facing == 1 then self.start_pos[1] = stage.center - (stage.width / 5) - (self.sprite_size[1] / 2) -- the last item is to adjust for whitespace in image tile
-  else self.start_pos[1] = stage.center + (stage.width / 5) - (self.sprite_size[1] / 2) end
-  self.start_pos[2] = stage.height - (stage.height / 12) - (self.sprite_size[2] / 2)
+  self.start_pos[1] = stage.center - (init_facing * window.width / 5) - (self.sprite_size[1] / 2)
+  self.start_pos[2] = stage.floor - self.sprite_size[2]
   self.my_center = self.pos[1] + self.sprite_size[1]
   self.gravity = self.default_gravity
   self.current_hurtboxes = self.hurtboxes_standing
@@ -243,19 +245,30 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
     self.gravity = 0
     if self.life > 0 then self.life = math.max(self.life - 6, 0) end
   end
+
   if frame - round_end_frame == 60 then
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
     playSFX2(self.got_hit_sfx) 
-    if self.wallsplat_on and self.facing == 1 then self.vel[1] = -50 self.gravity = 0.2
-    elseif self.wallsplat_on and self.facing == -1 then self.vel[1] = 50 self.gravity = 0.2 end -- refactor this sometime
+
+    if self.wallsplat_on then
+      self.vel[1] = self.facing * -50
+      self.vel[2] = -5
+      self.pos[2] = self.pos[2] - 30
+      self.gravity = 0.2
+      self.in_air = true
+      self.current_hurtboxes = self.hurtboxes_ko
+      self.current_headboxes = self.headboxes_ko
+    end
   end
+
   if frame - round_end_frame > 60 then
     self.friction_on = true
     self:updateImage(5)
-    self.current_hurtboxes = self.hurtboxes_ko
-    self.current_headboxes = self.headboxes_ko
-    self.wallsplat_on = false
+    if self.wallsplat_on and self.hit_wall then
+      self.vel[1] = -self.vel[1] 
+      self.hit_wall = false
+    end
   end
 end
 
@@ -338,6 +351,8 @@ function Fighter:setNewRound()
   self.attacking = false
   self.super_on = false
   self.hit_wall = false
+  self.wallsplat_on = false
+  self.friction_on = false
   self.image_index = 0 -- Horizontal offset starting at 0
   self.vel = {0, 0}
   self.vel_multiple = 1.0
@@ -459,9 +474,9 @@ function Fighter:updatePos(opp_center)
 
     if self.in_air then self.vel[2] = self.vel[2] + (self.gravity * self.vel_multiple) end
 
-    if not self.in_air and math.abs(self.vel[1]) > 1 and self.friction_on then
+    if math.abs(self.vel[1]) > 0.1 and self.friction_on then
       self.vel[1] = self.vel[1] * self.friction
-    elseif not self.in_air and self.vel[1] <= 1 and self.friction_on then
+    elseif self.vel[1] <= 0.1 and self.friction_on then
       self.vel[1] = 0
     end  
      
@@ -472,12 +487,12 @@ function Fighter:updatePos(opp_center)
     end
 
     -- check if character is at left or right edges of playing field
-    if self.pos[1] < stage.left - self.sprite_wallspace then
-      self.pos[1] = stage.left - self.sprite_wallspace
+    if self.pos[1] < leftEdge() - self.sprite_wallspace then
+      self.pos[1] = leftEdge() - self.sprite_wallspace
       self.hit_wall = true
     end
-    if self.pos[1] + self.sprite_size[1] > stage.right + self.sprite_wallspace then
-      self.pos[1] = stage.right - self.sprite_size[1] + self.sprite_wallspace
+    if self.pos[1] + self.sprite_size[1] > rightEdge() + self.sprite_wallspace then
+      self.pos[1] = rightEdge() - self.sprite_size[1] + self.sprite_wallspace
       self.hit_wall = true
     end
 
@@ -558,6 +573,8 @@ function Konrad:initialize(init_facing)
   self.icon = love.graphics.newImage('images/KonradIcon.png')
   self.win_portrait = love.graphics.newImage('images/KonradPortrait.png')
   self.win_quote = "You have been defeated by Konrad the talking frog with a cape who plays poker."
+  self.stage_background = love.graphics.newImage('images/KonradBackground.jpg')
+  self.BGM = "KonradTheme.mp3"
   self.image = love.graphics.newImage('images/KonradTiles.png')
   self.image_size = {1200, 200}
   self.sprite_size = {200, 200}
@@ -565,10 +582,8 @@ function Konrad:initialize(init_facing)
   self.default_gravity = 0.25
   self.double_jump = false
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-
-  if init_facing == 1 then self.start_pos[1] = stage.center - (stage.width / 5) - (self.sprite_size[1] / 2) -- the last item is to adjust for whitespace in image tile
-  else self.start_pos[1] = stage.center + (stage.width / 5) - (self.sprite_size[1] / 2) end
-  self.start_pos[2] = stage.height - (stage.height / 12) - (self.sprite_size[2] / 2)
+  self.start_pos[1] = stage.center - (init_facing * window.width / 5) - (self.sprite_size[1] / 2)
+  self.start_pos[2] = stage.floor - self.sprite_size[2]
 
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
@@ -637,11 +652,11 @@ end
   end
 
   function Konrad:air_special()
-    if self.super >= 16 and not self.attacking and not self.super_on then
+    if self.super >= 16 and not self.attacking and not self.super_on and self.vel[2] > -16 then
       self.super = self.super - 16
       self.waiting_state = ""
       playSFX1(self.air_special_sfx)
-      self:attack(10, 12)
+      self:attack(12, 16)
     end
   end
 
@@ -730,6 +745,8 @@ function Jean:initialize(init_facing)
   self.win_portrait = love.graphics.newImage('images/JeanPortrait.png')
   self.win_quote = 'You must defeat "Wampire" to stand a chance.'
   self.fighter_name = "Mustachioed Jean"
+  self.BGM = "JeanTheme.mp3"
+  self.stage_background = love.graphics.newImage('images/JeanBackground.jpg')
   self.image = love.graphics.newImage('images/JeanTiles.png')
   self.image_size = {1200, 200}
   self.vel_multiple_super = 1.2
@@ -742,10 +759,9 @@ function Jean:initialize(init_facing)
   self.dandy = false
   self.pilebunk_ok = false
   self.pilebunking = false
-  
-  if init_facing == 1 then self.start_pos[1] = stage.center - (stage.width / 5) - (self.sprite_size[1] / 2)
-  else self.start_pos[1] = stage.center + (stage.width / 5) - (self.sprite_size[1] / 2) end
-  self.start_pos[2] = stage.height - (stage.height / 12) - self.sprite_size[2] 
+
+  self.start_pos[1] = stage.center - (init_facing * window.width / 5) - (self.sprite_size[1] / 2)  
+  self.start_pos[2] = stage.floor - self.sprite_size[2]
 
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
