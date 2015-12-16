@@ -271,15 +271,15 @@ function love.draw()
 
       camera:set(1)
       love.graphics.draw(canvas_sprites)
+      --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+      --drawDebugSprites() -- debug: draw sprite box, center, and facing
       camera:unset()
 
       camera:set(0)
       love.graphics.draw(canvas_overlays)
+      --drawMidLines() -- debug: draw midscreen of window and stage (thick dot is window)
       camera:unset()      
 
-      --drawDebugSprites() -- debug: draw sprite box, center, and facing
-      --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
-      --drawMidLines() -- debug: draw midscreen of window and stage (thick dot is window)
       --print(unpack(camera_xy)) -- print camera position
       --print(keybuffer[frame][1], keybuffer[frame][2], keybuffer[frame][3], keybuffer[frame][4])
     end
