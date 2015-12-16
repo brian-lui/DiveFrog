@@ -2,7 +2,7 @@ require 'utilities' -- helper functions
 require 'camera'
 local class = require 'middleclass' -- class support
 local stage = require 'stage'  -- stage size
-local window = require 'window'  -- window size (scaled version of stage)
+local window = require 'window'  -- window size (current view of stage)
 local buttons = require 'controls'  -- mapping of keyboard controls
 local music = require 'music' -- background music
 local character = require 'character' -- base character class
@@ -10,8 +10,6 @@ local particles = require 'particles' -- graphical effects
 local game = {current_screen = "title"}
 
 -- load images
-local background = love.graphics.newImage('images/Background.jpg')
-local backgroundQuad = love.graphics.newQuad(240, 120, stage.width, stage.height, background:getDimensions())
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
 local titlescreen = love.graphics.newImage('images/Title.jpg')  
 local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
@@ -36,10 +34,14 @@ charselect_sfx = "CharSelectSFX.mp3"
 charselected_sfx = "CharSelectedSFX.mp3"
 
 function love.load()
-  canvas = love.graphics.newCanvas()
-  canvas:setFilter('nearest') -- needed if scaling images up
   
   love.window.setMode(window.width, window.height, { borderless = true })
+
+
+  canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
+  canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
+  canvas_background = love.graphics.newCanvas(stage.width, stage.height)
+
 
   setBGM("Intro.mp3")
   
@@ -59,6 +61,8 @@ function love.load()
   keybuffer = {} 
   prebuffer = {} -- pre-load draw instruction into future frames behind sprite
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
+  camera_xy = {} -- corner for camera and window drawing
+
 
   -- load image constants
   IMG = {greenlight_width = greenlight:getWidth(),
@@ -69,189 +73,217 @@ function love.load()
     }
 end
 
-function love.draw()
-  canvas:clear(0, 0, 0)
-  canvas:renderTo(function()
-    if game.current_screen == "maingame" then
-      -- background first!
-      love.graphics.draw(background, backgroundQuad, 0, 0) 
+function drawBackground()
+  canvas_background:clear()
+  love.graphics.draw(p2.stage_background, 0, 0) 
+end
 
-      --[[----------------------------------------------
-                           OVERLAYS      
-      ----------------------------------------------]]--
-      -- timer
+function drawSprites()
+  canvas_sprites:clear()
+
+  --[[----------------------------------------------
+                        MID-LINE      
+  ----------------------------------------------]]--   
+    -- draw if low on time
+  if round_timer <= 180 then
+    love.graphics.push("all")
+      love.graphics.setColor(110, 0, 0, 100)
+      love.graphics.setLineWidth(12)
+      love.graphics.line(stage.center, 0, stage.center, stage.height)
+    love.graphics.pop()
+  end
+
+  --[[----------------------------------------------
+                  UNDER-SPRITE LAYER      
+  ----------------------------------------------]]--
+  if prebuffer[frame] then
+    love.graphics.push("all")
+    for particle_index, particle_value in pairs(prebuffer[frame]) do
+      love.graphics.setColor(prebuffer[frame][particle_index][12]) -- 12 is RGB table
+      love.graphics.draw(unpack(prebuffer[frame][particle_index]))
+    end
+    love.graphics.pop()
+  end
+  prebuffer[frame] = nil
+
+  --[[----------------------------------------------
+                        SPRITES      
+  ----------------------------------------------]]--      
+    -- need to shift the sprites back if we flipped the image
+  local p1shift = 0
+  local p2shift = 0
+    -- shift sprites if facing left
+  if p2:getFacing() == -1 then p2shift = p2:getSprite_Width() end
+  if p1:getFacing() == -1 then p1shift = p1:getSprite_Width() end
+  
+  love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
+  love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
+
+  --[[----------------------------------------------
+                  OVER-SPRITE LAYER      
+  ----------------------------------------------]]--
+  if postbuffer[frame] then
+    for particle_index, particle_value in pairs(postbuffer[frame]) do
+      love.graphics.draw(unpack(postbuffer[frame][particle_index]))
+    end
+  end
+  postbuffer[frame] = nil
+end
+
+function drawOverlays()
+  canvas_overlays:clear()
+  --[[----------------------------------------------
+                       OVERLAYS      
+  ----------------------------------------------]]--
+  -- timer
+  love.graphics.push("all")
+    love.graphics.setColor(230, 147, 5)
+    love.graphics.setFont(timerFont)
+    love.graphics.printf(math.ceil(round_timer * min_dt), 0, 6, window.width, "center")
+  love.graphics.pop()
+
+  for side, op in pairs(PLAYERS) do
+    -- HP bars
+    love.graphics.draw(hpbar, window.center + (op.move * 335), 20, 0, op.flip, 1)
+    if side.life < 280 then
       love.graphics.push("all")
-        love.graphics.setColor(230, 147, 5)
-        love.graphics.setFont(timerFont)
-        love.graphics.printf(math.ceil(round_timer * min_dt), 0, 6, window.width, "center")
+        love.graphics.setColor(220, 0, 0, 255)
+        love.graphics.setLineWidth(23)
+        love.graphics.line(window.center + (op.move * 333), 34, window.center + (op.move * 333) - op.move * (280 - side.life), 34)
       love.graphics.pop()
+    end
 
-      -- if low on time, draw midline
-      if round_timer <= 180 then
-        love.graphics.push("all")
-          love.graphics.setColor(110, 0, 0, 100)
-          love.graphics.setLineWidth(12)
-          love.graphics.line(stage.center, 0, stage.center, stage.height)
-        love.graphics.pop()
+    -- win points
+    for i = 1, best_to_x do
+      if side:getScore() >= i then
+        love.graphics.draw(greenlight, window.center + (op.move * 350) - op.move * (24 * i),
+        50, 0, 1, 1, op.offset * IMG.greenlight_width)
+      else
+        love.graphics.draw(redlight, window.center + (op.move * 350) - op.move * (24 * i),
+        50, 0, 1, 1, op.offset * IMG.redlight_width)
       end
+    end
 
-      for side, op in pairs(PLAYERS) do
-        -- HP bars
-        love.graphics.draw(hpbar, window.center + (op.move * 335), 20, 0, op.flip, 1)
-        if side.life < 280 then
-          love.graphics.push("all")
-            love.graphics.setColor(220, 0, 0, 255)
-            love.graphics.setLineWidth(23)
-            love.graphics.line(window.center + (op.move * 333), 34, window.center + (op.move * 333) - op.move * (280 - side.life), 34)
-          love.graphics.pop()
-        end
+    -- player icons
+    love.graphics.draw(side:getIcon_Image(), window.center + (op.move * 390), 10, 0, 1, 1, op.offset * side:getIcon_Width())
 
-        -- win points
-        for i = 1, best_to_x do
-          if side:getScore() >= i then
-            love.graphics.draw(greenlight, window.center + (op.move * 350) - op.move * (24 * i),
-            50, 0, 1, 1, op.offset * IMG.greenlight_width)
-          else
-            love.graphics.draw(redlight, window.center + (op.move * 350) - op.move * (24 * i),
-            50, 0, 1, 1, op.offset * IMG.redlight_width)
-          end
-        end
-
-        -- player icons
-        love.graphics.draw(side:getIcon_Image(), window.center + (op.move * 390), 10, 0, 1, 1, op.offset * side:getIcon_Width())
-
-        -- super bars
-        love.graphics.push("all")
-        if not side:getSuperOn() then
-          -- super bar images
-          love.graphics.setColor(255, 255, 255)
-          love.graphics.draw(superbar, window.center + (op.move * 375), window.height - 35,
-            0, 1, 1, op.offset * IMG.superbar_width)
-          -- dark line
-          love.graphics.setLineWidth(1)
-          love.graphics.setColor(17, 94, 17)
-          love.graphics.line(window.center + op.move * 368,
-            window.height - 30,
-            math.max(window.center + op.move * 368, window.center + op.move * 370 - op.move * side:getSuper()),
-            window.height - 30)
-          -- thick bar
-          love.graphics.setLineWidth(12)
-          love.graphics.setColor(44, 212, 44)
-          love.graphics.line(window.center + op.move * 369,
-            window.height - 22.5,
-            window.center + op.move * 369 - op.move * side:getSuper(),
-            window.height - 22.5)
-          -- white line ornament
-          if (frame % 48) * 2 < side:getSuper() then
-            love.graphics.setLineWidth(4)
-            love.graphics.setColor(255, 255, 255, 180)
-            love.graphics.line(window.center + op.move * 369 - op.move * (frame % 48) * 2,
-              window.height - 30, 
-              window.center + op.move * 369 - op.move * (frame % 48) * 2,
-              window.height - 17)
-          end
-        
-        else -- if super full, draw frog factor
-          local frogfactorQuad = love.graphics.newQuad(0, 0, IMG.frogfactor_width * (side:getSuper() / 96),
-            IMG.frogfactor_height, IMG.frogfactor_width, IMG.frogfactor_height)
-          love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
-          love.graphics.draw(frogfactor, frogfactorQuad, window.center + (op.move * 390), window.height - 60, 0, 1, 1, (op.offset * 140))
-        end
-        love.graphics.pop()
+    -- super bars
+    love.graphics.push("all")
+    if not side:getSuperOn() then
+      -- super bar images
+      love.graphics.setColor(255, 255, 255)
+      love.graphics.draw(superbar, window.center + (op.move * 375), window.height - 35,
+        0, 1, 1, op.offset * IMG.superbar_width)
+      -- dark line
+      love.graphics.setLineWidth(1)
+      love.graphics.setColor(17, 94, 17)
+      love.graphics.line(window.center + op.move * 368,
+        window.height - 30,
+        math.max(window.center + op.move * 368, window.center + op.move * 370 - op.move * side:getSuper()),
+        window.height - 30)
+      -- thick bar
+      love.graphics.setLineWidth(12)
+      love.graphics.setColor(44, 212, 44)
+      love.graphics.line(window.center + op.move * 369,
+        window.height - 22.5,
+        window.center + op.move * 369 - op.move * side:getSuper(),
+        window.height - 22.5)
+      -- white line ornament
+      if (frame % 48) * 2 < side:getSuper() then
+        love.graphics.setLineWidth(4)
+        love.graphics.setColor(255, 255, 255, 180)
+        love.graphics.line(window.center + op.move * 369 - op.move * (frame % 48) * 2,
+          window.height - 30, 
+          window.center + op.move * 369 - op.move * (frame % 48) * 2,
+          window.height - 17)
       end
+    
+    else -- if super full, draw frog factor
+      local frogfactorQuad = love.graphics.newQuad(0, 0, IMG.frogfactor_width * (side:getSuper() / 96),
+        IMG.frogfactor_height, IMG.frogfactor_width, IMG.frogfactor_height)
+      love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
+      love.graphics.draw(frogfactor, frogfactorQuad, window.center + (op.move * 390), window.height - 60, 0, 1, 1, (op.offset * 140))
+    end
+    love.graphics.pop()
+  end
 
-      --[[----------------------------------------------
-                      UNDER-SPRITE LAYER      
-      ----------------------------------------------]]--
-      if prebuffer[frame] then
-        love.graphics.push("all")
-        for particle_index, particle_value in pairs(prebuffer[frame]) do
-          love.graphics.setColor(prebuffer[frame][particle_index][12]) -- 12 is RGB table
-          love.graphics.draw(unpack(prebuffer[frame][particle_index]))
+  --[[----------------------------------------------
+                      ROUND START      
+  ----------------------------------------------]]--
+  local frames_elapsed = frame - frame0
+  if frames_elapsed < 60 then
+    love.graphics.push("all") 
+      love.graphics.setColor(0, 0, 0, 255 - frames_elapsed * 255 / 60)
+      love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
+    love.graphics.pop()
+  end
+  if frames_elapsed > 48 and frames_elapsed < 90 then
+    love.graphics.push("all")
+      love.graphics.setFont(titleFont)
+      love.graphics.setColor(255, 255, 255)
+      love.graphics.printf("Round " .. current_round, 0, 200, window.width, "center")
+      if p1:getScore() == best_to_x - 1 and p2:getScore() == best_to_x - 1 then
+        love.graphics.printf("Final round!", 0, 200, window.width, "center")
+      end
+    love.graphics.pop()
+  end
+
+  --[[----------------------------------------------
+                       ROUND END      
+  ----------------------------------------------]]--
+  if round_end_frame > 0 then
+    local light = 255 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 255 at 150
+
+    -- end of round win message
+    if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
+      love.graphics.push("all")
+        love.graphics.setFont(titleFont)
+        love.graphics.setColor(255, 255, 255)
+        if p1:getWon() then love.graphics.printf(p1:getFighter_Name() .. " wins.", 0, 200, window.width, "center")
+        elseif p2:getWon() then love.graphics.printf(p2:getFighter_Name() .. " wins.", 0, 200, window.width, "center")
+        else love.graphics.printf("Double K.O.", 0, 200, window.width, "center")
         end
-        love.graphics.pop()
-      end
-      prebuffer[frame] = nil
+      love.graphics.pop()
+    end
 
-      --[[----------------------------------------------
-                            SPRITES      
-      ----------------------------------------------]]--      
-        -- need to shift the sprites back if we flipped the image
-      local p1shift = 0
-      local p2shift = 0
-        -- shift sprites if facing left
-      if p2:getFacing() == -1 then p2shift = p2:getSprite_Width() end
-      if p1:getFacing() == -1 then p1shift = p1:getSprite_Width() end
-      
-      love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
-      love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
-
-      --[[----------------------------------------------
-                      OVER-SPRITE LAYER      
-      ----------------------------------------------]]--
-      if postbuffer[frame] then
-        for particle_index, particle_value in pairs(postbuffer[frame]) do
-          love.graphics.draw(unpack(postbuffer[frame][particle_index]))
-        end
-      end
-      postbuffer[frame] = nil
-
-      --[[----------------------------------------------
-                          ROUND START      
-      ----------------------------------------------]]--
-      local frames_elapsed = frame - frame0
-      if frames_elapsed < 60 then
-        love.graphics.push("all") 
-          love.graphics.setColor(0, 0, 0, 255 - frames_elapsed * 255 / 60)
-          love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
-        love.graphics.pop()
-      end
-      if frames_elapsed > 48 and frames_elapsed < 90 then
-        love.graphics.push("all")
-          love.graphics.setFont(titleFont)
-          love.graphics.setColor(255, 255, 255)
-          love.graphics.printf("Round " .. current_round, 0, 100, stage.width, "center")
-          if p1:getScore() == best_to_x - 1 and p2:getScore() == best_to_x - 1 then
-            love.graphics.printf("Final round!", 0, 200, stage.width, "center")
-          end
-        love.graphics.pop()
-      end
+    -- end of round fade out
+    if frame - round_end_frame > 120 and frame - round_end_frame < 150 then
+      love.graphics.push("all")
+        love.graphics.setColor(0, 0, 0, light)
+        love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
+      love.graphics.pop()
+    end
+  end
+end
 
 
-      --[[----------------------------------------------
-                           ROUND END      
-      ----------------------------------------------]]--
-      if round_end_frame > 0 then
-        local light = 255 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 255 at 150
+function love.draw()
+    if game.current_screen == "maingame" then
 
-        -- end of round win message
-        if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
-          love.graphics.push("all")
-            love.graphics.setFont(titleFont)
-            love.graphics.setColor(255, 255, 255)
-            if p1:getWon() then love.graphics.printf(p1:getFighter_Name() .. " wins.", 0, 200, stage.width, "center")
-            elseif p2:getWon() then love.graphics.printf(p2:getFighter_Name() .. " wins.", 0, 200, stage.width, "center")
-            else love.graphics.printf("Double K.O.", 0, 200, stage.width, "center")
-            end
-          love.graphics.pop()
-        end
+      canvas_background:renderTo(drawBackground)
+      canvas_sprites:renderTo(drawSprites)
+      canvas_overlays:renderTo(drawOverlays)
 
-        -- end of round fade out
-        if frame - round_end_frame > 120 and frame - round_end_frame < 150 then
-          love.graphics.push("all")
-            love.graphics.setColor(0, 0, 0, light)
-            love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
-          love.graphics.pop()
-        end
-      end
+      camera:set(0.5)
+      love.graphics.draw(canvas_background)
+      camera:unset()
+
+      camera:set(1)
+      love.graphics.draw(canvas_sprites)
+      camera:unset()
+
+      camera:set(0)
+      love.graphics.draw(canvas_overlays)
+      camera:unset()      
 
       --drawDebugSprites() -- debug: draw sprite box, center, and facing
       --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+      --drawMidLines() -- debug: draw midscreen of window and stage (thick dot is window)
+      --print(unpack(camera_xy)) -- print camera position
       --print(keybuffer[frame][1], keybuffer[frame][2], keybuffer[frame][3], keybuffer[frame][4])
     end
 
     if game.current_screen == "charselect" then
-      canvas:renderTo(function ()
         love.graphics.draw(charselectscreen, 0, 0, 0) -- background
         love.graphics.draw(portraits, portraitsQuad, 473, 130) -- character portrait
         love.graphics.push("all")
@@ -275,11 +307,9 @@ function love.draw()
           if frame % 45 < 7 then love.graphics.setColor(164, 255, 164) end
           love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
         love.graphics.pop()
-      end)
     end
 
     if game.current_screen == "match_end" then
-      canvas:renderTo(function ()
         love.graphics.draw(bkmatchend, 0, 0) -- background
         local win_portrait = ""
         local win_quote = ""
@@ -311,15 +341,12 @@ function love.draw()
             love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
           love.graphics.pop()
         end
-      end)  
     end
 
     if game.current_screen == "title" then love.graphics.draw(titlescreen, 0, 0, 0) end
-  end) -- end for renderto function()
 
   love.graphics.push("all")
     love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(canvas, 0, 0, 0, window.scale) -- draws the entire canvas to the stage
   love.graphics.pop()
 
   local cur_time = love.timer.getTime()
@@ -327,11 +354,26 @@ function love.draw()
     return
     end
   love.timer.sleep(next_time - cur_time) -- advance time to next frame (?)
+
 end
 
 function love.update(dt)
 
   if game.current_screen == "maingame" then
+    local p1_h_p2 = (p1:get_Center() + p2:get_Center()) / 2 -- horizontal midpoint of p1/p2
+    local p1p2_v = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2]) -- highest sprite
+
+    --[[ camera x-position is the horizontal midpoint minus half the window width,
+    however, the window cannot go past 0 on the left or the stage width on the right.
+    For camera y-position, stage.height - window.height is the lowest down the screen.
+    Then we get the y-pos of the bottom of the highest sprite on the screen, and move
+    the camera up by this amount divided by 4 as long as it doesn't exceed the stage top. 
+    --]]
+    camera_xy = {clamp(p1_h_p2 - window.center, 0, stage.width - window.width),
+     math.max((stage.height - window.height) - (stage.floor - p1p2_v) / 4) }
+    
+    camera:setPosition(unpack(camera_xy))
+
     frame = frame + 1
     -- unfreeze inputs after fade in
     if frame - frame0 == 90 then input_frozen = false end 
@@ -470,7 +512,7 @@ function startGame()
 
   PLAYERS = {[p1] = p1_draw_ops, [p2] = p2_draw_ops}
 
-  setBGM("DetectiveDog.mp3")
+  setBGM(p2.BGM)
 
   newRound()
 end

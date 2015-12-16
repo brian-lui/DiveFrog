@@ -1,6 +1,7 @@
 local stage = require 'stage'
+local window = require 'window'
 
-function math.clamp(x, min, max)
+function clamp(x, min, max)
   if x < min then
     return min
   elseif x > max then
@@ -8,6 +9,14 @@ function math.clamp(x, min, max)
   else
     return x
   end
+end
+
+function leftEdge() -- get temp left edge based on camera and window position
+  return math.max(window.left + camera_xy[1], stage.left)
+end
+
+function rightEdge() -- get temp right edge based on camera and window position
+  return math.min(window.right + camera_xy[1], stage.right)
 end
 
 function quadOverlap(quad1, quad2)
@@ -79,6 +88,15 @@ function drawDebugSprites()
   love.graphics.rectangle("line", p1.pos[1], p1.pos[2], p1.sprite_size[1], p1.sprite_size[2])
   love.graphics.rectangle("line", p2.pos[1], p2.pos[2], p2.sprite_size[1], p2.sprite_size[2])
 end      
+
+function drawMidLines()
+  love.graphics.push("all")
+    love.graphics.setLineWidth(10)
+    love.graphics.line(stage.center - 5, stage.height / 2, stage.center + 5, stage.height / 2)
+    love.graphics.setLineWidth(20)
+    love.graphics.line(window.center - 10, window.height / 2, window.center + 10, window.height / 2)
+  love.graphics.pop()
+end
 
 function drawDebugHurtboxes()
   love.graphics.push("all")

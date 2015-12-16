@@ -46,7 +46,7 @@ function Mugshot:loadFX()
   
   for i = (frame + 20), (frame + 90) do
     postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = Mugshot:getDrawable(0, 400, 200)
+    postbuffer[i][draw_count] = Mugshot:getDrawable(0, 400 + camera_xy[1], 200 + camera_xy[2])
   end
 end
   

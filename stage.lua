@@ -1,9 +1,9 @@
--- stage
 local stage = {}
-stage.width = 800
+stage.width = 1280
 stage.center = stage.width / 2
-stage.height = 600
-stage.floor = stage.height - 50
-stage.left = 20
+stage.height = 720
+stage.floorheight = 40
+stage.floor = stage.height - stage.floorheight
+stage.left = 40
 stage.right = stage.width - stage.left
 return stage
