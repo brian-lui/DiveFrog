@@ -26,7 +26,7 @@ function Fighter:initialize(init_facing)
   self.hit_type = "" -- type of hit, passed through to gotHit(). E.g. for wall splat
   self.super = 0 -- max 96
   self.super_on = false -- trigger super mode
-  self.super_drainspeed = 0.1 -- how fast super meter drains away. 
+  self.super_drainspeed = 0.2 -- how fast super meter drains away. 
   self.start_pos = {1, 1} -- Starting position at beginning of round
   self.pos = {1, 1} -- Top left corner of sprite
   self.icon = initpic -- corner icon
@@ -506,6 +506,8 @@ function Fighter:updatePos(opp_center)
 
     -- update image if falling
     if self.in_air and self.vel[2] > 0 and not self.attacking and not self.ko then
+      self.current_hurtboxes = self.hurtboxes_standing
+      self.current_headboxes = self.headboxes_standing
       self:updateImage(2)
     end 
     
@@ -592,21 +594,21 @@ function Konrad:initialize(init_facing)
   self.my_center = self.pos[1] + self.sprite_size[1]
   
   --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
-  self.hurtboxes_standing = {{69, 51, 127, 79}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
-  self.hurtboxes_jumping  = {{69, 51, 127, 79}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
-  self.hurtboxes_falling = {{69, 51, 127, 79}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
-  self.hurtboxes_attacking  = {{67, 35, 108, 54}, {75, 55, 104, 103}, {68, 104, 91, 135}, {100, 105, 114, 136}, {111, 137, 128, 157}, {125, 158, 138, 183}}
-  self.hurtboxes_kickback  = {{67, 41, 128, 64}, {70, 65, 110, 165}, {72, 166, 111, 182}}
+  self.hurtboxes_standing = {{76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
+  self.hurtboxes_jumping  = {{76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
+  self.hurtboxes_falling = {{76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
+  self.hurtboxes_attacking  = {{75, 60, 104, 103}, {68, 104, 91, 135}, {100, 105, 114, 136}, {111, 137, 128, 157}, {125, 158, 138, 183}}
+  self.hurtboxes_kickback  = {{70, 73, 119, 165}, {72, 166, 111, 182}}
   self.hurtboxes_ko  = {{0, 0, 0, 0}}
 
-  self.headboxes_standing = {{78, 33, 116, 50}, {83, 16, 114, 33}}
-  self.headboxes_jumping  = {{78, 33, 116, 50}, {83, 16, 114, 33}}
-  self.headboxes_falling = {{78, 33, 116, 50}, {83, 16, 114, 33}}
-  self.headboxes_attacking  = {{66, 9, 96, 34}}
-  self.headboxes_kickback  = {{83, 14, 119, 40}}
+  self.headboxes_standing = {{78, 33, 116, 50}, {69, 51, 124, 79}}
+  self.headboxes_jumping  = {{78, 33, 116, 50}, {69, 51, 124, 79}}
+  self.headboxes_falling = {{78, 33, 116, 50}, {69, 51, 124, 79}}
+  self.headboxes_attacking  = {{67, 30, 108, 59}}
+  self.headboxes_kickback  = {{67, 41, 128, 72}}
   self.headboxes_ko  = {{0, 0, 0, 0}}
 
-  self.hitboxes_attacking = {{119, 166, 135, 183}}
+  self.hitboxes_attacking = {{119, 166, 137, 183}}
 
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_headboxes = self.headboxes_standing
@@ -781,20 +783,20 @@ function Jean:initialize(init_facing)
   self.air_special_sfx = "JeanAirSpecial.mp3"
 
   --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
-  self.hurtboxes_standing = {{44, 51, 102, 79}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
-  self.hurtboxes_jumping  = {{44, 51, 102, 79}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
-  self.hurtboxes_falling = {{44, 51, 102, 79}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
-  self.hurtboxes_attacking  = {{10, 26, 58, 69}, {61, 58, 77, 69}, {31, 72, 83, 109}, {42, 110, 93, 126}, {61, 129, 116, 149}, {118, 138, 131, 149}, {62, 151, 145, 172}}
+  self.hurtboxes_standing = {{51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
+  self.hurtboxes_jumping  = {{51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
+  self.hurtboxes_falling = {{51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
+  self.hurtboxes_attacking  = {{61, 58, 77, 69}, {31, 72, 83, 109}, {42, 110, 93, 126}, {61, 129, 116, 149}, {118, 138, 131, 149}, {62, 151, 145, 172}}
   self.hurtboxes_dandy  = {{15, 82, 45, 129}, {24, 131, 61, 151}, {62, 142, 73, 151}, {33, 152, 82, 166}, {47, 167, 95, 186}}
   self.hurtboxes_ko  = {{0, 0, 0, 0,}}
   self.hurtboxes_pilebunker = {{17, 68, 71, 137}, {73, 128, 100, 137}, {42, 140, 108, 187}, {110, 152, 118, 187}}
   self.hurtboxes_pilebunkerB = {{17, 68, 71, 137}, {73, 128, 83, 137}, {42, 140, 98, 187}, {100, 165, 113, 180}}
 
-  self.headboxes_standing = {{53, 33, 95, 50}, {58, 16, 89, 33}}
-  self.headboxes_jumping  = {{53, 33, 95, 50}, {58, 16, 89, 33}}
-  self.headboxes_falling = {{53, 33, 95, 50}, {58, 16, 89, 33}}
-  self.headboxes_attacking  = {{7, 9, 35, 23}}
-  self.headboxes_dandy  = {{11, 4, 37, 76}}
+  self.headboxes_standing = {{53, 33, 95, 50}, {44, 51, 102, 79}}
+  self.headboxes_jumping  = {{53, 33, 95, 50}, {44, 51, 102, 79}}
+  self.headboxes_falling = {{53, 33, 95, 50}, {44, 51, 102, 79}}
+  self.headboxes_attacking  = {{10, 26, 58, 69}}
+  self.headboxes_dandy  = {{11, 32, 37, 76}}
   self.headboxes_ko  = {{0, 0, 0, 0,}}
   self.headboxes_pilebunker = {{6, 32, 37, 71}}
   self.headboxes_pilebunkerB = {{15, 32, 46, 71}}
