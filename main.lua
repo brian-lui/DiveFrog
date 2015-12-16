@@ -32,6 +32,7 @@ local gameoverFont = love.graphics.newFont('/fonts/GoodDog.otf', 40)
 super_sfx = "SuperFull.mp3"
 charselect_sfx = "CharSelectSFX.mp3"
 charselected_sfx = "CharSelectedSFX.mp3"
+mugshot_sfx = "Mugshot.mp3"
 
 function love.load()
   

@@ -227,7 +227,7 @@ function Fighter:gotHit(type) -- execute this one time, when character gets hit
   if type == "Mugshot" then
     self.mugshot_on = true -- toggle to set dizzy at start of next round
     Mugshot:loadFX() -- display Mugshot graphic
-    -- Mugshot SFX
+
   end
 
   if type == "Wallsplat" then
@@ -246,6 +246,7 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
     if self.life > 0 then self.life = math.max(self.life - 6, 0) end
   end
 
+  if frame - round_end_frame == 30 and self.mugshot_on then playSFX1(mugshot_sfx) end -- put into soundbuffer sometime
   if frame - round_end_frame == 60 then
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
