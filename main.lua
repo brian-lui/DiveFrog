@@ -18,7 +18,7 @@ local superbar = love.graphics.newImage('images/SuperBar.png')
 local frogfactor = love.graphics.newImage('images/FrogFactor.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
 local greenlight = love.graphics.newImage('images/GreenLight.png')
-local redlight = love.graphics.newImage('images/RedLight.png')
+--local redlight = love.graphics.newImage('images/RedLight.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
 -- load fonts
@@ -33,6 +33,7 @@ super_sfx = "SuperFull.mp3"
 charselect_sfx = "CharSelectSFX.mp3"
 charselected_sfx = "CharSelectedSFX.mp3"
 mugshot_sfx = "Mugshot.mp3"
+explosion_sfx = "Explosion.mp3"
 
 function love.load()
   
@@ -67,7 +68,7 @@ function love.load()
 
   -- load image constants
   IMG = {greenlight_width = greenlight:getWidth(),
-    redlight_width = redlight:getWidth(),
+    --redlight_width = redlight:getWidth(),
     frogfactor_width = frogfactor:getWidth(),
     frogfactor_height = frogfactor:getHeight(),
     superbar_width = superbar:getWidth()
@@ -157,11 +158,11 @@ function drawOverlays()
     -- win points
     for i = 1, best_to_x do
       if side:getScore() >= i then
-        love.graphics.draw(greenlight, window.center + (op.move * 350) - op.move * (24 * i),
+        love.graphics.draw(greenlight, window.center + (op.move * 358) - op.move * (24 * i),
         50, 0, 1, 1, op.offset * IMG.greenlight_width)
-      else
-        love.graphics.draw(redlight, window.center + (op.move * 350) - op.move * (24 * i),
-        50, 0, 1, 1, op.offset * IMG.redlight_width)
+      --else
+      --  love.graphics.draw(redlight, window.center + (op.move * 358) - op.move * (24 * i),
+      --  50, 0, 1, 1, op.offset * IMG.redlight_width)
       end
     end
 
@@ -265,17 +266,17 @@ function love.draw()
       canvas_sprites:renderTo(drawSprites)
       canvas_overlays:renderTo(drawOverlays)
 
-      camera:set(0.5)
+      camera:set(0.5, 1)
       love.graphics.draw(canvas_background)
       camera:unset()
 
-      camera:set(1)
+      camera:set(1, 1)
       love.graphics.draw(canvas_sprites)
       --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
       --drawDebugSprites() -- debug: draw sprite box, center, and facing
       camera:unset()
 
-      camera:set(0)
+      camera:set(0, 0)
       love.graphics.draw(canvas_overlays)
       --drawMidLines() -- debug: draw midscreen of window and stage (thick dot is window)
       camera:unset()      
@@ -368,10 +369,11 @@ function love.update(dt)
     however, the window cannot go past 0 on the left or the stage width on the right.
     For camera y-position, stage.height - window.height is the lowest down the screen.
     Then we get the y-pos of the bottom of the highest sprite on the screen, and move
-    the camera up by this amount divided by 4 as long as it doesn't exceed the stage top. 
+    the camera up by this amount divided by 8 as long as it doesn't exceed the stage top. 
     --]]
     camera_xy = {clamp(p1_h_p2 - window.center, 0, stage.width - window.width),
-     math.max((stage.height - window.height) - (stage.floor - p1p2_v) / 4) }
+      math.max((stage.height - window.height) - (stage.floor - p1p2_v) / 8) }
+
     
     camera:setPosition(unpack(camera_xy))
 
@@ -523,7 +525,7 @@ function charSelect()
   available_chars = {Konrad, Jean}
   char_text = {
     {"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},
-    {"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n—— Bunker (Wire Sea OK)"}
+    {"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"}
     }
   total_chars = #available_chars
   p1_char = 1 -- default to first character

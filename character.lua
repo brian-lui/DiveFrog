@@ -267,8 +267,10 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
     self.friction_on = true
     self:updateImage(5)
     if self.wallsplat_on and self.hit_wall then
-      self.vel[1] = -self.vel[1] 
+      self.vel[1] = -self.vel[1] * 0.4
       self.hit_wall = false
+      WallExplosion:loadFX(self.pos[1], self.pos[2])
+      playSFX2(explosion_sfx)
     end
   end
 end
@@ -573,12 +575,12 @@ Konrad = class('Konrad', Fighter)
 function Konrad:initialize(init_facing)
   Fighter.initialize(self, init_facing)
   self.fighter_name = "Konrad"
-  self.icon = love.graphics.newImage('images/KonradIcon.png')
-  self.win_portrait = love.graphics.newImage('images/KonradPortrait.png')
+  self.icon = love.graphics.newImage('images/Konrad/KonradIcon.png')
+  self.win_portrait = love.graphics.newImage('images/Konrad/KonradPortrait.png')
   self.win_quote = "You have been defeated by Konrad the talking frog with a cape who plays poker."
-  self.stage_background = love.graphics.newImage('images/KonradBackground.jpg')
+  self.stage_background = love.graphics.newImage('images/Konrad/KonradBackground.jpg')
   self.BGM = "KonradTheme.mp3"
-  self.image = love.graphics.newImage('images/KonradTiles.png')
+  self.image = love.graphics.newImage('images/Konrad/KonradTiles.png')
   self.image_size = {1200, 200}
   self.sprite_size = {200, 200}
   self.sprite_wallspace = 50 -- how many pixels to reduce when checking against stage wall
@@ -615,13 +617,13 @@ function Konrad:initialize(init_facing)
   self.current_hitboxes = self.hitboxes_attacking
 
   -- sound effects
-  self.jump_sfx = "KonradJump.mp3"
-  self.jump2_sfx = "KonradJump2.mp3"
-  self.attack_sfx = "KonradAttack.mp3"
-  self.got_hit_sfx = "KonradKO.mp3"
+  self.jump_sfx = "Konrad/KonradJump.mp3"
+  self.jump2_sfx = "Konrad/KonradJump2.mp3"
+  self.attack_sfx = "Konrad/KonradAttack.mp3"
+  self.got_hit_sfx = "Konrad/KonradKO.mp3"
   self.hit_sound_sfx = "Potatoes.mp3"
-  self.ground_special_sfx = "KonradGroundSpecial.mp3"
-  self.air_special_sfx = "KonradAirSpecial.mp3"
+  self.ground_special_sfx = "Konrad/KonradGroundSpecial.mp3"
+  self.air_special_sfx = "Konrad/KonradAirSpecial.mp3"
 
 end
 
@@ -655,7 +657,8 @@ end
   end
 
   function Konrad:air_special()
-    if self.super >= 16 and not self.attacking and not self.super_on and self.vel[2] > -16 then
+    if self.super >= 16 and not self.attacking and not self.super_on and
+    self.pos[2] + self.sprite_size[2] < stage.floor - 50 then
       self.super = self.super - 16
       self.waiting_state = ""
       playSFX1(self.air_special_sfx)
@@ -744,13 +747,13 @@ end
 Jean = class('Jean', Fighter)
 function Jean:initialize(init_facing)
   Fighter.initialize(self, init_facing)
-  self.icon = love.graphics.newImage('images/JeanIcon.png')
-  self.win_portrait = love.graphics.newImage('images/JeanPortrait.png')
+  self.icon = love.graphics.newImage('images/Jean/JeanIcon.png')
+  self.win_portrait = love.graphics.newImage('images/Jean/JeanPortrait.png')
   self.win_quote = 'You must defeat "Wampire" to stand a chance.'
   self.fighter_name = "Mustachioed Jean"
   self.BGM = "JeanTheme.mp3"
-  self.stage_background = love.graphics.newImage('images/JeanBackground.jpg')
-  self.image = love.graphics.newImage('images/JeanTiles.png')
+  self.stage_background = love.graphics.newImage('images/Jean/JeanBackground.jpg')
+  self.image = love.graphics.newImage('images/Jean/JeanTiles.png')
   self.image_size = {1200, 200}
   self.vel_multiple_super = 1.2
   self.sprite_size = {150, 200}
@@ -773,14 +776,14 @@ function Jean:initialize(init_facing)
   self.my_center = self.pos[1] + self.sprite_size[1]
 
   -- sound effects
-  self.jump_sfx = "JeanJump.mp3"
-  self.attack_sfx = "JeanAttack.mp3"
-  self.got_hit_sfx = "JeanKO.mp3"
+  self.jump_sfx = "Jean/JeanJump.mp3"
+  self.attack_sfx = "Jean/JeanAttack.mp3"
+  self.got_hit_sfx = "Jean/JeanKO.mp3"
   self.hit_sound_sfx = "Potatoes.mp3"
-  self.dandy_sfx = "JeanDandy.mp3"
-  self.pilebunker_sfx = "JeanBunker.mp3"
-  self.ground_special_sfx = "JeanGroundSpecial.mp3"
-  self.air_special_sfx = "JeanAirSpecial.mp3"
+  self.dandy_sfx = "Jean/JeanDandy.mp3"
+  self.pilebunker_sfx = "Jean/JeanBunker.mp3"
+  self.ground_special_sfx = "Jean/JeanGroundSpecial.mp3"
+  self.air_special_sfx = "Jean/JeanAirSpecial.mp3"
 
   --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
   self.hurtboxes_standing = {{51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
