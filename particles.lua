@@ -13,10 +13,20 @@ function Particle:initialize(image, image_size, sprite_size)
   self.hitbox = {}
 end
 
-function Particle:getDrawable(image_index, pos_h, pos_v)
+function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift)
   local quad = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
    self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  return {self.image, quad, pos_h - self.sprite_size[1] / 2, pos_v - self.sprite_size[2] / 2}
+  return {self.image, 
+    quad, 
+    pos_h - self.sprite_size[1] / 2, 
+    pos_v - self.sprite_size[2] / 2,
+    0, -- rotation
+    scale_x, -- scale_x: 1 is default, -1 for flip
+    scale_y, -- scale_y: 1 is default, 1 for flip
+    0, -- offset_x
+    0, -- offset_y: 0
+    0, -- shear_x: 0
+    0} -- shear_y: 0
 end
 
 --[[---------------------------------------------------------------------------
@@ -31,7 +41,6 @@ function AfterImage:loadFX(pos_h, pos_v, quad, facing, shift, RGBTable)
   draw_count = draw_count + 1
   prebuffer[frame + 10] = prebuffer[frame + 10] or {}
   prebuffer[frame + 10][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, {255, 180, 0, 200}}
-
   draw_count = draw_count + 1
   prebuffer[frame + 20] = prebuffer[frame + 20] or {}
   prebuffer[frame + 20][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, {255, 180, 0, 120}}
@@ -46,7 +55,7 @@ function Mugshot:loadFX()
   
   for i = (frame + 20), (frame + 90) do
     postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = Mugshot:getDrawable(0, 400 + camera_xy[1], 200 + camera_xy[2])
+    postbuffer[i][draw_count] = Mugshot:getDrawable(0, 400 + camera_xy[1], 200 + camera_xy[2], 1, 1, 0)
   end
 end
   
@@ -60,12 +69,25 @@ function Dizzy:loadFX(pos_h, pos_v)
 
   -- write the animation frames to postbuffer
   postbuffer[frame] = postbuffer[frame] or {}
-  postbuffer[frame][draw_count] = Dizzy:getDrawable(0, pos_h, pos_v)
+  postbuffer[frame][draw_count] = Dizzy:getDrawable(0, pos_h, pos_v, 1, 1, 0)
 end
 
 
+--------------------------------- WALLSPLAT -----------------------------------
+WallExplosion = Particle:new(love.graphics.newImage('images/Wallsplat.png'), {3072, 128}, {128, 128})
 
+function WallExplosion:loadFX(pos_h, pos_v)
+  draw_count = draw_count + 1
 
+  local TIME_DIV = 2 -- advance the animation every TIME_DIV frames
+  for i = frame, (frame + 47) do
+    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
+
+    -- write the animation frames to postbuffer
+    postbuffer[i] = postbuffer[i] or {}
+    postbuffer[i][draw_count] = WallExplosion:getDrawable(index, pos_h, pos_v, 2, 2, 0)
+  end
+end
 
 ---------------------------------- WIRE SEA -----------------------------------
 WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'), {610, 122}, {122, 122})
@@ -79,7 +101,7 @@ function WireSea:loadFX(pos_h, pos_v)
 
     -- write the animation frames to postbuffer
     postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = WireSea:getDrawable(index, pos_h, pos_v)
+    postbuffer[i][draw_count] = WireSea:getDrawable(index, pos_h, pos_v, 1, 1, 0)
   end
 end
 
@@ -96,7 +118,7 @@ function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
 
     -- write the animation frames to postbuffer
     postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = Explosion:getDrawable(index, pos_h + h_displacement, pos_v + (vel_v * index))
+    postbuffer[i][draw_count] = Explosion:getDrawable(index, pos_h + h_displacement, pos_v + (vel_v * index), 2, 1, 0)
   end
 end
 
