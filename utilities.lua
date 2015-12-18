@@ -30,54 +30,27 @@ function quadOverlap(quad1, quad2)
   end
 end    
 
-function check_p1_got_hit() -- returns a table of {got hit, got headshot}
-  local p1gothit = false
-  local p1gotheadshot = false
-
-  if p2:getAttacking() then
-    local hurt = p1:getHurtboxes()
-    local head = p1:getHeadboxes()
-    local hit = p2:getHitboxes()
+function check_got_hit(getting_hit, attacker) -- also applies Mugshot flag for headshots
+  local gothit = false
+  if attacker:getAttacking() then
+    local hurt = getting_hit:getHurtboxes()
+    local head = getting_hit:getHeadboxes()
+    local hit = attacker:getHitboxes()
     for i = 1, #hurt do
       for j = 1, #hit do
-        if(quadOverlap(hurt[i], hit[j])) then p1gothit = true end
+        if(quadOverlap(hurt[i], hit[j])) then gothit = true end
       end
     end
     for i = 1, #head do
       for j = 1, #hit do
         if(quadOverlap(head[i], hit[j])) then
-          p1gotheadshot = true
-          p1gothit = true
+          attacker.hit_type.Mugshot = true
+          gothit = true
         end
       end
     end
   end
-  return {p1gothit, p1gotheadshot}
-end
-
-function check_p2_got_hit() -- returns a table of {got hit, got headshot}
-  local p2gothit = false
-  local p2gotheadshot = false
-
-  if p1:getAttacking() then
-    local hurt = p2:getHurtboxes()
-    local head = p2:getHeadboxes()
-    local hit = p1:getHitboxes()
-    for i = 1, #hurt do
-      for j = 1, #hit do
-        if(quadOverlap(hurt[i], hit[j])) then p2gothit = true end
-      end
-    end
-    for i = 1, #head do
-      for j = 1, #hit do
-        if(quadOverlap(head[i], hit[j])) then
-          p2gotheadshot = true
-          p2gothit = true
-        end
-      end
-    end
-  end
-  return {p2gothit, p2gotheadshot}
+  return gothit
 end
 
 function drawDebugSprites()

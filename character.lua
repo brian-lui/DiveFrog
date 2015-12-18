@@ -12,9 +12,12 @@ require 'particles'
 
 Fighter = class('Fighter')    
 function Fighter:initialize(init_facing)
-  initpic = love.graphics.newImage('images/init.png')
+  --[[-------------------------------------------------------------------------
+                              NO NEED TO MODIFY THESE
+  ---------------------------------------------------------------------------]]
+  
+  dummypic = love.graphics.newImage('images/dummy.png')
   self.player = init_facing -- 1 for player 1, -1 for player 2
-  self.opponent = -self.player
   self.frozen = 0 -- only update sprite if this is 0. Used for e.g. super freeze
   self.score = 0
   self.in_air = false
@@ -23,35 +26,43 @@ function Fighter:initialize(init_facing)
   self.won = false
   self.attacking = false
   self.mugshotted = 0 -- frames the character is mugshotted for
-  self.hit_type = "" -- type of hit, passed through to gotHit(). E.g. for wall splat
+  self.hit_type = {} -- type of hit, passed through to gotHit(). E.g. for wall splat
   self.super = 0 -- max 96
   self.super_on = false -- trigger super mode
   self.super_drainspeed = 0.2 -- how fast super meter drains away. 
   self.start_pos = {1, 1} -- Starting position at beginning of round
   self.pos = {1, 1} -- Top left corner of sprite
-  self.icon = initpic -- corner icon
-  self.win_portrait = initpic -- win stage large portrait
-  self.win_quote = "Win Quote"
-  self.stage_background = initpic
-  self.BGM = "dummy.mp3"
-  self.image = initpic -- Entire tiled image
-  self.image_size = {2, 2}
-  self.image_index = 0 -- Horizontal offset starting at 0
-  self.sprite_size = {1, 1}
-  self.sprite_wallspace = 0 -- how many pixels to reduce when checking against stage wall
   self.vel = {0, 0}
-  self.default_gravity = 0.25
   self.friction = 0.95 -- horizontal velocity multiplied each frame
   self.friction_on = false
   self.vel_multiple = 1.0
-  self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.7 for Mugshotted
   self.hit_wall = false -- if player has hit wall or not. Used for wallsplat and some special moves
   self.hurtboxes = {{0, 0, 0, 0}}
   self.headboxes = {{0, 0, 0, 0}}
   self.hitboxes = {{0, 0, 0, 0}}
-  self.opp_center = 400 -- center of opponent's sprite
+  self.opp_center = stage.center -- center of opponent's sprite
   self.waiting = 0 -- number of frames to wait. used for pre-jump frames etc.
   self.waiting_state = "" -- buffer the action that will be executed if special isn't pressed
+  self.hit_flag = {} -- for KO animations
+
+  --[[-------------------------------------------------------------------------
+                            MAY NEED TO MODIFY THESE
+  ---------------------------------------------------------------------------]]
+
+  -- images
+  self.icon = dummypic -- corner icon
+  self.win_portrait = dummypic -- win stage large portrait
+  self.win_quote = "Win Quote"
+  self.stage_background = dummypic
+  self.image = dummypic -- Entire tiled image
+  self.image_size = {2, 2}
+  self.image_index = 0 -- Horizontal offset starting at 0
+  self.sprite_size = {1, 1}
+  self.sprite_wallspace = 0 -- how many pixels to reduce when checking against stage wall
+  
+  -- character variables
+  self.default_gravity = 0.25
+  self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.7 for Mugshotted
 
   -- lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
   self.hurtboxes_standing = {{0, 0, 0, 0}}
@@ -69,6 +80,7 @@ function Fighter:initialize(init_facing)
   self.hitboxes_attacking = {{0, 0, 0, 0}}
 
   -- sound effects
+  self.BGM = "dummy.mp3"
   self.jump_sfx = "dummy.mp3"
   self.attack_sfx = "dummy.mp3"
   self.got_hit_sfx = "dummy.mp3"
@@ -223,20 +235,21 @@ end
     end
   end
 
-function Fighter:gotHit(type) -- execute this one time, when character gets hit
-  if type == "Mugshot" then
-    self.mugshot_on = true -- toggle to set dizzy at start of next round
+function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
+  if type_table.Mugshot then
     Mugshot:loadFX() -- display Mugshot graphic
-
+    self.hit_flag.Mugshot = true
   end
 
-  if type == "Wallsplat" then
-    self.wallsplat_on = true
+  if type_table.Wallsplat then
+    self.hit_flag.Wallsplat = true
   end
+
   self.vel_multiple = 1.0
   self.ko = true 
   self.attacking = false -- stops calling gotHit, since the hitbox check is now false
   playSFX1(self.hit_sound_sfx)
+
 end
 
 function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
@@ -246,13 +259,13 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
     if self.life > 0 then self.life = math.max(self.life - 6, 0) end
   end
 
-  if frame - round_end_frame == 30 and self.mugshot_on then playSFX1(mugshot_sfx) end -- put into soundbuffer sometime
+  if frame - round_end_frame == 30 and self.hit_flag.Mugshot then playSFX1(mugshot_sfx) end -- put into soundbuffer sometime
   if frame - round_end_frame == 60 then
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
     playSFX2(self.got_hit_sfx) 
 
-    if self.wallsplat_on then
+    if self.hit_flag.Wallsplat then
       self.vel[1] = self.facing * -50
       self.vel[2] = -5
       self.pos[2] = self.pos[2] - 30
@@ -266,7 +279,7 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
   if frame - round_end_frame > 60 then
     self.friction_on = true
     self:updateImage(5)
-    if self.wallsplat_on and self.hit_wall then
+    if self.hit_flag.Wallsplat and self.hit_wall then
       self.vel[1] = -self.vel[1] * 0.4
       self.hit_wall = false
       WallExplosion:loadFX(self.pos[1], self.pos[2])
@@ -354,7 +367,6 @@ function Fighter:setNewRound()
   self.attacking = false
   self.super_on = false
   self.hit_wall = false
-  self.wallsplat_on = false
   self.friction_on = false
   self.image_index = 0 -- Horizontal offset starting at 0
   self.vel = {0, 0}
@@ -366,10 +378,10 @@ function Fighter:setNewRound()
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_headboxes = self.headboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
-  if self.mugshot_on then
+  if self.hit_flag.Mugshot then
     self.mugshotted = 270 -- add 90 frames to this, because of round start fade-in
-    self.mugshot_on = false
   end
+  self.hit_flag = {}
 end
 
 function Fighter:updateImage(image_index)
@@ -850,7 +862,7 @@ end
     self.current_hurtboxes = self.hurtboxes_attacking
     self.current_headboxes = self.headboxes_attacking    
     self.current_hitboxes = self.hitboxes_attacking
-    self.hit_type = ""
+    self.hit_type = {}
     if self.super < 96 and not self.super_on then 
       self.super = math.min(self.super + 8, 96)
       if self.super == 96 then playSFX1(super_sfx) end
@@ -877,7 +889,7 @@ end
     self.dandy = false
     self.pilebunking = true -- to prevent dandy step or pilebunker while pilebunking
     self.attacking = true -- needed to activate hitboxes
-    self.hit_type = "Wallsplat"
+    self.hit_type = {Wallsplat = true}
 
     Explosion:loadFX(self.pos[1] + 75 + 150 * self.facing, self.pos[2] + 86, h_vel * self.facing, 0, 0.9, 0)
     self.vel[1] = h_vel * self.facing

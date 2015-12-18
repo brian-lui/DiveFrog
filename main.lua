@@ -1,13 +1,13 @@
 require 'utilities' -- helper functions
 require 'camera'
 local class = require 'middleclass' -- class support
-local stage = require 'stage'  -- stage size
-local window = require 'window'  -- window size (current view of stage)
+local stage = require 'stage'  -- total playing field area
+local window = require 'window'  -- current view of stage
 local buttons = require 'controls'  -- mapping of keyboard controls
 local music = require 'music' -- background music
 local character = require 'character' -- base character class
-local particles = require 'particles' -- graphical effects
-local game = {current_screen = "title"}
+local particles = require 'particles' -- graphics effects
+local game = {current_screen = "title"} -- start at title screen
 
 -- load images
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
@@ -18,8 +18,14 @@ local superbar = love.graphics.newImage('images/SuperBar.png')
 local frogfactor = love.graphics.newImage('images/FrogFactor.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
 local greenlight = love.graphics.newImage('images/GreenLight.png')
---local redlight = love.graphics.newImage('images/RedLight.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
+
+-- load image constants
+IMG = {greenlight_width = greenlight:getWidth(),
+  frogfactor_width = frogfactor:getWidth(),
+  frogfactor_height = frogfactor:getHeight(),
+  superbar_width = superbar:getWidth()
+  }
 
 -- load fonts
 local titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 60)
@@ -35,44 +41,32 @@ charselected_sfx = "CharSelectedSFX.mp3"
 mugshot_sfx = "Mugshot.mp3"
 explosion_sfx = "Explosion.mp3"
 
+-- build screen
+love.window.setMode(window.width, window.height, { borderless = true })
+love.window.setTitle("Divefrog")
+
+-- build canvas layers
+canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
+canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
+canvas_background = love.graphics.newCanvas(stage.width, stage.height)
+
 function love.load()
-  
-  love.window.setMode(window.width, window.height, { borderless = true })
-
-
-  canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
-  canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
-  canvas_background = love.graphics.newCanvas(stage.width, stage.height)
-
-
   setBGM("Intro.mp3")
-  
-  min_dt = 1/60 -- frames per second
+  min_dt = 1/30 -- frames per second
   next_time = love.timer.getTime()
   frame = 0 -- framecount
   frame0 = 0 -- timer for start of round fade in
-
   init_round_timer = 1200 -- round time in frames
   round_timer = init_round_timer
   round_end_frame = 0
   input_frozen = true
   current_round = 0
   best_to_x = 5
-  p1_won_match = false
-  p2_won_match = false
-  keybuffer = {} 
+  match_winner = false
+  keybuffer = {} -- log of all keystates during the round. Useful for netplay!
   prebuffer = {} -- pre-load draw instruction into future frames behind sprite
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
   camera_xy = {} -- corner for camera and window drawing
-
-
-  -- load image constants
-  IMG = {greenlight_width = greenlight:getWidth(),
-    --redlight_width = redlight:getWidth(),
-    frogfactor_width = frogfactor:getWidth(),
-    frogfactor_height = frogfactor:getHeight(),
-    superbar_width = superbar:getWidth()
-    }
 end
 
 function drawBackground()
@@ -89,7 +83,7 @@ function drawSprites()
     -- draw if low on time
   if round_timer <= 180 then
     love.graphics.push("all")
-      love.graphics.setColor(110, 0, 0, 100)
+      love.graphics.setColor(110, 0, 0, 150)
       love.graphics.setLineWidth(12)
       love.graphics.line(stage.center, 0, stage.center, stage.height)
     love.graphics.pop()
@@ -160,9 +154,6 @@ function drawOverlays()
       if side:getScore() >= i then
         love.graphics.draw(greenlight, window.center + (op.move * 358) - op.move * (24 * i),
         50, 0, 1, 1, op.offset * IMG.greenlight_width)
-      --else
-      --  love.graphics.draw(redlight, window.center + (op.move * 358) - op.move * (24 * i),
-      --  50, 0, 1, 1, op.offset * IMG.redlight_width)
       end
     end
 
@@ -210,7 +201,7 @@ function drawOverlays()
   end
 
   --[[----------------------------------------------
-                      ROUND START      
+                OVERLAYS - ROUND START      
   ----------------------------------------------]]--
   local frames_elapsed = frame - frame0
   if frames_elapsed < 60 then
@@ -225,17 +216,15 @@ function drawOverlays()
       love.graphics.setColor(255, 255, 255)
       love.graphics.printf("Round " .. current_round, 0, 200, window.width, "center")
       if p1:getScore() == best_to_x - 1 and p2:getScore() == best_to_x - 1 then
-        love.graphics.printf("Final round!", 0, 200, window.width, "center")
+        love.graphics.printf("Final round!", 0, 300, window.width, "center")
       end
     love.graphics.pop()
   end
 
   --[[----------------------------------------------
-                       ROUND END      
+                 OVERLAYS - ROUND END      
   ----------------------------------------------]]--
   if round_end_frame > 0 then
-    local light = 255 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 255 at 150
-
     -- end of round win message
     if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
       love.graphics.push("all")
@@ -247,9 +236,9 @@ function drawOverlays()
         end
       love.graphics.pop()
     end
-
     -- end of round fade out
     if frame - round_end_frame > 120 and frame - round_end_frame < 150 then
+      local light = 255 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 255 at 150
       love.graphics.push("all")
         love.graphics.setColor(0, 0, 0, light)
         love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
@@ -258,109 +247,92 @@ function drawOverlays()
   end
 end
 
-
 function love.draw()
-    if game.current_screen == "maingame" then
+  if game.current_screen == "maingame" then
+    canvas_background:renderTo(drawBackground)
+    canvas_sprites:renderTo(drawSprites)
+    canvas_overlays:renderTo(drawOverlays)
 
-      canvas_background:renderTo(drawBackground)
-      canvas_sprites:renderTo(drawSprites)
-      canvas_overlays:renderTo(drawOverlays)
+    camera:set(0.5, 1)
+    love.graphics.draw(canvas_background)
+    camera:unset()
 
-      camera:set(0.5, 1)
-      love.graphics.draw(canvas_background)
-      camera:unset()
+    camera:set(1, 1)
+    love.graphics.draw(canvas_sprites)
+    --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+    --drawDebugSprites() -- debug: draw sprite box, center, and facing
+    camera:unset()
 
-      camera:set(1, 1)
-      love.graphics.draw(canvas_sprites)
-      --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
-      --drawDebugSprites() -- debug: draw sprite box, center, and facing
-      camera:unset()
+    camera:set(0, 0)
+    love.graphics.draw(canvas_overlays)
+    --drawMidLines() -- debug: draw midscreen of window and stage (thick dot is window)
+    camera:unset()      
 
-      camera:set(0, 0)
-      love.graphics.draw(canvas_overlays)
-      --drawMidLines() -- debug: draw midscreen of window and stage (thick dot is window)
-      camera:unset()      
+    --print(unpack(camera_xy)) -- print camera position
+    --print(keybuffer[frame][1], keybuffer[frame][2], keybuffer[frame][3], keybuffer[frame][4])
+  end
 
-      --print(unpack(camera_xy)) -- print camera position
-      --print(keybuffer[frame][1], keybuffer[frame][2], keybuffer[frame][3], keybuffer[frame][4])
+  if game.current_screen == "charselect" then
+    love.graphics.draw(charselectscreen, 0, 0, 0) -- background
+    love.graphics.draw(portraits, portraitsQuad, 473, 130) -- character portrait
+    love.graphics.push("all")
+      love.graphics.setColor(0, 0, 0)
+      love.graphics.setFont(charInfoFont)
+      love.graphics.printf(char_text[p1_char][1], 516, 350, 300) -- character movelist
+      love.graphics.printf(char_text[p1_char][2], 516, 384, 300) -- character movelist
+      love.graphics.printf(char_text[p1_char][3], 513, 425, 300) -- character movelist
+      love.graphics.printf(char_text[p1_char][4], 430, 469, 300) -- character movelist
+      --p1 rectangle
+      love.graphics.setFont(charSelectorFont)
+      love.graphics.setLineWidth(2)
+      love.graphics.setColor(14, 28, 232)
+      love.graphics.printf("P1", 42, 20 + (p1_char * 70), 50) -- helptext
+      if frame % 45 < 7 then love.graphics.setColor(164, 164, 255) end -- flashing rectangle
+      love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
+      
+      --p2 rectangle
+      love.graphics.setColor(14, 232, 54)
+      love.graphics.printf("P2", 355, 20 + (p2_char * 70), 50)
+      if frame % 45 < 7 then love.graphics.setColor(164, 255, 164) end
+      love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
+    love.graphics.pop()
+  end
+
+  if game.current_screen == "match_end" then
+    love.graphics.draw(bkmatchend, 0, 0) -- background
+
+    love.graphics.push("all")
+      love.graphics.setFont(gameoverFont)
+      love.graphics.draw(match_winner:getWin_Portrait(), 100, 50)
+      love.graphics.setColor(31, 39, 84)
+      love.graphics.printf(match_winner:getWin_Quote(), 50, 470, 700)
+      love.graphics.setColor(31, 39, 84) -- placeholder
+      love.graphics.setFont(charSelectorFont) -- placeholder
+      love.graphics.printf("Press return/enter please", 600, 540, 190) -- placeholder
+    love.graphics.pop()
+
+    -- fade in for match end
+    frame = frame + 1
+    local fadein = 255 - ((frame - frame0) * 255 / 60)
+    if frame - frame0 < 60 then
+      love.graphics.push("all") 
+        love.graphics.setColor(0, 0, 0, fadein)
+        love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
+      love.graphics.pop()
     end
+  end
 
-    if game.current_screen == "charselect" then
-        love.graphics.draw(charselectscreen, 0, 0, 0) -- background
-        love.graphics.draw(portraits, portraitsQuad, 473, 130) -- character portrait
-        love.graphics.push("all")
-          love.graphics.setColor(0, 0, 0)
-          love.graphics.setFont(charInfoFont)
-          love.graphics.printf(char_text[p1_char][1], 516, 350, 300) -- character movelist
-          love.graphics.printf(char_text[p1_char][2], 516, 384, 300) -- character movelist
-          love.graphics.printf(char_text[p1_char][3], 513, 425, 300) -- character movelist
-          love.graphics.printf(char_text[p1_char][4], 430, 469, 300) -- character movelist
-          --p1 rectangle
-          love.graphics.setFont(charSelectorFont)
-          love.graphics.setLineWidth(2)
-          love.graphics.setColor(14, 28, 232)
-          love.graphics.printf("P1", 42, 20 + (p1_char * 70), 50) -- helptext
-          if frame % 45 < 7 then love.graphics.setColor(164, 164, 255) end -- flashing rectangle
-          love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
-          
-          --p2 rectangle
-          love.graphics.setColor(14, 232, 54)
-          love.graphics.printf("P2", 355, 20 + (p2_char * 70), 50)
-          if frame % 45 < 7 then love.graphics.setColor(164, 255, 164) end
-          love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
-        love.graphics.pop()
-    end
+  if game.current_screen == "title" then love.graphics.draw(titlescreen, 0, 0, 0) end
 
-    if game.current_screen == "match_end" then
-        love.graphics.draw(bkmatchend, 0, 0) -- background
-        local win_portrait = ""
-        local win_quote = ""
+  local cur_time = love.timer.getTime() -- time after drawing all the stuff
+  if cur_time - next_time >= 0 then
+    next_time = cur_time -- time needed to sleep until the next frame (?)
+  end
 
-        if p1_won_match then
-          win_portrait = p1:getWin_Portrait()
-          win_quote = p1:getWin_Quote()
-        elseif p2_won_match then
-          win_portrait = p2:getWin_Portrait()
-          win_quote = p2:getWin_Quote()
-        end
-
-        love.graphics.push("all")
-          love.graphics.setFont(gameoverFont)
-          love.graphics.draw(win_portrait, 100, 50)
-          love.graphics.setColor(31, 39, 84)
-          love.graphics.printf(win_quote, 50, 470, 700)
-          love.graphics.setColor(31, 39, 84) -- placeholder
-          love.graphics.setFont(charSelectorFont) -- placeholder
-          love.graphics.printf("Press return/enter please", 600, 540, 190) -- placeholder
-        love.graphics.pop()
-
-        -- fade in for match end
-        frame = frame + 1
-        local fadein = 255 - ((frame - frame0) * 255 / 60)
-        if frame - frame0 < 60 then
-          love.graphics.push("all") 
-            love.graphics.setColor(0, 0, 0, fadein)
-            love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
-          love.graphics.pop()
-        end
-    end
-
-    if game.current_screen == "title" then love.graphics.draw(titlescreen, 0, 0, 0) end
-
-  love.graphics.push("all")
-    love.graphics.setColor(255, 255, 255)
-  love.graphics.pop()
-
-  local cur_time = love.timer.getTime()
-  if cur_time - next_time >= 0 then next_time = cur_time -- time needed to sleep until the next frame (?)
-    return
-    end
   love.timer.sleep(next_time - cur_time) -- advance time to next frame (?)
-
 end
 
 function love.update(dt)
-
   if game.current_screen == "maingame" then
     local p1_h_p2 = (p1:get_Center() + p2:get_Center()) / 2 -- horizontal midpoint of p1/p2
     local p1p2_v = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2]) -- highest sprite
@@ -373,7 +345,6 @@ function love.update(dt)
     --]]
     camera_xy = {clamp(p1_h_p2 - window.center, 0, stage.width - window.width),
       math.max((stage.height - window.height) - (stage.floor - p1p2_v) / 8) }
-
     
     camera:setPosition(unpack(camera_xy))
 
@@ -394,6 +365,7 @@ function love.update(dt)
     love.keyboard.isDown(buttons.p2attack)}
 
     -- read keystate from keybuffer and call the associated functions
+    -- only call if the key was pressed this frame, but not pressed last frame
     if not input_frozen then
       if keybuffer[frame][1] and not p1:getFrozen() and not keybuffer[frame-1][1] then p1:jump_key_press() end
       if keybuffer[frame][2] and not p1:getFrozen() and not keybuffer[frame-1][2] then p1:attack_key_press() end
@@ -406,32 +378,20 @@ function love.update(dt)
     p2:updatePos(p1:get_Center())
     t1 = love.timer.getTime()
 
-    -- check if KO. [1] is for KO, [2] is for mugshot. If mugshot, KO is always true
-    if check_p1_got_hit()[1] and check_p2_got_hit()[1] then
+    -- check if anyone got hit
+    if check_got_hit(p1, p2) and check_got_hit(p2, p1) then
       round_end_frame = frame
       input_frozen = true
       p1:gotHit(p2.hit_type)
       p2:gotHit(p1.hit_type)
 
-    elseif check_p1_got_hit()[2] then
-      round_end_frame = frame
-      input_frozen = true
-      p1:gotHit("Mugshot")
-      p2:hitOpponent()
-
-    elseif check_p1_got_hit()[1] then
+    elseif check_got_hit(p1, p2) then
       round_end_frame = frame
       input_frozen = true
       p1:gotHit(p2.hit_type)
       p2:hitOpponent()
 
-    elseif check_p2_got_hit()[2] then
-      round_end_frame = frame
-      input_frozen = true
-      p2:gotHit("Mugshot")
-      p1:hitOpponent()
-
-    elseif check_p2_got_hit()[1] then
+    elseif check_got_hit(p2, p1) then
       round_end_frame = frame
       input_frozen = true
       p2:gotHit(p1.hit_type)
@@ -457,21 +417,19 @@ function love.update(dt)
     end  
 
     -- after round ended and drew end round stuff, start new round
-    if frame - round_end_frame > 144 then
-      if p1:getWon() then p1:addScore() end
-      if p2:getWon() then p2:addScore() end
+    if frame - round_end_frame == 144 then
+      for p, _ in pairs(PLAYERS) do
+        if p:getWon() then p:addScore() end
+        if p:getScore() == best_to_x then match_winner = p end
+      end
       
-      if p1:getScore() == best_to_x then p1_won_match = true end
-      if p2:getScore() == best_to_x then p2_won_match = true end
-      
-      if not p1_won_match and not p2_won_match then
-        newRound()
-        round_timer = init_round_timer
-        end -- new round
-      
-      if p1_won_match or p2_won_match then -- match end
-        matchEnd()
-        game.current_screen = "match_end"
+      if not match_winner then newRound()
+      else -- match end
+        frame = 0
+        frame0 = 0
+        setBGM("GameOver.mp3")
+        game.current_screen = "match_end" 
+        keybuffer = {}
       end
     end
 
@@ -482,15 +440,14 @@ end
 
 function newRound()
   frame = 0
-  frame0 = frame
+  frame0 = 0
+  round_timer = init_round_timer
 
-  p1:setPos(p1:getStart_Pos())
-  p1:setFacing(1)
-  p1:setNewRound()
-
-  p2:setPos(p2:getStart_Pos())
-  p2:setFacing(-1)
-  p2:setNewRound()
+  for p, draw in pairs(PLAYERS) do
+    p:setPos(p:getStart_Pos())
+    p:setFacing(draw.flip)
+    p:setNewRound()
+  end
 
   round_end = false
   round_end_frame = 100000 -- arbitrary number, larger than total round time
@@ -510,13 +467,11 @@ function startGame()
   p2 = available_chars[p2_char](-1)
 
   -- put the move/flip/offset stuff for draw operations in p1/p2
-  p1_draw_ops = {move = -1, flip = 1, offset = 0}
-  p2_draw_ops = {move = 1, flip = -1, offset = 1}
-
-  PLAYERS = {[p1] = p1_draw_ops, [p2] = p2_draw_ops}
+  p1_flags = {move = -1, flip = 1, offset = 0}
+  p2_flags = {move = 1, flip = -1, offset = 1}
+  PLAYERS = {[p1] = p1_flags, [p2] = p2_flags}
 
   setBGM(p2.BGM)
-
   newRound()
 end
 
@@ -533,17 +488,8 @@ function charSelect()
   game.current_screen = "charselect"
 end
 
-function matchEnd()
-  frame = 0
-  frame0 = frame
-  setBGM("GameOver.mp3")
-  game.current_screen = "match_end" 
-  keybuffer = {}
-end
-
 function love.keypressed(key, isrepeat)
-
-  if key == buttons.quit then quitGame() end
+  if key == buttons.quit then love.event.quit() end
 
   -- Get keys when at title stage
   if game.current_screen == "title" then
@@ -571,21 +517,17 @@ function love.keypressed(key, isrepeat)
     end
   end
 
-  if game.current_screen == "maingame" then
-      -- debug
-      if key == 'z' then
-        -- testing stuff here
-      end
-  end
-
   if game.current_screen == "match_end" then
     if key ==  buttons.start then
       love.load()
       charSelect()
     end
   end
-end
 
-function quitGame()
-  love.event.quit()
+  if game.current_screen == "maingame" then
+    -- debug
+    if key == 'z' then
+      print("POOPS!")-- testing stuff here
+    end
+  end
 end
