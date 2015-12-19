@@ -38,12 +38,13 @@ function Fighter:initialize(init_facing)
   self.vel_multiple = 1.0
   self.hit_wall = false -- if player has hit wall or not. Used for wallsplat and some special moves
   self.hurtboxes = {{0, 0, 0, 0}}
-  self.headboxes = {{0, 0, 0, 0}}
   self.hitboxes = {{0, 0, 0, 0}}
   self.opp_center = stage.center -- center of opponent's sprite
   self.waiting = 0 -- number of frames to wait. used for pre-jump frames etc.
   self.waiting_state = "" -- buffer the action that will be executed if special isn't pressed
   self.hit_flag = {} -- for KO animations
+  self.things = {} -- projectiles, etc.
+  self.things.attacking = false
 
   --[[-------------------------------------------------------------------------
                             MAY NEED TO MODIFY THESE
@@ -71,12 +72,6 @@ function Fighter:initialize(init_facing)
   self.hurtboxes_attacking  = {{0, 0, 0, 0}}
   self.hurtboxes_kickback  = {{0, 0, 0, 0}}
   self.hurtboxes_ko  = {{0, 0, 0, 0}}
-  self.headboxes_standing = {{0, 0, 0, 0}}
-  self.headboxes_jumping  = {{0, 0, 0, 0}}
-  self.headboxes_falling = {{0, 0, 0, 0}}
-  self.headboxes_attacking  = {{0, 0, 0, 0}}
-  self.headboxes_kickback  = {{0, 0, 0, 0}}
-  self.headboxes_ko  = {{0, 0, 0, 0}}
   self.hitboxes_attacking = {{0, 0, 0, 0}}
 
   -- sound effects
@@ -96,7 +91,6 @@ function Fighter:initialize(init_facing)
   self.my_center = self.pos[1] + self.sprite_size[1]
   self.gravity = self.default_gravity
   self.current_hurtboxes = self.hurtboxes_standing
-  self.current_headboxes = self.headboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
 end
 
@@ -182,7 +176,6 @@ end
     self.vel = {h_vel * self.facing, -v_vel}
     self:updateImage(1)
     self.current_hurtboxes = self.hurtboxes_jumping
-    self.current_headboxes = self.headboxes_jumping
   end
 
   function Fighter:kickback(h_vel, v_vel)
@@ -191,7 +184,6 @@ end
     self.vel = {h_vel * self.facing, -v_vel}
     self:updateImage(3)
     self.current_hurtboxes = self.hurtboxes_kickback
-    self.current_headboxes = self.headboxes_kickback
   end
 
   function Fighter:land() -- called when character lands on floor
@@ -202,7 +194,6 @@ end
       self.vel = {0, 0}
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
-      self.current_headboxes = self.headboxes_standing
     end
   end
 
@@ -212,7 +203,6 @@ end
     self:updateImage(4)
     self.gravity = 0
     self.current_hurtboxes = self.hurtboxes_attacking
-    self.current_headboxes = self.headboxes_attacking
     if self.super < 96 and not self.super_on then 
       self.super = math.min(self.super + 8, 96)
       if self.super == 96 then playSFX1(super_sfx) end
@@ -236,12 +226,12 @@ end
   end
 
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
-  if type_table.Mugshot then
+  if type_table[Mugshot] then
     Mugshot:loadFX() -- display Mugshot graphic
     self.hit_flag.Mugshot = true
   end
 
-  if type_table.Wallsplat then
+  if type_table[Wallsplat] then
     self.hit_flag.Wallsplat = true
   end
 
@@ -272,7 +262,6 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
       self.gravity = 0.2
       self.in_air = true
       self.current_hurtboxes = self.hurtboxes_ko
-      self.current_headboxes = self.headboxes_ko
     end
   end
 
@@ -314,7 +303,6 @@ function Fighter:wonRoundRoutine() -- keep calling this if self.won is true
       self:updateImage(0)
     end
     self.current_hurtboxes = self.hurtboxes_standing 
-    self.current_headboxes = self.headboxes_standing 
   end
 end
 
@@ -332,9 +320,8 @@ function Fighter:getPos_v() return self.pos[2] end
 function Fighter:getSprite_Width() return self.sprite_size[1] end
 function Fighter:getFacing() return self.facing end
 function Fighter:getImage_Size() return unpack(self.image_size) end
-function Fighter:getHurtboxes() return self.hurtboxes end
-function Fighter:getHeadboxes() return self.headboxes end
-function Fighter:getHitboxes() return self.hitboxes end
+--function Fighter:getHurtboxes() return self.hurtboxes end
+--function Fighter:getHitboxes() return self.hitboxes end
 function Fighter:getWon() return self.won end
 function Fighter:getKO() return self.ko end
 function Fighter:getScore() return self.score end
@@ -376,7 +363,6 @@ function Fighter:setNewRound()
   self.my_center = self.pos[1] + self.sprite_size[1]
   self:updateImage(self.image_index)
   self.current_hurtboxes = self.hurtboxes_standing
-  self.current_headboxes = self.headboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
   if self.hit_flag.Mugshot then
     self.mugshotted = 270 -- add 90 frames to this, because of round start fade-in
@@ -407,46 +393,32 @@ function Fighter:updateBoxes()
     temp_hurtbox[i] = {0, 0, 0, 0}
   end
 
-  local temp_headbox = {}
-  for i = 1, #self.current_headboxes do
-    temp_headbox[i] = {0, 0, 0, 0}
-  end
-
   local temp_hitbox = {}
   for i = 1, #self.current_hitboxes do
     temp_hitbox[i] = {0, 0, 0, 0}
   end
 
   -- add hurtbox sides to self.pos for updated sides
+
+
   if self.facing == 1 then
     for i = 1, #self.current_hurtboxes do
       temp_hurtbox[i][1] = self.current_hurtboxes[i][1] + self.pos[1] -- left
       temp_hurtbox[i][2] = self.current_hurtboxes[i][2] + self.pos[2] -- top
       temp_hurtbox[i][3] = self.current_hurtboxes[i][3] + self.pos[1] -- right
       temp_hurtbox[i][4] = self.current_hurtboxes[i][4] + self.pos[2] -- bottom
-    end
-    for i = 1, #self.current_headboxes do
-      temp_headbox[i][1] = self.current_headboxes[i][1] + self.pos[1] -- left
-      temp_headbox[i][2] = self.current_headboxes[i][2] + self.pos[2] -- top
-      temp_headbox[i][3] = self.current_headboxes[i][3] + self.pos[1] -- right
-      temp_headbox[i][4] = self.current_headboxes[i][4] + self.pos[2] -- bottom
+      temp_hurtbox[i][5] = self.current_hurtboxes[i][5] -- flag 1
     end
 
   elseif self.facing == -1 then
     for i = 1, #self.current_hurtboxes do
-      temp_hurtbox[i][1] = self.pos[1] - self.current_hurtboxes[i][3] + self.sprite_size[1] -- left
+      temp_hurtbox[i][1] = - self.current_hurtboxes[i][3] + self.pos[1] + self.sprite_size[1] -- left
       temp_hurtbox[i][2] = self.current_hurtboxes[i][2] + self.pos[2] -- top
-      temp_hurtbox[i][3] = self.pos[1] - self.current_hurtboxes[i][1] + self.sprite_size[1] -- right
+      temp_hurtbox[i][3] = - self.current_hurtboxes[i][1] + self.pos[1] + self.sprite_size[1] -- right
       temp_hurtbox[i][4] = self.current_hurtboxes[i][4] + self.pos[2] -- bottom
-    end
-    for i = 1, #self.current_headboxes do
-      temp_headbox[i][1] = self.pos[1] - self.current_headboxes[i][3] + self.sprite_size[1] -- left
-      temp_headbox[i][2] = self.current_headboxes[i][2] + self.pos[2] -- top
-      temp_headbox[i][3] = self.pos[1] - self.current_headboxes[i][1] + self.sprite_size[1] -- right
-      temp_headbox[i][4] = self.current_headboxes[i][4] + self.pos[2] -- bottom
+      temp_hurtbox[i][5] = self.current_hurtboxes[i][5] -- flag 1
     end
   end
-
 
   -- add hitbox sides to self.pos for updated sides
   if self.attacking and self.facing == 1 then
@@ -454,7 +426,7 @@ function Fighter:updateBoxes()
       temp_hitbox[i][1] = self.current_hitboxes[i][1] + self.pos[1] -- left
       temp_hitbox[i][2] = self.current_hitboxes[i][2] + self.pos[2] -- top
       temp_hitbox[i][3] = self.current_hitboxes[i][3] + self.pos[1] -- right
-      temp_hitbox[i][4] = self.current_hitboxes[i][4] + self.pos[2] -- bottometc.
+      temp_hitbox[i][4] = self.current_hitboxes[i][4] + self.pos[2] -- bottom
     end
   elseif self.attacking and self.facing == -1 then
     for i = 1, #self.current_hitboxes do
@@ -466,7 +438,6 @@ function Fighter:updateBoxes()
   end
   
   self.hurtboxes = temp_hurtbox
-  self.headboxes = temp_headbox
   self.hitboxes = temp_hitbox
 end
 
@@ -521,7 +492,6 @@ function Fighter:updatePos(opp_center)
     -- update image if falling
     if self.in_air and self.vel[2] > 0 and not self.attacking and not self.ko then
       self.current_hurtboxes = self.hurtboxes_standing
-      self.current_headboxes = self.headboxes_standing
       self:updateImage(2)
     end 
     
@@ -591,7 +561,7 @@ function Konrad:initialize(init_facing)
   self.win_portrait = love.graphics.newImage('images/Konrad/KonradPortrait.png')
   self.win_quote = "You have been defeated by Konrad the talking frog with a cape who plays poker."
   self.stage_background = love.graphics.newImage('images/Konrad/KonradBackground.jpg')
-  self.BGM = "KonradTheme.mp3"
+  self.BGM = "KonradTheme.ogg"
   self.image = love.graphics.newImage('images/Konrad/KonradTiles.png')
   self.image_size = {1200, 200}
   self.sprite_size = {200, 200}
@@ -608,24 +578,16 @@ function Konrad:initialize(init_facing)
   self.my_center = self.pos[1] + self.sprite_size[1]
   
   --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
-  self.hurtboxes_standing = {{76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
-  self.hurtboxes_jumping  = {{76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
-  self.hurtboxes_falling = {{76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
-  self.hurtboxes_attacking  = {{75, 60, 104, 103}, {68, 104, 91, 135}, {100, 105, 114, 136}, {111, 137, 128, 157}, {125, 158, 138, 183}}
-  self.hurtboxes_kickback  = {{70, 73, 119, 165}, {72, 166, 111, 182}}
+  self.hurtboxes_standing = {{78, 33, 116, 50, Mugshot}, {69, 51, 124, 79, Mugshot}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
+  self.hurtboxes_jumping  = {{78, 33, 116, 50, Mugshot}, {69, 51, 124, 79, Mugshot}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
+  self.hurtboxes_falling = {{78, 33, 116, 50, Mugshot}, {69, 51, 124, 79, Mugshot}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
+  self.hurtboxes_attacking  = {{67, 30, 108, 59, Mugshot}, {75, 60, 104, 103}, {68, 104, 91, 135}, {100, 105, 114, 136}, {111, 137, 128, 157}, {125, 158, 138, 183}}
+  self.hurtboxes_kickback  = {{67, 41, 128, 72, Mugshot}, {70, 73, 119, 165}, {72, 166, 111, 182}}
   self.hurtboxes_ko  = {{0, 0, 0, 0}}
-
-  self.headboxes_standing = {{78, 33, 116, 50}, {69, 51, 124, 79}}
-  self.headboxes_jumping  = {{78, 33, 116, 50}, {69, 51, 124, 79}}
-  self.headboxes_falling = {{78, 33, 116, 50}, {69, 51, 124, 79}}
-  self.headboxes_attacking  = {{67, 30, 108, 59}}
-  self.headboxes_kickback  = {{67, 41, 128, 72}}
-  self.headboxes_ko  = {{0, 0, 0, 0}}
 
   self.hitboxes_attacking = {{119, 166, 137, 183}}
 
   self.current_hurtboxes = self.hurtboxes_standing
-  self.current_headboxes = self.headboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
 
   -- sound effects
@@ -693,7 +655,6 @@ end
     self.vel = {h_vel * self.facing, -v_vel}
     self:updateImage(1)
     self.current_hurtboxes = self.hurtboxes_jumping
-    self.current_headboxes = self.headboxes_jumping
   end
 
 
@@ -705,7 +666,6 @@ end
       self.vel = {0, 0}
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
-      self.current_headboxes = self.headboxes_standing
     end
   end
 
@@ -763,7 +723,7 @@ function Jean:initialize(init_facing)
   self.win_portrait = love.graphics.newImage('images/Jean/JeanPortrait.png')
   self.win_quote = 'You must defeat "Wampire" to stand a chance.'
   self.fighter_name = "Mustachioed Jean"
-  self.BGM = "JeanTheme.mp3"
+  self.BGM = "JeanTheme.ogg"
   self.stage_background = love.graphics.newImage('images/Jean/JeanBackground.jpg')
   self.image = love.graphics.newImage('images/Jean/JeanTiles.png')
   self.image_size = {1200, 200}
@@ -797,30 +757,19 @@ function Jean:initialize(init_facing)
   self.ground_special_sfx = "Jean/JeanGroundSpecial.mp3"
   self.air_special_sfx = "Jean/JeanAirSpecial.mp3"
 
-  --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
-  self.hurtboxes_standing = {{51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
-  self.hurtboxes_jumping  = {{51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
-  self.hurtboxes_falling = {{51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
-  self.hurtboxes_attacking  = {{61, 58, 77, 69}, {31, 72, 83, 109}, {42, 110, 93, 126}, {61, 129, 116, 149}, {118, 138, 131, 149}, {62, 151, 145, 172}}
-  self.hurtboxes_dandy  = {{15, 82, 45, 129}, {24, 131, 61, 151}, {62, 142, 73, 151}, {33, 152, 82, 166}, {47, 167, 95, 186}}
+  self.hurtboxes_standing = {{53, 33, 95, 50, Mugshot}, {44, 51, 102, 79, Mugshot}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
+  self.hurtboxes_jumping  = {{53, 33, 95, 50, Mugshot}, {44, 51, 102, 79, Mugshot}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
+  self.hurtboxes_falling = {{53, 33, 95, 50, Mugshot}, {44, 51, 102, 79, Mugshot}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
+  self.hurtboxes_attacking  = {{10, 26, 58, 69, Mugshot}, {61, 58, 77, 69}, {31, 72, 83, 109}, {42, 110, 93, 126}, {61, 129, 116, 149}, {118, 138, 131, 149}, {62, 151, 145, 172}}
+  self.hurtboxes_dandy  = {{11, 32, 37, 76, Mugshot}, {15, 82, 45, 129}, {24, 131, 61, 151}, {62, 142, 73, 151}, {33, 152, 82, 166}, {47, 167, 95, 186}}
   self.hurtboxes_ko  = {{0, 0, 0, 0,}}
-  self.hurtboxes_pilebunker = {{17, 68, 71, 137}, {73, 128, 100, 137}, {42, 140, 108, 187}, {110, 152, 118, 187}}
-  self.hurtboxes_pilebunkerB = {{17, 68, 71, 137}, {73, 128, 83, 137}, {42, 140, 98, 187}, {100, 165, 113, 180}}
-
-  self.headboxes_standing = {{53, 33, 95, 50}, {44, 51, 102, 79}}
-  self.headboxes_jumping  = {{53, 33, 95, 50}, {44, 51, 102, 79}}
-  self.headboxes_falling = {{53, 33, 95, 50}, {44, 51, 102, 79}}
-  self.headboxes_attacking  = {{10, 26, 58, 69}}
-  self.headboxes_dandy  = {{11, 32, 37, 76}}
-  self.headboxes_ko  = {{0, 0, 0, 0,}}
-  self.headboxes_pilebunker = {{6, 32, 37, 71}}
-  self.headboxes_pilebunkerB = {{15, 32, 46, 71}}
+  self.hurtboxes_pilebunker = {{6, 32, 37, 71, Mugshot}, {17, 68, 71, 137}, {73, 128, 100, 137}, {42, 140, 108, 187}, {110, 152, 118, 187}}
+  self.hurtboxes_pilebunkerB = {{15, 32, 46, 71, Mugshot}, {17, 68, 71, 137}, {73, 128, 83, 137}, {42, 140, 98, 187}, {100, 165, 113, 180}}
 
   self.hitboxes_attacking = {{130, 154, 147, 172}}
-  self.hitboxes_pilebunker = {{86, 85, 148, 92}}
+  self.hitboxes_pilebunker = {{86, 85, 148, 92, Wallsplat}}
 
   self.current_hurtboxes = self.hurtboxes_standing
-  self.current_headboxes = self.headboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
 
   
@@ -860,7 +809,6 @@ end
     self:updateImage(4)
     self.gravity = 0
     self.current_hurtboxes = self.hurtboxes_attacking
-    self.current_headboxes = self.headboxes_attacking    
     self.current_hitboxes = self.hitboxes_attacking
     self.hit_type = {}
     if self.super < 96 and not self.super_on then 
@@ -876,7 +824,6 @@ end
     self.vel[1] = h_vel * self.facing
     self:updateImage(3)
     self.current_hurtboxes = self.hurtboxes_dandy
-    self.current_headboxes = self.headboxes_dandy    
     self.friction_on = false
     if self.super < 96 and not self.super_on then 
       self.super = math.min(self.super + 4, 96)
@@ -895,7 +842,6 @@ end
     self.vel[1] = h_vel * self.facing
     self:updateImage(6)
     self.current_hurtboxes = self.hurtboxes_pilebunker
-    self.current_headboxes = self.headboxes_pilebunker    
     self.current_hitboxes = self.hitboxes_pilebunker
     if self.super < 96 and not self.super_on then 
       self.super = math.min(self.super + 10, 96)
@@ -951,7 +897,6 @@ end
       self.vel[1] = 0
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
-      self.current_headboxes = self.headboxes_standing      
     end
 
     -- stop pilebunking, and change to recovery frames
@@ -959,7 +904,6 @@ end
       self.attacking = false
       self:updateImage(7)
       self.current_hurtboxes = self.hurtboxes_pilebunkerB
-      self.current_headboxes = self.headboxes_pilebunkerB      
     end
 
     -- change from recovery to neutral
@@ -971,7 +915,6 @@ end
       --self.pilebunk_ok = false
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
-      self.current_headboxes = self.headboxes_standing      
     end
 
     if self.waiting > 0 then

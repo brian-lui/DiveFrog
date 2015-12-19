@@ -34,28 +34,15 @@ function check_got_hit(getting_hit, attacker) -- also applies Mugshot flag for h
   local gothit = false
   if attacker.attacking then
     local hurt = getting_hit.hurtboxes
-    local head = getting_hit.headboxes
     local hit = attacker.hitboxes
     for i = 1, #hurt do
       for j = 1, #hit do
         if(quadOverlap(hurt[i], hit[j])) then
           gothit = true
           for k = 5, #hurt[i] do
-            attacker.hit_type.hurt[i][k] = true
-            print(attacker.hit_type.hurt[i][k])
+            local flag = hurt[i][k]
+            attacker.hit_type[flag] = true
           end
-          -- for k = 5, #hit[j] do
-            -- set flags
-          --end
-        end
-        
-      end
-    end
-    for i = 1, #head do
-      for j = 1, #hit do
-        if(quadOverlap(head[i], hit[j])) then
-          attacker.hit_type.Mugshot = true
-          gothit = true
         end
       end
     end
@@ -87,8 +74,8 @@ end
 function drawDebugHurtboxes()
   love.graphics.push("all")
 
-  local todraw = {hurt = hurtboxes, hit = hitboxes, head = headboxes}
-  local color = {{255, 255, 255}, {255, 0, 0}, {0, 0, 255}}
+  local todraw = {hurt = hurtboxes, hit = hitboxes}
+  local color = {{255, 255, 255}, {255, 0, 0}}
   
   --#todraw is the problem
   --[[
@@ -124,16 +111,6 @@ function drawDebugHurtboxes()
     love.graphics.line(bob[i][1], bob[i][2], bob[i][3], bob[i][2], bob[i][3], bob[i][4], bob[i][1], bob[i][4], bob[i][1], bob[i][2])
   end
 
-  local poo = p1.headboxes
-  love.graphics.setColor(0, 0, 255)
-  for i = 1, #poo do
-    love.graphics.line(poo[i][1], poo[i][2], poo[i][3], poo[i][2], poo[i][3], poo[i][4], poo[i][1], poo[i][4], poo[i][1], poo[i][2])
-  end
-
-  local pee = p2.headboxes
-  for i = 1, #pee do
-    love.graphics.line(pee[i][1], pee[i][2], pee[i][3], pee[i][2], pee[i][3], pee[i][4], pee[i][1], pee[i][4], pee[i][1], pee[i][2])
-  end
   --]]
   love.graphics.pop()
 end
