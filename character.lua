@@ -727,7 +727,7 @@ function Jean:initialize(init_facing)
   self.stage_background = love.graphics.newImage('images/Jean/JeanBackground.jpg')
   self.image = love.graphics.newImage('images/Jean/JeanTiles.png')
   self.image_size = {1200, 200}
-  self.vel_multiple_super = 1.2
+  self.vel_multiple_super = 1.3
   self.sprite_size = {150, 200}
   self.default_gravity = 0.35
   self.sprite_wallspace = 25 -- how many pixels to reduce when checking against stage wall
@@ -864,20 +864,21 @@ end
 
   function Jean:ground_special()
     if self.super_on and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
+      self.super = self.super - 10
       self.waiting_state = ""
       playSFX1(self.ground_special_sfx)
       WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
       self:land()
-      p1:setFrozen(15)
-      p2:setFrozen(15)
+      p1:setFrozen(10)
+      p2:setFrozen(10)
     elseif self.super >= 16 and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 16
       self.waiting_state = ""
       playSFX1(self.ground_special_sfx)
       WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
       self:land()
-      p1:setFrozen(15)
-      p2:setFrozen(15)
+      p1:setFrozen(10)
+      p2:setFrozen(10)
     end
   end
 
