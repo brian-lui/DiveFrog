@@ -259,7 +259,7 @@ function love.draw()
 
     camera:set(1, 1)
     love.graphics.draw(canvas_sprites)
-    drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+    --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
     --drawDebugSprites() -- debug: draw sprite box, center, and facing
     camera:unset()
 
@@ -334,17 +334,18 @@ end
 
 function love.update(dt)
   if game.current_screen == "maingame" then
-    local p1_h_p2 = (p1:get_Center() + p2:get_Center()) / 2 -- horizontal midpoint of p1/p2
-    local p1p2_v = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2]) -- highest sprite
+    local h_midpoint = (p1:get_Center() + p2:get_Center()) / 2
+    local highest_sprite = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2])
+    local screen_bottom = stage.height - window.height
 
     --[[ camera x-position is the horizontal midpoint minus half the window width,
     however, the window cannot go past 0 on the left or the stage width on the right.
     For camera y-position, stage.height - window.height is the lowest down the screen.
     Then we get the y-pos of the bottom of the highest sprite on the screen, and move
-    the camera up by this amount divided by 8 as long as it doesn't exceed the stage top. 
+    the camera up by this amount divided by 8. 
     --]]
-    camera_xy = {clamp(p1_h_p2 - window.center, 0, stage.width - window.width),
-      math.max((stage.height - window.height) - (stage.floor - p1p2_v) / 8) }
+    camera_xy = {clamp(h_midpoint - window.center, 0, stage.width - window.width),
+      screen_bottom - (stage.floor - highest_sprite) / 8 }
     
     camera:setPosition(unpack(camera_xy))
 

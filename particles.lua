@@ -23,7 +23,7 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift
     0, -- rotation
     scale_x, -- scale_x: 1 is default, -1 for flip
     scale_y, -- scale_y: 1 is default, 1 for flip
-    0, -- offset_x
+    shift, -- offset_x
     0, -- offset_y: 0
     0, -- shear_x: 0
     0} -- shear_y: 0
@@ -59,7 +59,6 @@ function Mugshot:loadFX()
   end
 end
   
-
 ----------------------------------- DIZZY -------------------------------------
 -- example for a single-image particle, with no need to cycle through
 -- called repeatedly while character is dizzy
@@ -72,6 +71,39 @@ function Dizzy:loadFX(pos_h, pos_v)
   postbuffer[frame][draw_count] = Dizzy:getDrawable(0, pos_h, pos_v, 1, 1, 0)
 end
 
+
+------------------------------- KICKBACK DUST ---------------------------------
+KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), {162, 42}, {54, 42})
+
+function KickbackDust:loadFX(pos_h, pos_v, facing, shift)
+  draw_count = draw_count + 1
+
+  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
+  for i = frame, (frame + 11) do
+    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
+
+    -- write the animation frames to postbuffer
+    postbuffer[i] = postbuffer[i] or {}
+    postbuffer[i][draw_count] = KickbackDust:getDrawable(index, pos_h, pos_v, facing, 1, shift * 54)
+  end
+end
+
+
+--------------------------------- JUMP DUST -----------------------------------
+JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), {528, 60}, {132, 60})
+
+function JumpDust:loadFX(pos_h, pos_v, facing, shift)
+  draw_count = draw_count + 1
+
+  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
+  for i = frame, (frame + 15) do
+    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
+
+    -- write the animation frames to postbuffer
+    postbuffer[i] = postbuffer[i] or {}
+    postbuffer[i][draw_count] = JumpDust:getDrawable(index, pos_h, pos_v, facing, 1, shift * 132)
+  end
+end
 
 --------------------------------- WALLSPLAT -----------------------------------
 WallExplosion = Particle:new(love.graphics.newImage('images/Wallsplat.png'), {3072, 128}, {128, 128})
