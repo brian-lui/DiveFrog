@@ -105,6 +105,24 @@ function JumpDust:loadFX(pos_h, pos_v, facing, shift)
   end
 end
 
+-------------------------- KONRAD DOUBLE-JUMP DUST ----------------------------
+DoubleJumpDust = Particle:new(love.graphics.newImage('images/Konrad/DoubleJumpDust.png'), {162, 43}, {54, 43})
+
+function DoubleJumpDust:loadFX(pos_h, pos_v, facing, shift)
+  draw_count = draw_count + 1
+
+  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
+  for i = frame, (frame + 11) do
+    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
+
+    -- write the animation frames to postbuffer
+    postbuffer[i] = postbuffer[i] or {}
+    postbuffer[i][draw_count] = DoubleJumpDust:getDrawable(index, pos_h, pos_v, facing, 1, shift * 54)
+  end
+end
+
+
+
 --------------------------------- WALLSPLAT -----------------------------------
 WallExplosion = Particle:new(love.graphics.newImage('images/Wallsplat.png'), {3072, 128}, {128, 128})
 

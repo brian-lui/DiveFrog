@@ -176,8 +176,7 @@ end
     self.vel = {h_vel * self.facing, -v_vel}
     self:updateImage(1)
     self.current_hurtboxes = self.hurtboxes_jumping
-    local shift = 0
-      if self.facing == -1 then shift = 1 end
+    local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
     JumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
   end
 
@@ -187,9 +186,8 @@ end
     self.vel = {h_vel * self.facing, -v_vel}
     self:updateImage(3)
     self.current_hurtboxes = self.hurtboxes_kickback
-    local shift = 0
-      if self.facing == -1 then shift = 1 end
-    KickbackDust:loadFX(self.pos[1] + self.sprite_size[1], self.pos[2] + self.sprite_size[2] - 54, self.facing, shift)
+    local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
+    KickbackDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 54, self.facing, shift)
   end
 
   function Fighter:land() -- called when character lands on floor
@@ -682,9 +680,7 @@ end
         self.waiting_state = ""
         self:jump(0, 12, self.default_gravity)
         playSFX1(self.jump_sfx)
-        local shift = 0
-        if self.facing == -1 then shift = 1 end
-        print(shift)
+        local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
         JumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
       --[[elseif self.waiting == 0 and self.waiting_state == "Jump" and self.super_on then
         self.waiting_state = ""
@@ -695,6 +691,9 @@ end
         self.waiting_state = ""
         self:jump(4, 4, self.default_gravity)
         playSFX1(self.jump_sfx)
+        local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
+        DoubleJumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2 , self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
+
       --[[elseif self.waiting == 0 and self.waiting_state == "DoubleJump" and self.super_on then
         self.waiting_state = ""
         self:jump(6, 6, 0.4)
