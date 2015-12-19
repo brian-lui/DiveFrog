@@ -415,14 +415,14 @@ function love.update(dt)
       local p1_from_center = math.abs((stage.center) - p1:get_Center())
       local p2_from_center = math.abs((stage.center) - p2:get_Center())
       if p1_from_center < p2_from_center then -- inelegant, refactor later
-        p2:gotHit()
+        p2:gotHit(p1.hit_type)
         p1:hitOpponent()
       elseif p2_from_center < p1_from_center then
-        p1:gotHit()
+        p1:gotHit(p2.hit_type)
         p2:hitOpponent()
       else
-        p1:gotHit()
-        p2:gotHit()
+        p1:gotHit(p2.hit_type)
+        p2:gotHit(p1.hit_type)
       end 
     end  
 
