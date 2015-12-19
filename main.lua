@@ -51,8 +51,8 @@ canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
 canvas_background = love.graphics.newCanvas(stage.width, stage.height)
 
 function love.load()
-  setBGM("Intro.mp3")
-  min_dt = 1/30 -- frames per second
+  setBGM("Intro.ogg")
+  min_dt = 1/60 -- frames per second
   next_time = love.timer.getTime()
   frame = 0 -- framecount
   frame0 = 0 -- timer for start of round fade in
@@ -259,7 +259,7 @@ function love.draw()
 
     camera:set(1, 1)
     love.graphics.draw(canvas_sprites)
-    --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+    drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
     --drawDebugSprites() -- debug: draw sprite box, center, and facing
     camera:unset()
 
@@ -379,6 +379,15 @@ function love.update(dt)
     t1 = love.timer.getTime()
 
     -- check if anyone got hit
+
+    --[[
+    for to_check, attackers in pairs(THINGS) do
+      for i = 1, #attackers do
+        print(check_got_hit(to_check, attackers[i]))
+      end
+    end
+  --]]
+
     if check_got_hit(p1, p2) and check_got_hit(p2, p1) then
       round_end_frame = frame
       input_frozen = true
@@ -427,7 +436,7 @@ function love.update(dt)
       else -- match end
         frame = 0
         frame0 = 0
-        setBGM("GameOver.mp3")
+        setBGM("GameOver.ogg")
         game.current_screen = "match_end" 
         keybuffer = {}
       end
@@ -470,13 +479,14 @@ function startGame()
   p1_flags = {move = -1, flip = 1, offset = 0}
   p2_flags = {move = 1, flip = -1, offset = 1}
   PLAYERS = {[p1] = p1_flags, [p2] = p2_flags}
+  THINGS = {[p1] = {p2, p2.things}, [p2] = {p1, p1.things}, [p1.things] = {p2, p2.things}, [p2.things] = {p1, p1.things}} 
 
   setBGM(p2.BGM)
   newRound()
 end
 
 function charSelect()
-  setBGM("CharSelect.mp3")
+  setBGM("CharSelect.ogg")
   available_chars = {Konrad, Jean}
   char_text = {
     {"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},

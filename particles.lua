@@ -79,13 +79,13 @@ WallExplosion = Particle:new(love.graphics.newImage('images/Wallsplat.png'), {30
 function WallExplosion:loadFX(pos_h, pos_v)
   draw_count = draw_count + 1
 
-  local TIME_DIV = 2 -- advance the animation every TIME_DIV frames
-  for i = frame, (frame + 47) do
+  local TIME_DIV = 3 -- advance the animation every TIME_DIV frames
+  for i = frame, (frame + 71) do
     local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
 
     -- write the animation frames to postbuffer
     postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = WallExplosion:getDrawable(index, pos_h, pos_v, 2, 2, 0)
+    postbuffer[i][draw_count] = WallExplosion:getDrawable(index, pos_h - 20, pos_v - 20, 3, 3, 0)
   end
 end
 
