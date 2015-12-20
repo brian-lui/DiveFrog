@@ -35,11 +35,11 @@ local timerFont = love.graphics.newFont('/fonts/Timer.otf', 48)
 local gameoverFont = love.graphics.newFont('/fonts/GoodDog.otf', 40)
 
 -- load sounds
-super_sfx = "SuperFull.mp3"
-charselect_sfx = "CharSelectSFX.mp3"
-charselected_sfx = "CharSelectedSFX.mp3"
-mugshot_sfx = "Mugshot.mp3"
-explosion_sfx = "Explosion.mp3"
+super_sfx = "SuperFull.ogg"
+charselect_sfx = "CharSelectSFX.ogg"
+charselected_sfx = "CharSelectedSFX.ogg"
+mugshot_sfx = "Mugshot.ogg"
+explosion_sfx = "Explosion.ogg"
 
 -- build screen
 love.window.setMode(window.width, window.height, { borderless = true })

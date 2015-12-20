@@ -78,13 +78,13 @@ function Fighter:initialize(init_facing)
   self.hitboxes_attacking = {{0, 0, 0, 0}}
 
   -- sound effects
-  self.BGM = "dummy.mp3"
-  self.jump_sfx = "dummy.mp3"
-  self.attack_sfx = "dummy.mp3"
-  self.got_hit_sfx = "dummy.mp3"
-  self.hit_sound_sfx = "dummy.mp3"
-  self.ground_special_sfx = "dummy.mp3"
-  self.air_special_sfx = "dummy.mp3"
+  self.BGM = "dummy.ogg"
+  self.jump_sfx = "dummy.ogg"
+  self.attack_sfx = "dummy.ogg"
+  self.got_hit_sfx = "dummy.ogg"
+  self.hit_sound_sfx = "dummy.ogg"
+  self.ground_special_sfx = "dummy.ogg"
+  self.air_special_sfx = "dummy.ogg"
 
   -- Copy the below stuff after the new initialization variables for each new character
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
