@@ -210,6 +210,7 @@ end
     self:updateImage(4)
     self.gravity = 0
     self.current_hurtboxes = self.hurtboxes_attacking
+    self.current_hitboxes = self.hitboxes_attacking
     if self.super < 96 and not self.super_on then 
       self.super = math.min(self.super + 8, 96)
       if self.super == 96 then playSFX1(super_sfx) end
@@ -599,6 +600,7 @@ function Konrad:initialize(init_facing)
   self.hurtboxes_ko  = {{0, 0, 0, 0}}
 
   self.hitboxes_attacking = {{119, 166, 137, 183}}
+  self.hitboxes_hyperkick = {{119, 166, 137, 183, Fire}}
 
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
@@ -649,7 +651,13 @@ end
       self.super = self.super - 16
       self.waiting_state = ""
       playSFX1(self.air_special_sfx)
-      self:attack(12, 16)
+      --self:attack, but with flame flag
+      self.vel = {12 * self.facing, 16}
+      self.attacking = true  
+      self:updateImage(4)
+      self.gravity = 0
+      self.current_hurtboxes = self.hurtboxes_attacking
+      self.current_hitboxes = self.hitboxes_hyperkick
     end
   end
 
@@ -726,6 +734,16 @@ end
         self:kickback(-9, 6)
         playSFX1(self.jump_sfx)-]]
       end
+    end
+
+    -- low quality code to check for hyperkick and apply flames
+    if math.abs(self.vel[1]) == 12 and self.vel[2] == 16 then
+      local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
+
+      -- I hard coded the position ok. sorry
+      HyperKickFlames:loadFX(self.pos[1] + (self.sprite_size[1] - self.sprite_wallspace * 2) * self.facing + 5,
+       self.pos[2] + self.sprite_size[2], self.facing, shift * (self.sprite_size[1] + 80))
+
     end
   end
 
@@ -854,7 +872,6 @@ end
     self.dandy = false
     self.pilebunking = true -- to prevent dandy step or pilebunker while pilebunking
     self.attacking = true -- needed to activate hitboxes
-    self.hit_type = {Wallsplat = true}
 
     Explosion:loadFX(self.pos[1] + 75 + 150 * self.facing, self.pos[2] + 86, h_vel * self.facing, 0, 0.9, 0)
     self.vel[1] = h_vel * self.facing

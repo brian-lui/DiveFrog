@@ -18,8 +18,8 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift
    self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   return {self.image, 
     quad, 
-    pos_h - self.sprite_size[1] / 2, 
-    pos_v - self.sprite_size[2] / 2,
+    pos_h - self.sprite_size[1] / 2, -- returns horizontal CENTER of sprite
+    pos_v - self.sprite_size[2] / 2, -- returns vertical CENTER of sprite
     0, -- rotation
     scale_x, -- scale_x: 1 is default, -1 for flip
     scale_y, -- scale_y: 1 is default, 1 for flip
@@ -71,6 +71,24 @@ function Dizzy:loadFX(pos_h, pos_v)
   postbuffer[frame][draw_count] = Dizzy:getDrawable(0, pos_h, pos_v, 1, 1, 0)
 end
 
+-------------------------- KONRAD HYPER KICK FLAMES ---------------------------
+-- example for a cycling particle, that's only called if Konrad is still in hyper kick
+-- this example doesn't care about the start frame. We need another variable if we care
+
+HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), {360, 160}, {90, 160})
+
+function HyperKickFlames:loadFX(pos_h, pos_v, facing, shift)
+  draw_count = draw_count + 1
+  local TIME_DIV = 2 -- advance the animation every TIME_DIV frames
+  local current_anim_frame = math.floor((frame % 8) / TIME_DIV)
+
+  postbuffer[frame] = postbuffer[frame] or {}
+  postbuffer[frame][draw_count] = HyperKickFlames:getDrawable(current_anim_frame,
+    pos_h, -- we want the corner, not the center for this anim
+    pos_v - self.sprite_size[2] / 2, -- ditto
+    facing, 1, shift) -- hard coded variables ok. I don't want to think too hard for this
+  print(current_anim_frame, pos_h, pos_v, facing, 1, shift)
+end
 
 ------------------------------- KICKBACK DUST ---------------------------------
 KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), {162, 42}, {54, 42})
