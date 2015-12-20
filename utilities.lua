@@ -39,8 +39,13 @@ function check_got_hit(getting_hit, attacker) -- also applies Mugshot flag for h
       for j = 1, #hit do
         if(quadOverlap(hurt[i], hit[j])) then
           gothit = true
-          for k = 5, #hurt[i] do
+          for k = 5, #hurt[i] do -- check for flags for hurtboxes
             local flag = hurt[i][k]
+            attacker.hit_type[flag] = true
+          end
+
+          for k = 5, #hit[j] do
+            local flag = hit[j][k] -- check for flags for hurtboxes
             attacker.hit_type[flag] = true
           end
         end

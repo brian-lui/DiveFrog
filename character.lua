@@ -65,7 +65,10 @@ function Fighter:initialize(init_facing)
   self.default_gravity = 0.25
   self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.7 for Mugshotted
 
-  -- lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
+  --[[Lists of hitboxes and hurtboxes for the relevant sprites.
+      Format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
+      Flags for hit effects or hurtboxes are the 5th element in the table.
+      Attacks support 6th element too. The name MUST correspond to a Particle class!--]]
   self.hurtboxes_standing = {{0, 0, 0, 0}}
   self.hurtboxes_jumping  = {{0, 0, 0, 0}}
   self.hurtboxes_falling = {{0, 0, 0, 0}}
@@ -275,7 +278,7 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
     if self.hit_flag.Wallsplat and self.hit_wall then
       self.vel[1] = -self.vel[1] * 0.4
       self.hit_wall = false
-      WallExplosion:loadFX(self.pos[1], self.pos[2])
+      Wallsplat:loadFX(self.pos[1], self.pos[2])
       playSFX2(explosion_sfx)
     end
   end
@@ -431,6 +434,9 @@ function Fighter:updateBoxes()
       temp_hitbox[i][2] = self.current_hitboxes[i][2] + self.pos[2] -- top
       temp_hitbox[i][3] = self.current_hitboxes[i][3] + self.pos[1] -- right
       temp_hitbox[i][4] = self.current_hitboxes[i][4] + self.pos[2] -- bottom
+      temp_hitbox[i][5] = self.current_hitboxes[i][5] -- flag 1
+      temp_hitbox[i][6] = self.current_hitboxes[i][6] -- flag 1
+
     end
   elseif self.attacking and self.facing == -1 then
     for i = 1, #self.current_hitboxes do
@@ -438,6 +444,9 @@ function Fighter:updateBoxes()
       temp_hitbox[i][2] = self.current_hitboxes[i][2] + self.pos[2] -- top
       temp_hitbox[i][3] = self.pos[1] - self.current_hitboxes[i][1] + self.sprite_size[1] -- right
       temp_hitbox[i][4] = self.current_hitboxes[i][4] + self.pos[2] -- bottom        
+      temp_hitbox[i][5] = self.current_hitboxes[i][5] -- flag 1
+      temp_hitbox[i][6] = self.current_hitboxes[i][6] -- flag 1
+
     end
   end
   
