@@ -100,7 +100,7 @@ end
   function Fighter:jump_key_press()
 
     -- check special move
-    local attack_not_down = true -- check if attack key was down on (frame - 3)
+    local attack_on3_down = false -- check if attack key was down on (frame - 3)
     local attack_within2_down = false -- check if attack key is down from (frame - 2) to frame
    
     for bufferframe = 0, 2 do -- check for attack key down from (frames - 2) to frame
@@ -110,15 +110,15 @@ end
         if keybuffer[(frame - bufferframe)][4] then attack_within2_down = true end
       end
       if self.player == 1 then -- check for attack key down at (frame - 3)
-        if keybuffer[(frame - 3)][2] then attack_not_down = false end
+        if keybuffer[(frame - 3)][2] then attack_on3_down = true end
       elseif self.player == -1 then
-        if keybuffer[(frame - 3)][4] then attack_not_down = false end
+        if keybuffer[(frame - 3)][4] then attack_on3_down = true end
       end
     end
 
-    if attack_within2_down and attack_not_down and self.in_air then
+    if attack_within2_down and not attack_on3_down and self.in_air then
       self:air_special()
-    elseif attack_within2_down and attack_not_down and not self.in_air then
+    elseif attack_within2_down and not attack_on3_down and not self.in_air then
       self:ground_special()
     end
 
@@ -132,7 +132,7 @@ end
 
   function Fighter:attack_key_press()
     -- check special move
-    local jump_not_down = true -- check if jump key was down on (frame - 3)
+    local jump_on3_down = false -- check if jump key was down on (frame - 3)
     local jump_within2_down = false -- check if jump key is down from (frame - 2) to frame
 
     for bufferframe = 0, 2 do -- check for jump key down from (frames - 2) to frame
@@ -142,18 +142,18 @@ end
         if keybuffer[(frame - bufferframe)][3] then jump_within2_down = true end
       end
       if self.player == 1 then -- check for jump key down at (frame - 3)
-        if keybuffer[(frame - 3)][1] then jump_not_down = false end
+        if keybuffer[(frame - 3)][1] then jump_on3_down = true end
       elseif self.player == -1 then
-        if keybuffer[(frame - 3)][3] then jump_not_down = false end
+        if keybuffer[(frame - 3)][3] then jump_on3_down = true end
       end
     end
 
-    if jump_within2_down and jump_not_down and self.in_air then
+    if jump_within2_down and not jump_on3_down and self.in_air then
       self:air_special()
-    elseif jump_within2_down and not jump_not_down and not self.in_air then
+    elseif jump_within2_down and not jump_on3_down and not self.in_air then
       self:ground_special()
     end
-    
+
     --[[ Default attack action. Replace with character-specific attack/kickback actions
     
     -- attack if in air and not already attacking and going up and more than 50 pixels above the ground.
@@ -604,13 +604,13 @@ function Konrad:initialize(init_facing)
   self.current_hitboxes = self.hitboxes_attacking
 
   -- sound effects
-  self.jump_sfx = "Konrad/KonradJump.mp3"
-  self.jump2_sfx = "Konrad/KonradJump2.mp3"
-  self.attack_sfx = "Konrad/KonradAttack.mp3"
-  self.got_hit_sfx = "Konrad/KonradKO.mp3"
-  self.hit_sound_sfx = "Potatoes.mp3"
-  self.ground_special_sfx = "Konrad/KonradGroundSpecial.mp3"
-  self.air_special_sfx = "Konrad/KonradAirSpecial.mp3"
+  self.jump_sfx = "Konrad/KonradJump.ogg"
+  self.doublejump_sfx = "Konrad/KonradDoubleJump.ogg"
+  self.attack_sfx = "Konrad/KonradAttack.ogg"
+  self.got_hit_sfx = "Konrad/KonradKO.ogg"
+  self.hit_sound_sfx = "Potatoes.ogg"
+  self.ground_special_sfx = "Konrad/KonradHyperJump.ogg"
+  self.air_special_sfx = "Konrad/KonradHyperKick.ogg"
 
 end
 
@@ -699,7 +699,7 @@ end
       if self.waiting == 0 and self.waiting_state == "DoubleJump" then
         self.waiting_state = ""
         self:jump(4, 4, self.default_gravity)
-        playSFX1(self.jump_sfx)
+        playSFX1(self.doublejump_sfx)
         local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
         DoubleJumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2 , self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
 
@@ -766,14 +766,14 @@ function Jean:initialize(init_facing)
   self.my_center = self.pos[1] + self.sprite_size[1]
 
   -- sound effects
-  self.jump_sfx = "Jean/JeanJump.mp3"
-  self.attack_sfx = "Jean/JeanAttack.mp3"
-  self.got_hit_sfx = "Jean/JeanKO.mp3"
-  self.hit_sound_sfx = "Potatoes.mp3"
-  self.dandy_sfx = "Jean/JeanDandy.mp3"
-  self.pilebunker_sfx = "Jean/JeanBunker.mp3"
-  self.ground_special_sfx = "Jean/JeanGroundSpecial.mp3"
-  self.air_special_sfx = "Jean/JeanAirSpecial.mp3"
+  self.jump_sfx = "Jean/JeanJump.ogg"
+  self.attack_sfx = "Jean/JeanAttack.ogg"
+  self.got_hit_sfx = "Jean/JeanKO.ogg"
+  self.hit_sound_sfx = "Potatoes.ogg"
+  self.dandy_sfx = "Jean/JeanDandy.ogg"
+  self.pilebunker_sfx = "Jean/JeanBunker.ogg"
+  self.ground_special_sfx = "WireSea.ogg"
+  self.air_special_sfx = "Jean/JeanAirSpecial.ogg"
 
   self.hurtboxes_standing = {{53, 33, 95, 50, Mugshot}, {44, 51, 102, 79, Mugshot}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
   self.hurtboxes_jumping  = {{53, 33, 95, 50, Mugshot}, {44, 51, 102, 79, Mugshot}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
@@ -882,7 +882,7 @@ end
 
   function Jean:ground_special()
     if self.super_on and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
-      self.super = self.super - 10
+      self.super = self.super - 8
       self.waiting_state = ""
       playSFX1(self.ground_special_sfx)
       WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
