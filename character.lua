@@ -873,7 +873,7 @@ end
     self.pilebunking = true -- to prevent dandy step or pilebunker while pilebunking
     self.attacking = true -- needed to activate hitboxes
 
-    Explosion:loadFX(self.pos[1] + 75 + 150 * self.facing, self.pos[2] + 86, h_vel * self.facing, 0, 0.9, 0)
+    Explosion:loadFX(self.pos[1] + self.sprite_wallspace + 100 * self.facing, self.pos[2] + 86, h_vel * self.facing, 0, 0.9, 0)
     self.vel[1] = h_vel * self.facing
     self:updateImage(6)
     self.current_hurtboxes = self.hurtboxes_pilebunker
