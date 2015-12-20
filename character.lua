@@ -1031,3 +1031,12 @@ Super: 50%, Frog Install
   [Frog Install: life counts down (same level as super meter). Lifebar changes too
   Lose round if super = 0]
 ]]--
+
+--[[---------------------------------------------------------------------------
+                                      BEDFROG
+-----------------------------------------------------------------------------]]   
+
+--[[A large sprite character to test the particle offsets to make sure that they're coded well
+Air Special: Has Vlad's jetpack, which costs a lot of meter to use
+Ground Special: Bedman's Deja Vu, he can kick from the same place as the last kick
+]]
