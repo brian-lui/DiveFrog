@@ -343,11 +343,7 @@ function Fighter:getAttacking() return self.attacking end
 function Fighter:getSuper() return self.super end
 function Fighter:getSuperOn() return self.super_on end
 function Fighter:getHit_Wall() return self.hit_wall end
-function Fighter:getHit_Type() return self.hit_type end
 function Fighter:getFrozen() if self.frozen > 0 then return true else return false end end
-
-
-
 
 function Fighter:gotKO() return self.ko end
 function Fighter:addScore() self.score = self.score + 1 end
@@ -373,9 +369,11 @@ function Fighter:setNewRound()
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
   if self.hit_flag.Mugshot then
-    self.mugshotted = 270 -- add 90 frames to this, because of round start fade-in
+    self.mugshotted = 240 -- add 90 frames to this, because of round start fade-in
+    self.super = self.super - 24
   end
   self.hit_flag = {}
+  self.hit_type = {}
 end
 
 function Fighter:updateImage(image_index)
@@ -530,7 +528,7 @@ function Fighter:updatePos(opp_center)
 
     if self.super <= 0 then
       self.super_on = false
-      self.vel_multipler = 1.0
+      self.vel_multiple = 1.0
     end
 
     self:extraStuff() -- any character-specific routines
@@ -846,7 +844,6 @@ end
     self.gravity = 0
     self.current_hurtboxes = self.hurtboxes_attacking
     self.current_hitboxes = self.hitboxes_attacking
-    self.hit_type = {}
     if self.super < 96 and not self.super_on then 
       self.super = math.min(self.super + 8, 96)
       if self.super == 96 then playSFX1(super_sfx) end
