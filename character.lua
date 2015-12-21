@@ -673,7 +673,7 @@ end
     end
   end
 
-  function Konrad:extraStuff()
+  function Konrad:stateCheck()
     if self.waiting > 0 then
       self.waiting = self.waiting - 1
       if self.waiting == 0 and self.waiting_state == "Jump" then
@@ -682,10 +682,6 @@ end
         playSFX1(self.jump_sfx)
         local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
         JumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
-      --[[elseif self.waiting == 0 and self.waiting_state == "Jump" and self.super_on then
-        self.waiting_state = ""
-        self:jump(0, 18, 0.5)
-        playSFX1(self.jump_sfx)--]]
       end
       if self.waiting == 0 and self.waiting_state == "DoubleJump" then
         self.waiting_state = ""
@@ -693,32 +689,20 @@ end
         playSFX1(self.doublejump_sfx)
         local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
         DoubleJumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2 , self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
-
-      --[[elseif self.waiting == 0 and self.waiting_state == "DoubleJump" and self.super_on then
-        self.waiting_state = ""
-        self:jump(6, 6, 0.4)
-        playSFX1(self.jump_sfx)--]]
       end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
         self.waiting_state = ""
         self:attack(6, 8)
         playSFX1(self.attack_sfx)
-      --[[elseif self.waiting == 0 and self.waiting_state == "Attack" and self.super_on then 
-        self.waiting_state = ""
-        self:attack(7.8, 10.4)
-        playSFX1(self.attack_sfx)--]]
       end
       if self.waiting == 0 and self.waiting_state == "Kickback" then
         self.waiting_state = ""
         self:kickback(-6, 6)
         playSFX1(self.jump_sfx)
-      --[[elseif self.waiting == 0 and self.waiting_state == "Kickback" and self.super_on then
-        self.waiting_state = ""
-        self:kickback(-9, 6)
-        playSFX1(self.jump_sfx)-]]
       end
     end
-
+  end
+  function Konrad:extraStuff()
     -- low quality code to check for hyperkick and apply flames
     if math.abs(self.vel[1]) == 12 and self.vel[2] == 16 then
       local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
@@ -899,6 +883,32 @@ end
     end
   end
 
+  function Jean:stateCheck()
+    if self.waiting > 0 then
+      self.waiting = self.waiting - 1
+      if self.waiting == 0 and self.waiting_state == "Attack" then 
+      self.waiting_state = ""
+        self:attack(8, 8)
+        playSFX1(self.attack_sfx)
+      end
+      if self.waiting == 0 and self.waiting_state == "Dandy" then
+        self.waiting_state = ""
+        self:dandyStep(-25)        
+        playSFX1(self.dandy_sfx)
+      end
+      if self.waiting == 0 and self.waiting_state == "Pilebunker" then
+        self.waiting_state = ""
+        self:pilebunk(36)        
+        playSFX1(self.pilebunker_sfx)
+      end
+      if self.waiting == 0 and self.waiting_state == "Jump" then
+        self.waiting_state = ""
+        self:jump(0, 12)
+        playSFX1(self.jump_sfx)
+      end      
+    end
+  end
+
   function Jean:extraStuff()
     if self.dandy or self.pilebunking then self.vel[1] = self.vel[1] * 0.8 end -- custom friction
     -- during dandy step's slowing end part, allow pilebunker
@@ -934,32 +944,6 @@ end
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
     end
-
-    if self.waiting > 0 then
-      self.waiting = self.waiting - 1
-      if self.waiting == 0 and self.waiting_state == "Attack" then 
-      self.waiting_state = ""
-        self:attack(8, 8)
-        playSFX1(self.attack_sfx)
-      end
-      if self.waiting == 0 and self.waiting_state == "Dandy" then
-        self.waiting_state = ""
-        self:dandyStep(-25)        
-        playSFX1(self.dandy_sfx)
-      end
-      if self.waiting == 0 and self.waiting_state == "Pilebunker" then
-        self.waiting_state = ""
-        self:pilebunk(36)        
-        playSFX1(self.pilebunker_sfx)
-      end
-      if self.waiting == 0 and self.waiting_state == "Jump" then
-        self.waiting_state = ""
-        self:jump(0, 12)
-        playSFX1(self.jump_sfx)
-      end      
-    end
-
-
   end
 
 function Jean:gotHit(type)
@@ -1005,6 +989,7 @@ Air Special: Riot Frog [Quick back jump, then slow horizontal forward kick]
 Super: 50%, Frog Install
   [Frog Install: life counts down (same level as super meter). Lifebar changes too
   Lose round if super = 0]
+Winquote: Robert De Niro called.
 ]]--
 
 --[[---------------------------------------------------------------------------
