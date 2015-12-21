@@ -11,7 +11,7 @@ require 'particles'
 -----------------------------------------------------------------------------]]   
 
 Fighter = class('Fighter')    
-function Fighter:initialize(init_facing)
+function Fighter:initialize(init_facing, init_super, init_dizzy, init_score)
   --[[-------------------------------------------------------------------------
                               NO NEED TO MODIFY THESE
   ---------------------------------------------------------------------------]]
@@ -19,7 +19,7 @@ function Fighter:initialize(init_facing)
   dummypic = love.graphics.newImage('images/dummy.png')
   self.player = init_facing -- 1 for player 1, -1 for player 2
   self.frozen = 0 -- only update sprite if this is 0. Used for e.g. super freeze
-  self.score = 0
+  self.score = init_score
   self.in_air = false
   self.life = 280 -- 280 pixels in the life bar
   self.ko = false
@@ -27,7 +27,7 @@ function Fighter:initialize(init_facing)
   self.attacking = false
   self.mugshotted = 0 -- frames the character is mugshotted for
   self.hit_type = {} -- type of hit, passed through to gotHit(). E.g. for wall splat
-  self.super = 0 -- max 96
+  self.super = init_super -- max 96
   self.super_on = false -- trigger super mode
   self.super_drainspeed = 0.2 -- how fast super meter drains away. 
   self.start_pos = {1, 1} -- Starting position at beginning of round
@@ -42,9 +42,14 @@ function Fighter:initialize(init_facing)
   self.opp_center = stage.center -- center of opponent's sprite
   self.waiting = 0 -- number of frames to wait. used for pre-jump frames etc.
   self.waiting_state = "" -- buffer the action that will be executed if special isn't pressed
-  self.hit_flag = {} -- for KO animations
+  self.hit_flag = {Mugshot = init_dizzy} -- for KO animations
   self.things = {} -- projectiles, etc.
   self.things.attacking = false
+  if self.hit_flag.Mugshot then
+    self.mugshotted = 240 -- add 90 frames to this, because of round start fade-in
+    self.super = math.max(self.super - 24, 0)
+    self.hit_flag.Mugshot = false
+  end
 
   --[[-------------------------------------------------------------------------
                             MAY NEED TO MODIFY THESE
@@ -350,31 +355,6 @@ function Fighter:addScore() self.score = self.score + 1 end
 function Fighter:setPos(pos) self.pos = {pos[1], pos[2]} end
 function Fighter:setFacing(facing) self.facing = facing end
 function Fighter:setFrozen(frames) self.frozen = frames end
-function Fighter:setNewRound()
-  self.in_air = false
-  self.ko = false
-  self.life = 280
-  self.won = false
-  self.attacking = false
-  self.super_on = false
-  self.hit_wall = false
-  self.friction_on = false
-  self.image_index = 0 -- Horizontal offset starting at 0
-  self.vel = {0, 0}
-  self.vel_multiple = 1.0
-  self.gravity = self.default_gravity
-  self.opp_center = 400 -- center of opponent's sprite
-  self.my_center = self.pos[1] + self.sprite_size[1]
-  self:updateImage(self.image_index)
-  self.current_hurtboxes = self.hurtboxes_standing
-  self.current_hitboxes = self.hitboxes_attacking
-  if self.hit_flag.Mugshot then
-    self.mugshotted = 240 -- add 90 frames to this, because of round start fade-in
-    self.super = self.super - 24
-  end
-  self.hit_flag = {}
-  self.hit_type = {}
-end
 
 function Fighter:updateImage(image_index)
   self.sprite = love.graphics.newQuad(image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
@@ -531,6 +511,7 @@ function Fighter:updatePos(opp_center)
       self.vel_multiple = 1.0
     end
 
+    self:stateCheck() -- check for button presses and change actions
     self:extraStuff() -- any character-specific routines
     return self.pos
   elseif self.frozen > 0 then
@@ -538,8 +519,8 @@ function Fighter:updatePos(opp_center)
   end
 end
 
-function Fighter:extraStuff()
---[[ Replace with character-specific states
+function Fighter:stateCheck()
+  --[[ Replace with character-specific states
   if self.waiting > 0 then
     self.waiting = self.waiting - 1
     if self.waiting == 0 and self.waiting_state == "Jump" then
@@ -561,13 +542,17 @@ function Fighter:extraStuff()
 --]]
 end
 
+function Fighter:extraStuff()
+  -- character-specific routines
+end
+
 --[[---------------------------------------------------------------------------
                                       KONRAD 
 -----------------------------------------------------------------------------]]                            
 
 Konrad = class('Konrad', Fighter)
-function Konrad:initialize(init_facing)
-  Fighter.initialize(self, init_facing)
+function Konrad:initialize(init_facing, init_super, init_dizzy, init_score)
+  Fighter.initialize(self, init_facing, init_super, init_dizzy, init_score)
   self.fighter_name = "Konrad"
   self.icon = love.graphics.newImage('images/Konrad/KonradIcon.png')
   self.win_portrait = love.graphics.newImage('images/Konrad/KonradPortrait.png')
@@ -751,8 +736,8 @@ end
 -----------------------------------------------------------------------------]]   
 
 Jean = class('Jean', Fighter)
-function Jean:initialize(init_facing)
-  Fighter.initialize(self, init_facing)
+function Jean:initialize(init_facing, init_super, init_dizzy, init_score)
+  Fighter.initialize(self, init_facing, init_super, init_dizzy, init_score)
   self.icon = love.graphics.newImage('images/Jean/JeanIcon.png')
   self.win_portrait = love.graphics.newImage('images/Jean/JeanPortrait.png')
   self.win_quote = 'You must defeat "Wampire" to stand a chance.'
@@ -976,13 +961,6 @@ end
 
 
   end
-
-function Jean:setNewRound()
-  Fighter.setNewRound(self)
-  self.pilebunking = false
-  self.dandy = false
-  self.friction_on = false
-end
 
 function Jean:gotHit(type)
   Fighter.gotHit(self, type)
