@@ -78,44 +78,19 @@ end
 
 function drawDebugHurtboxes()
   love.graphics.push("all")
-
-  local todraw = {hurt = hurtboxes, hit = hitboxes}
-  local color = {{255, 255, 255}, {255, 0, 0}}
-  
-  --#todraw is the problem
-  --[[
-  for p, _ in pairs(THINGS) do
-    for i = 1, #todraw do
-      local dog = p.todraw[i]
-      love.graphics.setColor(color[i])
-      love.graphics.line(dog[i][1], dog[i][2], dog[i][3], dog[i][2], dog[i][3], dog[i][4], dog[i][1], dog[i][4], dog[i][1], dog[i][2])
+    local todraw = {p1.hurtboxes, p1.hitboxes, p2.hurtboxes, p2.hitboxes}
+    local color = {{255, 255, 255}, {255, 0, 0}, {255, 255, 255}, {255, 0, 0}}
+    for num, drawboxes in pairs(todraw) do
+      local dog = drawboxes
+      for i = 1, #dog do
+        love.graphics.setColor(color[num])
+        love.graphics.line(
+          dog[i][1], dog[i][2],
+          dog[i][3], dog[i][2],
+          dog[i][3], dog[i][4],
+          dog[i][1], dog[i][4],
+          dog[i][1], dog[i][2])
+      end
     end
-  end--]]
-
-  ---[[
-
-  local dog = p1.hurtboxes
-  love.graphics.setColor(255, 255, 255)
-  for i = 1, #dog do
-    love.graphics.line(dog[i][1], dog[i][2], dog[i][3], dog[i][2], dog[i][3], dog[i][4], dog[i][1], dog[i][4], dog[i][1], dog[i][2])
-  end
-
-  local blog = p2.hurtboxes
-  for i = 1, #blog do
-    love.graphics.line(blog[i][1], blog[i][2], blog[i][3], blog[i][2], blog[i][3], blog[i][4], blog[i][1], blog[i][4], blog[i][1], blog[i][2])
-  end
-  
-  local rat = p1.hitboxes
-  love.graphics.setColor(255, 0, 0)
-  for i = 1, #rat do
-    love.graphics.line(rat[i][1], rat[i][2], rat[i][3], rat[i][2], rat[i][3], rat[i][4], rat[i][1], rat[i][4], rat[i][1], rat[i][2])
-  end
-
-  local bob = p2.hitboxes
-  for i = 1, #bob do
-    love.graphics.line(bob[i][1], bob[i][2], bob[i][3], bob[i][2], bob[i][3], bob[i][4], bob[i][1], bob[i][4], bob[i][1], bob[i][2])
-  end
-
-  --]]
   love.graphics.pop()
 end
