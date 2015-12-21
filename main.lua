@@ -259,7 +259,7 @@ function love.draw()
 
     camera:set(1, 1)
     love.graphics.draw(canvas_sprites)
-    --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+    drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
     --drawDebugSprites() -- debug: draw sprite box, center, and facing
     camera:unset()
 

@@ -79,17 +79,25 @@ end
 function drawDebugHurtboxes()
   love.graphics.push("all")
     local todraw = {p1.hurtboxes, p1.hitboxes, p2.hurtboxes, p2.hitboxes}
-    local color = {{255, 255, 255}, {255, 0, 0}, {255, 255, 255}, {255, 0, 0}}
+    local color = {{255, 255, 255, 192}, {255, 0, 0, 255}, {255, 255, 255, 192}, {255, 0, 0, 255}}
     for num, drawboxes in pairs(todraw) do
       local dog = drawboxes
       for i = 1, #dog do
-        love.graphics.setColor(color[num])
-        love.graphics.line(
+        if dog[i][5] == Mugshot then
+          love.graphics.setColor({0, 0, 255, 160})
+        else
+          love.graphics.setColor(color[num])
+        end
+        local draw_width = dog[i][3] - dog[i][1]
+        local draw_height = dog[i][4] - dog[i][2]
+        love.graphics.rectangle("fill", dog[i][1], dog[i][2], draw_width, draw_height)
+
+        --[[love.graphics.line(
           dog[i][1], dog[i][2],
           dog[i][3], dog[i][2],
           dog[i][3], dog[i][4],
           dog[i][1], dog[i][4],
-          dog[i][1], dog[i][2])
+          dog[i][1], dog[i][2])--]]
       end
     end
   love.graphics.pop()

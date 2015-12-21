@@ -80,6 +80,7 @@ function Fighter:initialize(init_facing, init_super, init_dizzy, init_score)
   self.hurtboxes_attacking  = {{0, 0, 0, 0}}
   self.hurtboxes_kickback  = {{0, 0, 0, 0}}
   self.hurtboxes_ko  = {{0, 0, 0, 0}}
+  self.hitboxes_neutral = {{0, 0, 0, 0}}
   self.hitboxes_attacking = {{0, 0, 0, 0}}
 
   -- sound effects
@@ -206,6 +207,7 @@ end
       self.vel = {0, 0}
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
+      self.current_hitboxes = self.hitboxes_neutral
     end
   end
 
@@ -274,13 +276,15 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
       self.pos[2] = self.pos[2] - 30
       self.gravity = 0.2
       self.in_air = true
-      self.current_hurtboxes = self.hurtboxes_ko
     end
   end
 
   if frame - round_end_frame > 60 then
     self.friction_on = true
     self:updateImage(5)
+    self.current_hurtboxes = self.hurtboxes_ko
+    self.current_hitboxes = self.hitboxes_neutral
+
     if self.hit_flag.Wallsplat and self.hit_wall then
       self.vel[1] = -self.vel[1] * 0.4
       self.hit_wall = false
@@ -580,7 +584,6 @@ function Konrad:initialize(init_facing, init_super, init_dizzy, init_score)
   self.hurtboxes_falling = {{78, 33, 116, 50, Mugshot}, {69, 51, 124, 79, Mugshot}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
   self.hurtboxes_attacking  = {{67, 30, 108, 59, Mugshot}, {75, 60, 104, 103}, {68, 104, 91, 135}, {100, 105, 114, 136}, {111, 137, 128, 157}, {125, 158, 138, 183}}
   self.hurtboxes_kickback  = {{67, 41, 128, 72, Mugshot}, {70, 73, 119, 165}, {72, 166, 111, 182}}
-  self.hurtboxes_ko  = {{0, 0, 0, 0}}
 
   self.hitboxes_attacking = {{119, 166, 137, 183}}
   self.hitboxes_hyperkick = {{119, 166, 137, 183, Fire}}
@@ -765,7 +768,6 @@ function Jean:initialize(init_facing, init_super, init_dizzy, init_score)
   self.hurtboxes_falling = {{53, 33, 95, 50, Mugshot}, {44, 51, 102, 79, Mugshot}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
   self.hurtboxes_attacking  = {{10, 26, 58, 69, Mugshot}, {61, 58, 77, 69}, {31, 72, 83, 109}, {42, 110, 93, 126}, {61, 129, 116, 149}, {118, 138, 131, 149}, {62, 151, 145, 172}}
   self.hurtboxes_dandy  = {{11, 32, 37, 76, Mugshot}, {15, 82, 45, 129}, {24, 131, 61, 151}, {62, 142, 73, 151}, {33, 152, 82, 166}, {47, 167, 95, 186}}
-  self.hurtboxes_ko  = {{0, 0, 0, 0,}}
   self.hurtboxes_pilebunker = {{6, 32, 37, 71, Mugshot}, {17, 68, 71, 137}, {73, 128, 100, 137}, {42, 140, 108, 187}, {110, 152, 118, 187}}
   self.hurtboxes_pilebunkerB = {{15, 32, 46, 71, Mugshot}, {17, 68, 71, 137}, {73, 128, 83, 137}, {42, 140, 98, 187}, {100, 165, 113, 180}}
 
@@ -932,6 +934,7 @@ end
       self.attacking = false
       self:updateImage(7)
       self.current_hurtboxes = self.hurtboxes_pilebunkerB
+      self.current_hitboxes = self.hitboxes_neutral
     end
 
     -- change from recovery to neutral
