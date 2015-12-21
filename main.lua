@@ -380,15 +380,6 @@ function love.update(dt)
     t1 = love.timer.getTime()
 
     -- check if anyone got hit
-
-    --[[
-    for to_check, attackers in pairs(THINGS) do
-      for i = 1, #attackers do
-        print(check_got_hit(to_check, attackers[i]))
-      end
-    end
-  --]]
-
     if check_got_hit(p1, p2) and check_got_hit(p2, p1) then
       round_end_frame = frame
       input_frozen = true
@@ -449,16 +440,13 @@ function love.update(dt)
 end
 
 function newRound()
+
+  p1:initialize(1, p1.super, p1.hit_flag.Mugshot, p1.score)
+  p2:initialize(-1, p2.super, p2.hit_flag.Mugshot, p2.score)
+
   frame = 0
   frame0 = 0
   round_timer = init_round_timer
-
-  for p, draw in pairs(PLAYERS) do
-    p:setPos(p:getStart_Pos())
-    p:setFacing(draw.flip)
-    p:setNewRound()
-  end
-
   round_end = false
   round_end_frame = 100000 -- arbitrary number, larger than total round time
   input_frozen = true
@@ -473,8 +461,8 @@ end
 function startGame()
   game.current_screen = "maingame"
 
-  p1 = available_chars[p1_char](1)
-  p2 = available_chars[p2_char](-1)
+  p1 = available_chars[p1_char](1, 0, false, 0)
+  p2 = available_chars[p2_char](-1, 0, false, 0)
 
   -- put the move/flip/offset stuff for draw operations in p1/p2
   p1_flags = {move = -1, flip = 1, offset = 0}

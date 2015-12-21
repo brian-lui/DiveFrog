@@ -87,7 +87,6 @@ function HyperKickFlames:loadFX(pos_h, pos_v, facing, shift)
     pos_h, -- we want the corner, not the center for this anim
     pos_v - self.sprite_size[2] / 2, -- ditto
     facing, 1, shift) -- hard coded variables ok. I don't want to think too hard for this
-  print(current_anim_frame, pos_h, pos_v, facing, 1, shift)
 end
 
 ------------------------------- KICKBACK DUST ---------------------------------
