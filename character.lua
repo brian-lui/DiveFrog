@@ -17,7 +17,6 @@ function Fighter:initialize(init_facing, init_super, init_dizzy, init_score)
   ---------------------------------------------------------------------------]]
   
   dummypic = love.graphics.newImage('images/dummy.png')
-  self.player = init_facing -- 1 for player 1, -1 for player 2
   self.frozen = 0 -- only update sprite if this is 0. Used for e.g. super freeze
   self.score = init_score
   self.in_air = false
@@ -107,13 +106,12 @@ end
 
     -- check special move
     local both_keys_down = false
-
     for bufferframe = 0, 2 do
-      if self.player == 1 then
+      if self == p1 then
         local p1_frame_attack = keybuffer[frame - bufferframe][2]
         local p1_prev_frame_attack = keybuffer[frame - bufferframe - 1][2]
         if p1_frame_attack and not p1_prev_frame_attack then both_keys_down = true end
-      elseif self.player == -1 then
+      elseif self == p2 then
         local p2_frame_attack = keybuffer[frame - bufferframe][4]
         local p2_prev_frame_attack = keybuffer[frame - bufferframe - 1][4]
         if p2_frame_attack and not p2_prev_frame_attack then both_keys_down = true end
@@ -138,11 +136,11 @@ end
     local both_keys_down = false
 
     for bufferframe = 0, 2 do
-      if self.player == 1 then
+      if self == p1 then
         local p1_frame_jump = keybuffer[frame - bufferframe][1]
         local p1_prev_frame_jump = keybuffer[frame - bufferframe - 1][1]
         if p1_frame_jump and not p1_prev_frame_jump then both_keys_down = true end
-      elseif self.player == -1 then
+      elseif self == p2 then
         local p2_frame_jump = keybuffer[frame - bufferframe][3]
         local p2_prev_frame_jump = keybuffer[frame - bufferframe - 1][3]
         if p2_frame_jump and not p2_prev_frame_jump then both_keys_down = true end
