@@ -63,7 +63,7 @@ function love.load()
   current_round = 0
   best_to_x = 5
   match_winner = false
-  keybuffer = {} -- log of all keystates during the round. Useful for netplay!
+  keybuffer = {false, false, false, false} -- log of all keystates during the round. Useful for netplay!
   prebuffer = {} -- pre-load draw instruction into future frames behind sprite
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
   camera_xy = {} -- corner for camera and window drawing
@@ -109,8 +109,8 @@ function drawSprites()
   local p1shift = 0
   local p2shift = 0
     -- shift sprites if facing left
-  if p2:getFacing() == -1 then p2shift = p2:getSprite_Width() end
-  if p1:getFacing() == -1 then p1shift = p1:getSprite_Width() end
+  if p2.facing == -1 then p2shift = p2:getSprite_Width() end
+  if p1.facing == -1 then p1shift = p1:getSprite_Width() end
   
   love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
   love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
@@ -151,18 +151,18 @@ function drawOverlays()
 
     -- win points
     for i = 1, best_to_x do
-      if side:getScore() >= i then
+      if side.score >= i then
         love.graphics.draw(greenlight, window.center + (op.move * 358) - op.move * (24 * i),
         50, 0, 1, 1, op.offset * IMG.greenlight_width)
       end
     end
 
     -- player icons
-    love.graphics.draw(side:getIcon_Image(), window.center + (op.move * 390), 10, 0, 1, 1, op.offset * side:getIcon_Width())
+    love.graphics.draw(side.icon, window.center + (op.move * 390), 10, 0, 1, 1, op.offset * side:getIcon_Width())
 
     -- super bars
     love.graphics.push("all")
-    if not side:getSuperOn() then
+    if not side.super_on then
       -- super bar images
       love.graphics.setColor(255, 255, 255)
       love.graphics.draw(superbar, window.center + (op.move * 375), window.height - 35,
@@ -172,17 +172,17 @@ function drawOverlays()
       love.graphics.setColor(17, 94, 17)
       love.graphics.line(window.center + op.move * 368,
         window.height - 30,
-        math.max(window.center + op.move * 368, window.center + op.move * 370 - op.move * side:getSuper()),
+        math.max(window.center + op.move * 368, window.center + op.move * 370 - op.move * side.super),
         window.height - 30)
       -- thick bar
       love.graphics.setLineWidth(12)
       love.graphics.setColor(44, 212, 44)
       love.graphics.line(window.center + op.move * 369,
         window.height - 22.5,
-        window.center + op.move * 369 - op.move * side:getSuper(),
+        window.center + op.move * 369 - op.move * side.super,
         window.height - 22.5)
       -- white line ornament
-      if (frame % 48) * 2 < side:getSuper() then
+      if (frame % 48) * 2 < side.super then
         love.graphics.setLineWidth(4)
         love.graphics.setColor(255, 255, 255, 180)
         love.graphics.line(window.center + op.move * 369 - op.move * (frame % 48) * 2,
@@ -192,7 +192,7 @@ function drawOverlays()
       end
     
     else -- if super full, draw frog factor
-      local frogfactorQuad = love.graphics.newQuad(0, 0, IMG.frogfactor_width * (side:getSuper() / 96),
+      local frogfactorQuad = love.graphics.newQuad(0, 0, IMG.frogfactor_width * (side.super / 96),
         IMG.frogfactor_height, IMG.frogfactor_width, IMG.frogfactor_height)
       love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
       love.graphics.draw(frogfactor, frogfactorQuad, window.center + (op.move * 390), window.height - 60, 0, 1, 1, (op.offset * 140))
@@ -215,7 +215,7 @@ function drawOverlays()
       love.graphics.setFont(titleFont)
       love.graphics.setColor(255, 255, 255)
       love.graphics.printf("Round " .. current_round, 0, 200, window.width, "center")
-      if p1:getScore() == best_to_x - 1 and p2:getScore() == best_to_x - 1 then
+      if p1.score == best_to_x - 1 and p2.score == best_to_x - 1 then
         love.graphics.printf("Final round!", 0, 300, window.width, "center")
       end
     love.graphics.pop()
@@ -230,8 +230,8 @@ function drawOverlays()
       love.graphics.push("all")
         love.graphics.setFont(titleFont)
         love.graphics.setColor(255, 255, 255)
-        if p1:getWon() then love.graphics.printf(p1:getFighter_Name() .. " wins.", 0, 200, window.width, "center")
-        elseif p2:getWon() then love.graphics.printf(p2:getFighter_Name() .. " wins.", 0, 200, window.width, "center")
+        if p1.won then love.graphics.printf(p1.fighter_name .. " wins.", 0, 200, window.width, "center")
+        elseif p2.won then love.graphics.printf(p2.fighter_name .. " wins.", 0, 200, window.width, "center")
         else love.graphics.printf("Double K.O.", 0, 200, window.width, "center")
         end
       love.graphics.pop()
@@ -259,7 +259,7 @@ function love.draw()
 
     camera:set(1, 1)
     love.graphics.draw(canvas_sprites)
-    drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+    --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
     --drawDebugSprites() -- debug: draw sprite box, center, and facing
     camera:unset()
 
@@ -303,9 +303,9 @@ function love.draw()
 
     love.graphics.push("all")
       love.graphics.setFont(gameoverFont)
-      love.graphics.draw(match_winner:getWin_Portrait(), 100, 50)
+      love.graphics.draw(match_winner.win_portrait, 100, 50)
       love.graphics.setColor(31, 39, 84)
-      love.graphics.printf(match_winner:getWin_Quote(), 50, 470, 700)
+      love.graphics.printf(match_winner.win_quote, 50, 470, 700)
       love.graphics.setColor(31, 39, 84) -- placeholder
       love.graphics.setFont(charSelectorFont) -- placeholder
       love.graphics.printf("Press return/enter please", 600, 540, 190) -- placeholder
@@ -420,8 +420,8 @@ function love.update(dt)
     -- after round ended and drew end round stuff, start new round
     if frame - round_end_frame == 144 then
       for p, _ in pairs(PLAYERS) do
-        if p:getWon() then p:addScore() end
-        if p:getScore() == best_to_x then match_winner = p end
+        if p.won then p:addScore() end
+        if p.score == best_to_x then match_winner = p end
       end
       
       if not match_winner then newRound()
@@ -451,9 +451,9 @@ function newRound()
   round_end_frame = 100000 -- arbitrary number, larger than total round time
   input_frozen = true
   current_round = current_round + 1
-  keybuffer = {}
+  keybuffer = {false, false, false, false}
 
-  if p1:getScore() == best_to_x - 1 and p2:getScore() == best_to_x - 1 then
+  if p1.score == best_to_x - 1 and p2.score == best_to_x - 1 then
     setBGMspeed(2 ^ (4/12))
   end
 end
