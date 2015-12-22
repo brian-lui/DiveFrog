@@ -11,12 +11,13 @@ require 'particles'
 -----------------------------------------------------------------------------]]   
 
 Fighter = class('Fighter')    
-function Fighter:initialize(init_facing, init_super, init_dizzy, init_score)
+function Fighter:initialize(init_player, init_super, init_dizzy, init_score)
   --[[-------------------------------------------------------------------------
                               NO NEED TO MODIFY THESE
   ---------------------------------------------------------------------------]]
   
   dummypic = love.graphics.newImage('images/dummy.png')
+  self.player = init_player 
   self.frozen = 0 -- only update sprite if this is 0. Used for e.g. super freeze
   self.score = init_score
   self.in_air = false
@@ -93,8 +94,8 @@ function Fighter:initialize(init_facing, init_super, init_dizzy, init_score)
 
   -- Copy the below stuff after the new initialization variables for each new character
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  self.facing = init_facing -- 1 for facing right, -1 for facing left
-  self.start_pos[1] = stage.center - (init_facing * window.width / 5) - (self.sprite_size[1] / 2)
+  if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
+  self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)
   self.start_pos[2] = stage.floor - self.sprite_size[2]
   self.my_center = self.pos[1] + self.sprite_size[1]
   self.gravity = self.default_gravity
@@ -107,11 +108,11 @@ end
     -- check special move
     local both_keys_down = false
     for bufferframe = 0, 2 do
-      if self == p1 then
+      if self.player == 1 then
         local p1_frame_attack = keybuffer[frame - bufferframe][2]
         local p1_prev_frame_attack = keybuffer[frame - bufferframe - 1][2]
         if p1_frame_attack and not p1_prev_frame_attack then both_keys_down = true end
-      elseif self == p2 then
+      elseif self.player == 2 then
         local p2_frame_attack = keybuffer[frame - bufferframe][4]
         local p2_prev_frame_attack = keybuffer[frame - bufferframe - 1][4]
         if p2_frame_attack and not p2_prev_frame_attack then both_keys_down = true end
@@ -136,11 +137,11 @@ end
     local both_keys_down = false
 
     for bufferframe = 0, 2 do
-      if self == p1 then
+      if self.player == 1 then
         local p1_frame_jump = keybuffer[frame - bufferframe][1]
         local p1_prev_frame_jump = keybuffer[frame - bufferframe - 1][1]
         if p1_frame_jump and not p1_prev_frame_jump then both_keys_down = true end
-      elseif self == p2 then
+      elseif self.player == 2 then
         local p2_frame_jump = keybuffer[frame - bufferframe][3]
         local p2_prev_frame_jump = keybuffer[frame - bufferframe - 1][3]
         if p2_frame_jump and not p2_prev_frame_jump then both_keys_down = true end
@@ -531,8 +532,8 @@ end
 -----------------------------------------------------------------------------]]                            
 
 Konrad = class('Konrad', Fighter)
-function Konrad:initialize(init_facing, init_super, init_dizzy, init_score)
-  Fighter.initialize(self, init_facing, init_super, init_dizzy, init_score)
+function Konrad:initialize(init_player, init_super, init_dizzy, init_score)
+  Fighter.initialize(self, init_player, init_super, init_dizzy, init_score)
   self.fighter_name = "Konrad"
   self.icon = love.graphics.newImage('images/Konrad/KonradIcon.png')
   self.win_portrait = love.graphics.newImage('images/Konrad/KonradPortrait.png')
@@ -546,7 +547,8 @@ function Konrad:initialize(init_facing, init_super, init_dizzy, init_score)
   self.default_gravity = 0.25
   self.double_jump = false
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  self.start_pos[1] = stage.center - (init_facing * window.width / 5) - (self.sprite_size[1] / 2)
+  if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
+  self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)
   self.start_pos[2] = stage.floor - self.sprite_size[2]
 
   self.pos[1] = self.start_pos[1]
@@ -699,8 +701,8 @@ end
 -----------------------------------------------------------------------------]]   
 
 Jean = class('Jean', Fighter)
-function Jean:initialize(init_facing, init_super, init_dizzy, init_score)
-  Fighter.initialize(self, init_facing, init_super, init_dizzy, init_score)
+function Jean:initialize(init_player, init_super, init_dizzy, init_score)
+  Fighter.initialize(self, init_player, init_super, init_dizzy, init_score)
   self.icon = love.graphics.newImage('images/Jean/JeanIcon.png')
   self.win_portrait = love.graphics.newImage('images/Jean/JeanPortrait.png')
   self.win_quote = 'You must defeat "Wampire" to stand a chance.'
@@ -713,14 +715,14 @@ function Jean:initialize(init_facing, init_super, init_dizzy, init_score)
   self.sprite_size = {150, 200}
   self.default_gravity = 0.35
   self.sprite_wallspace = 25 -- how many pixels to reduce when checking against stage wall
-
+  if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   self.my_center = self.pos[1] + self.sprite_size[1]
   self.dandy = false
   self.pilebunk_ok = false
   self.pilebunking = false
 
-  self.start_pos[1] = stage.center - (init_facing * window.width / 5) - (self.sprite_size[1] / 2)  
+  self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)  
   self.start_pos[2] = stage.floor - self.sprite_size[2]
 
   self.pos[1] = self.start_pos[1]
