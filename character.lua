@@ -28,15 +28,15 @@ function Fighter:initialize(init_facing, init_super, init_dizzy, init_score)
   self.mugshotted = 0 -- frames the character is mugshotted for
   self.hit_type = {} -- type of hit, passed through to gotHit(). E.g. for wall splat
   self.super = init_super -- max 96
-  self.super_on = false -- trigger super mode
-  self.super_drainspeed = 0.2 -- how fast super meter drains away. 
-  self.start_pos = {1, 1} -- Starting position at beginning of round
+  self.super_on = false 
+  self.super_drainspeed = 0.2 -- per frame 
+  self.start_pos = {1, 1}
   self.pos = {1, 1} -- Top left corner of sprite
   self.vel = {0, 0}
-  self.friction = 0.95 -- horizontal velocity multiplied each frame
+  self.friction = 0.95 -- horizontal velocity is multiplied by this each frame
   self.friction_on = false
   self.vel_multiple = 1.0
-  self.hit_wall = false -- if player has hit wall or not. Used for wallsplat and some special moves
+  self.hit_wall = false -- Used for wallsplat and some special moves
   self.hurtboxes = {{0, 0, 0, 0}}
   self.hitboxes = {{0, 0, 0, 0}}
   self.opp_center = stage.center -- center of opponent's sprite
@@ -56,7 +56,7 @@ function Fighter:initialize(init_facing, init_super, init_dizzy, init_score)
   ---------------------------------------------------------------------------]]
 
   -- images
-  self.icon = dummypic -- corner icon
+  self.icon = dummypic -- corner portrait icon
   self.win_portrait = dummypic -- win stage large portrait
   self.win_quote = "Win Quote"
   self.stage_background = dummypic
@@ -106,28 +106,25 @@ end
   function Fighter:jump_key_press()
 
     -- check special move
-    local attack_on3_down = false -- check if attack key was down on (frame - 3)
-    local attack_within2_down = false -- check if attack key is down from (frame - 2) to frame
-   
-    for bufferframe = 0, 2 do -- check for attack key down from (frames - 2) to frame
+    local both_keys_down = false
+
+    for bufferframe = 0, 2 do
       if self.player == 1 then
-        if keybuffer[(frame - bufferframe)][2] then attack_within2_down = true end
+        local p1_frame_attack = keybuffer[frame - bufferframe][2]
+        local p1_prev_frame_attack = keybuffer[frame - bufferframe - 1][2]
+        if p1_frame_attack and not p1_prev_frame_attack then both_keys_down = true end
       elseif self.player == -1 then
-        if keybuffer[(frame - bufferframe)][4] then attack_within2_down = true end
-      end
-      if self.player == 1 then -- check for attack key down at (frame - 3)
-        if keybuffer[(frame - 3)][2] then attack_on3_down = true end
-      elseif self.player == -1 then
-        if keybuffer[(frame - 3)][4] then attack_on3_down = true end
+        local p2_frame_attack = keybuffer[frame - bufferframe][4]
+        local p2_prev_frame_attack = keybuffer[frame - bufferframe - 1][4]
+        if p2_frame_attack and not p2_prev_frame_attack then both_keys_down = true end
       end
     end
 
-    if attack_within2_down and not attack_on3_down and self.in_air then
+    if both_keys_down and self.in_air then
       self:air_special()
-    elseif attack_within2_down and not attack_on3_down and not self.in_air then
+    elseif both_keys_down and not self.in_air then
       self:ground_special()
     end
-
     --[[ Default jump action. Replace with character-specific jump velocity
     if not self.in_air then
       self.waiting = 3
@@ -138,25 +135,23 @@ end
 
   function Fighter:attack_key_press()
     -- check special move
-    local jump_on3_down = false -- check if jump key was down on (frame - 3)
-    local jump_within2_down = false -- check if jump key is down from (frame - 2) to frame
+    local both_keys_down = false
 
-    for bufferframe = 0, 2 do -- check for jump key down from (frames - 2) to frame
+    for bufferframe = 0, 2 do
       if self.player == 1 then
-        if keybuffer[(frame - bufferframe)][1] then jump_within2_down = true end
+        local p1_frame_jump = keybuffer[frame - bufferframe][1]
+        local p1_prev_frame_jump = keybuffer[frame - bufferframe - 1][1]
+        if p1_frame_jump and not p1_prev_frame_jump then both_keys_down = true end
       elseif self.player == -1 then
-        if keybuffer[(frame - bufferframe)][3] then jump_within2_down = true end
-      end
-      if self.player == 1 then -- check for jump key down at (frame - 3)
-        if keybuffer[(frame - 3)][1] then jump_on3_down = true end
-      elseif self.player == -1 then
-        if keybuffer[(frame - 3)][3] then jump_on3_down = true end
-      end
+        local p2_frame_jump = keybuffer[frame - bufferframe][3]
+        local p2_prev_frame_jump = keybuffer[frame - bufferframe - 1][3]
+        if p2_frame_jump and not p2_prev_frame_jump then both_keys_down = true end
+      end      
     end
 
-    if jump_within2_down and not jump_on3_down and self.in_air then
+    if both_keys_down and self.in_air then
       self:air_special()
-    elseif jump_within2_down and not jump_on3_down and not self.in_air then
+    elseif both_keys_down and not self.in_air then
       self:ground_special()
     end
 
@@ -199,7 +194,7 @@ end
     KickbackDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 54, self.facing, shift)
   end
 
-  function Fighter:land() -- called when character lands on floor
+  function Fighter:land()
     self.in_air = false
     self.attacking = false
     self.hit_wall = false
@@ -242,7 +237,7 @@ end
 
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
   if type_table[Mugshot] then
-    Mugshot:loadFX() -- display Mugshot graphic
+    Mugshot:loadFX()
     self.hit_flag.Mugshot = true
   end
 
@@ -331,30 +326,13 @@ function Fighter:getSelfNeutral()
   end
 end
 
-function Fighter:getStart_Pos() return self.start_pos end
 function Fighter:getPos_h() return self.pos[1] end
 function Fighter:getPos_v() return self.pos[2] end
 function Fighter:getSprite_Width() return self.sprite_size[1] end
-function Fighter:getFacing() return self.facing end
 function Fighter:getImage_Size() return unpack(self.image_size) end
---function Fighter:getHurtboxes() return self.hurtboxes end
---function Fighter:getHitboxes() return self.hitboxes end
-function Fighter:getWon() return self.won end
-function Fighter:getKO() return self.ko end
-function Fighter:getScore() return self.score end
-function Fighter:getFighter_Name() return self.fighter_name end
 function Fighter:get_Center() return self.pos[1] + 0.5 * self.sprite_size[1] end
-function Fighter:getIcon_Image() return self.icon end
 function Fighter:getIcon_Width() return self.icon:getWidth() end
-function Fighter:getWin_Portrait() return self.win_portrait end
-function Fighter:getWin_Quote() return self.win_quote end
-function Fighter:getAttacking() return self.attacking end
-function Fighter:getSuper() return self.super end
-function Fighter:getSuperOn() return self.super_on end
-function Fighter:getHit_Wall() return self.hit_wall end
 function Fighter:getFrozen() if self.frozen > 0 then return true else return false end end
-
-function Fighter:gotKO() return self.ko end
 function Fighter:addScore() self.score = self.score + 1 end
 function Fighter:setPos(pos) self.pos = {pos[1], pos[2]} end
 function Fighter:setFacing(facing) self.facing = facing end
