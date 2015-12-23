@@ -37,8 +37,8 @@ function Fighter:initialize(init_player, init_super, init_dizzy, init_score)
   self.friction_on = false
   self.vel_multiple = 1.0
   self.hit_wall = false -- Used for wallsplat and some special moves
-  self.hurtboxes = {{0, 0, 0, 0}}
-  self.hitboxes = {{0, 0, 0, 0}}
+  self.hurtboxes = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hitboxes = {{L = 0, U = 0, R = 0, D = 0}}
   self.opp_center = stage.center -- center of opponent's sprite
   self.waiting = 0 -- number of frames to wait. used for pre-jump frames etc.
   self.waiting_state = "" -- buffer the action that will be executed if special isn't pressed
@@ -70,18 +70,15 @@ function Fighter:initialize(init_player, init_super, init_dizzy, init_score)
   self.default_gravity = 0.25
   self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.7 for Mugshotted
 
-  --[[Lists of hitboxes and hurtboxes for the relevant sprites.
-      Format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
-      Flags for hit effects or hurtboxes are the 5th element in the table.
-      Attacks support 6th element too. The name MUST correspond to a Particle class!--]]
-  self.hurtboxes_standing = {{0, 0, 0, 0}}
-  self.hurtboxes_jumping  = {{0, 0, 0, 0}}
-  self.hurtboxes_falling = {{0, 0, 0, 0}}
-  self.hurtboxes_attacking  = {{0, 0, 0, 0}}
-  self.hurtboxes_kickback  = {{0, 0, 0, 0}}
-  self.hurtboxes_ko  = {{0, 0, 0, 0}}
-  self.hitboxes_neutral = {{0, 0, 0, 0}}
-  self.hitboxes_attacking = {{0, 0, 0, 0}}
+  -- hitboxes. Flags must correspond to a particle class.
+  self.hurtboxes_standing = {{L = 0, U = 0, R = 0, D = 0, Flag1 = Mugshot}}
+  self.hurtboxes_jumping  = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hurtboxes_falling = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hurtboxes_attacking  = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hurtboxes_kickback  = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hurtboxes_ko  = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hitboxes_neutral = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hitboxes_attacking = {{L = 0, U = 0, R = 0, D = 0}}
 
   -- sound effects
   self.BGM = "dummy.ogg"
@@ -104,7 +101,10 @@ function Fighter:initialize(init_player, init_super, init_dizzy, init_score)
 end
 
   function Fighter:jump_key_press()
-
+    if not self.in_air then
+      self.waiting = 3
+      self.waiting_state = "Jump"
+    end
     -- check special move
     local both_keys_down = false
     for bufferframe = 0, 2 do
@@ -118,18 +118,11 @@ end
         if p2_frame_attack and not p2_prev_frame_attack then both_keys_down = true end
       end
     end
-
     if both_keys_down and self.in_air then
       self:air_special()
     elseif both_keys_down and not self.in_air then
       self:ground_special()
     end
-    --[[ Default jump action. Replace with character-specific jump velocity
-    if not self.in_air then
-      self.waiting = 3
-      self.waiting_state = "Jump"
-    end --]]
-
   end
 
   function Fighter:attack_key_press()
@@ -318,13 +311,8 @@ function Fighter:wonRoundRoutine() -- keep calling this if self.won is true
 end
 
 function Fighter:getSelfNeutral()
-  if not self.in_air and not self.ko and not self.attacking then
-    return true
-  else
-    return false
-  end
+  return not self.in_air and not self.ko and not self.attacking
 end
-
 function Fighter:getPos_h() return self.pos[1] end
 function Fighter:getPos_v() return self.pos[2] end
 function Fighter:getSprite_Width() return self.sprite_size[1] end
@@ -357,56 +345,52 @@ function Fighter:updateBoxes()
 
   local temp_hurtbox = {}
   for i = 1, #self.current_hurtboxes do
-    temp_hurtbox[i] = {0, 0, 0, 0}
+    temp_hurtbox[i] = {L = 0, U = 0, R = 0, D = 0}
   end
 
   local temp_hitbox = {}
   for i = 1, #self.current_hitboxes do
-    temp_hitbox[i] = {0, 0, 0, 0}
+    temp_hitbox[i] = {L = 0, U = 0, R = 0, D = 0}
   end
 
-  -- add hurtbox sides to self.pos for updated sides
-
-
+  -- iterate over the current hurtboxes/hitboxes list
   if self.facing == 1 then
     for i = 1, #self.current_hurtboxes do
-      temp_hurtbox[i][1] = self.current_hurtboxes[i][1] + self.pos[1] -- left
-      temp_hurtbox[i][2] = self.current_hurtboxes[i][2] + self.pos[2] -- top
-      temp_hurtbox[i][3] = self.current_hurtboxes[i][3] + self.pos[1] -- right
-      temp_hurtbox[i][4] = self.current_hurtboxes[i][4] + self.pos[2] -- bottom
-      temp_hurtbox[i][5] = self.current_hurtboxes[i][5] -- flag 1
+      temp_hurtbox[i].L = self.current_hurtboxes[i].L + self.pos[1]
+      temp_hurtbox[i].U = self.current_hurtboxes[i].U + self.pos[2]
+      temp_hurtbox[i].R = self.current_hurtboxes[i].R + self.pos[1]
+      temp_hurtbox[i].D = self.current_hurtboxes[i].D + self.pos[2]
+      temp_hurtbox[i].Flag1 = self.current_hurtboxes[i].Flag1
     end
 
   elseif self.facing == -1 then
     for i = 1, #self.current_hurtboxes do
-      temp_hurtbox[i][1] = - self.current_hurtboxes[i][3] + self.pos[1] + self.sprite_size[1] -- left
-      temp_hurtbox[i][2] = self.current_hurtboxes[i][2] + self.pos[2] -- top
-      temp_hurtbox[i][3] = - self.current_hurtboxes[i][1] + self.pos[1] + self.sprite_size[1] -- right
-      temp_hurtbox[i][4] = self.current_hurtboxes[i][4] + self.pos[2] -- bottom
-      temp_hurtbox[i][5] = self.current_hurtboxes[i][5] -- flag 1
+      temp_hurtbox[i].L = - self.current_hurtboxes[i].R + self.pos[1] + self.sprite_size[1]
+      temp_hurtbox[i].U = self.current_hurtboxes[i].U + self.pos[2]
+      temp_hurtbox[i].R = - self.current_hurtboxes[i].L + self.pos[1] + self.sprite_size[1]
+      temp_hurtbox[i].D = self.current_hurtboxes[i].D + self.pos[2]
+      temp_hurtbox[i].Flag1 = self.current_hurtboxes[i].Flag1
     end
   end
 
-  -- add hitbox sides to self.pos for updated sides
   if self.attacking and self.facing == 1 then
     for i = 1, #self.current_hitboxes do
-      temp_hitbox[i][1] = self.current_hitboxes[i][1] + self.pos[1] -- left
-      temp_hitbox[i][2] = self.current_hitboxes[i][2] + self.pos[2] -- top
-      temp_hitbox[i][3] = self.current_hitboxes[i][3] + self.pos[1] -- right
-      temp_hitbox[i][4] = self.current_hitboxes[i][4] + self.pos[2] -- bottom
-      temp_hitbox[i][5] = self.current_hitboxes[i][5] -- flag 1
-      temp_hitbox[i][6] = self.current_hitboxes[i][6] -- flag 1
+      temp_hitbox[i].L = self.current_hitboxes[i].L + self.pos[1]
+      temp_hitbox[i].U = self.current_hitboxes[i].U + self.pos[2]
+      temp_hitbox[i].R = self.current_hitboxes[i].R + self.pos[1]
+      temp_hitbox[i].D = self.current_hitboxes[i].D + self.pos[2]
+      temp_hitbox[i].Flag1 = self.current_hitboxes[i].Flag1
+      temp_hitbox[i].Flag2 = self.current_hitboxes[i].Flag2
 
     end
   elseif self.attacking and self.facing == -1 then
     for i = 1, #self.current_hitboxes do
-      temp_hitbox[i][1] = self.pos[1] - self.current_hitboxes[i][3] + self.sprite_size[1] -- left
-      temp_hitbox[i][2] = self.current_hitboxes[i][2] + self.pos[2] -- top
-      temp_hitbox[i][3] = self.pos[1] - self.current_hitboxes[i][1] + self.sprite_size[1] -- right
-      temp_hitbox[i][4] = self.current_hitboxes[i][4] + self.pos[2] -- bottom        
-      temp_hitbox[i][5] = self.current_hitboxes[i][5] -- flag 1
-      temp_hitbox[i][6] = self.current_hitboxes[i][6] -- flag 1
-
+      temp_hitbox[i].L = self.pos[1] - self.current_hitboxes[i].R + self.sprite_size[1]
+      temp_hitbox[i].U = self.current_hitboxes[i].U + self.pos[2]
+      temp_hitbox[i].R = self.pos[1] - self.current_hitboxes[i].L + self.sprite_size[1]
+      temp_hitbox[i].D = self.current_hitboxes[i].D + self.pos[2]
+      temp_hitbox[i].Flag1 = self.current_hitboxes[i].Flag1
+      temp_hitbox[i].Flag2 = self.current_hitboxes[i].Flag2
     end
   end
   
@@ -557,14 +541,42 @@ function Konrad:initialize(init_player, init_super, init_dizzy, init_score)
   self.my_center = self.pos[1] + self.sprite_size[1]
   
   --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
-  self.hurtboxes_standing = {{78, 33, 116, 50, Mugshot}, {69, 51, 124, 79, Mugshot}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
-  self.hurtboxes_jumping  = {{78, 33, 116, 50, Mugshot}, {69, 51, 124, 79, Mugshot}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
-  self.hurtboxes_falling = {{78, 33, 116, 50, Mugshot}, {69, 51, 124, 79, Mugshot}, {76, 85, 120, 101}, {70, 105, 129, 142}, {75, 143, 124, 172}, {82, 173, 120, 190}}
-  self.hurtboxes_attacking  = {{67, 30, 108, 59, Mugshot}, {75, 60, 104, 103}, {68, 104, 91, 135}, {100, 105, 114, 136}, {111, 137, 128, 157}, {125, 158, 138, 183}}
-  self.hurtboxes_kickback  = {{67, 41, 128, 72, Mugshot}, {70, 73, 119, 165}, {72, 166, 111, 182}}
+  self.hurtboxes_standing = {
+    {L = 78, U = 28, R = 119, D = 50, Flag1 = Mugshot},
+    {L = 69, U = 51, R = 124, D = 79, Flag1 = Mugshot},
+    {L = 76, U = 85, R = 120, D = 101},
+    {L = 70, U = 105, R = 129, D = 142},
+    {L = 75, U = 143, R = 124, D = 172},
+    {L = 82, U = 173, R = 120, D = 190}}
+  self.hurtboxes_jumping  = {
+    {L = 78, U = 28, R = 119, D = 50, Flag1 = Mugshot},
+    {L = 69, U = 51, R = 124, D = 79, Flag1 = Mugshot},
+    {L = 76, U = 85, R = 120, D = 101},
+    {L = 70, U = 105, R = 129, D = 142},
+    {L = 75, U = 143, R = 124, D = 172},
+    {L = 82, U = 173, R = 120, D = 190}}
+  self.hurtboxes_falling = {
+    {L = 78, U = 28, R = 119, D = 50, Flag1 = Mugshot},
+    {L = 69, U = 51, R = 124, D = 79, Flag1 = Mugshot},
+    {L = 76, U = 85, R = 120, D = 101},
+    {L = 70, U = 105, R = 129, D = 142},
+    {L = 75, U = 143, R = 124, D = 172},
+    {L = 82, U = 173, R = 120, D = 190}}
+  self.hurtboxes_attacking  = {
+    {L = 67, U = 20, R = 109, D = 59, Flag1 = Mugshot},
+    {L = 75, U = 60, R = 104, D = 103},
+    {L = 68, U = 104, R = 91, D = 135},
+    {L = 100, U = 105, R = 114, D = 136},
+    {L = 111, U = 137, R = 128, D = 157},
+    {L = 125, U = 158, R = 138, D = 183}}
+  self.hurtboxes_kickback  = {
+    {L = 82, U = 25, R = 123, D = 71, Flag1 = Mugshot},
+    {L = 71, U = 41, R = 128, D = 72, Flag1 = Mugshot},
+    {L = 70, U = 73, R = 119, D = 165},
+    {L = 72, U = 166, R = 111, D = 182}}
 
-  self.hitboxes_attacking = {{119, 166, 137, 183}}
-  self.hitboxes_hyperkick = {{119, 166, 137, 183, Fire}}
+  self.hitboxes_attacking = {{L = 119, U = 166, R = 137, D = 183}}
+  self.hitboxes_hyperkick = {{L = 119, U = 166, R = 137, D = 183, Flag1 = Fire}}
 
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
@@ -582,16 +594,12 @@ end
 
 
   function Konrad:jump_key_press()
-    -- only jump if not already in air
-    if not self.in_air then
-      self.waiting = 3
-      self.waiting_state = "Jump"
-    elseif not self.attacking and not self.double_jump then
+    if self.in_air and not self.attacking and not self.double_jump then
       self.waiting = 3
       self.waiting_state = "DoubleJump"
       self.double_jump = true
     end
-    Fighter.jump_key_press(self) -- check for special move
+    Fighter.jump_key_press(self) -- check for ground jump or special move
   end
 
   function Konrad:attack_key_press()
@@ -741,16 +749,58 @@ function Jean:initialize(init_player, init_super, init_dizzy, init_score)
   self.ground_special_sfx = "WireSea.ogg"
   self.air_special_sfx = "Jean/JeanAirSpecial.ogg"
 
-  self.hurtboxes_standing = {{53, 33, 95, 50, Mugshot}, {44, 51, 102, 79, Mugshot}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
-  self.hurtboxes_jumping  = {{53, 33, 95, 50, Mugshot}, {44, 51, 102, 79, Mugshot}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
-  self.hurtboxes_falling = {{53, 33, 95, 50, Mugshot}, {44, 51, 102, 79, Mugshot}, {51, 85, 95, 101}, {45, 105, 104, 142}, {50, 143, 99, 172}, {57, 173, 95, 190}}
-  self.hurtboxes_attacking  = {{10, 26, 58, 69, Mugshot}, {61, 58, 77, 69}, {31, 72, 83, 109}, {42, 110, 93, 126}, {61, 129, 116, 149}, {118, 138, 131, 149}, {62, 151, 145, 172}}
-  self.hurtboxes_dandy  = {{11, 32, 37, 76, Mugshot}, {15, 82, 45, 129}, {24, 131, 61, 151}, {62, 142, 73, 151}, {33, 152, 82, 166}, {47, 167, 95, 186}}
-  self.hurtboxes_pilebunker = {{6, 32, 37, 71, Mugshot}, {17, 68, 71, 137}, {73, 128, 100, 137}, {42, 140, 108, 187}, {110, 152, 118, 187}}
-  self.hurtboxes_pilebunkerB = {{15, 32, 46, 71, Mugshot}, {17, 68, 71, 137}, {73, 128, 83, 137}, {42, 140, 98, 187}, {100, 165, 113, 180}}
+  self.hurtboxes_standing = {
+    {L = 53, U = 27, R = 95, D = 50, Flag1 = Mugshot},
+    {L = 44, U = 51, R = 102, D = 79, Flag1 = Mugshot},
+    {L = 51, U = 85, R = 95, D = 101},
+    {L = 45, U = 105, R = 104, D = 142},
+    {L = 50, U = 143, R = 99, D = 172},
+    {L = 57, U = 173, R = 95, D = 190}}
+  self.hurtboxes_jumping  = {
+    {L = 53, U = 27, R = 95, D = 50, Flag1 = Mugshot},
+    {L = 44, U = 51, R = 102, D = 79, Flag1 = Mugshot},
+    {L = 51, U = 85, R = 95, D = 101},
+    {L = 45, U = 105, R = 104, D = 142},
+    {L = 50, U = 143, R = 99, D = 172},
+    {L = 57, U = 173, R = 95, D = 190}}
+  self.hurtboxes_falling = {
+    {L = 53, U = 27, R = 95, D = 50, Flag1 = Mugshot},
+    {L = 44, U = 51, R = 102, D = 79, Flag1 = Mugshot},
+    {L = 51, U = 85, R = 95, D = 101},
+    {L = 45, U = 105, R = 104, D = 142},
+    {L = 50, U = 143, R = 99, D = 172},
+    {L = 57, U = 173, R = 95, D = 190}}
+  self.hurtboxes_attacking  = {
+    {L = 10, U = 24, R = 57, D = 69, Flag1 = Mugshot},
+    {L = 61, U = 58, R = 77, D = 69},
+    {L = 31, U = 72, R = 83, D = 109},
+    {L = 42, U = 110, R = 93, D = 126},
+    {L = 61, U = 129, R = 116, D = 149},
+    {L = 118, U = 138, R = 131, D = 149},
+    {L = 62, U = 151, R = 145, D = 172}}
+  self.hurtboxes_dandy  = {
+    {L = 11, U = 33, R = 39, D = 76, Flag1 = Mugshot},
+    {L = 15, U = 82, R = 45, D = 129},
+    {L = 24, U = 131, R = 61, D = 151},
+    {L = 62, U = 142, R = 73, D = 151},
+    {L = 33, U = 152, R = 82, D = 166},
+    {L = 47, U = 167, R = 95, D = 186}}
+  self.hurtboxes_pilebunker = {
+    {L = 6, U = 36, R = 37, D = 71, Flag1 = Mugshot},
+    {L = 17, U = 68, R = 71, D = 137},
+    {L = 72, U = 87, R = 130, D = 92},
+    {L = 73, U = 128, R = 100, D = 137},
+    {L = 42, U = 140, R = 108, D = 187},
+    {L = 110, U = 152, R = 118, D = 187}}
+  self.hurtboxes_pilebunkerB = {
+    {L = 15, U = 36, R = 46, D = 71, Flag1 = Mugshot},
+    {L = 17, U = 68, R = 71, D = 137},
+    {L = 73, U = 128, R = 83, D = 137},
+    {L = 42, U = 140, R = 98, D = 187},
+    {L = 100, U = 165, R = 113, D = 180}}
 
-  self.hitboxes_attacking = {{130, 154, 147, 172}}
-  self.hitboxes_pilebunker = {{86, 85, 148, 92, Wallsplat}}
+  self.hitboxes_attacking = {{L = 130, U = 154, R = 147, D = 172}}
+  self.hitboxes_pilebunker = {{L = 86, U = 85, R = 148, D = 92, Flag1 = Wallsplat}}
 
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
@@ -777,15 +827,6 @@ end
     Fighter.attack_key_press(self) -- check for special move
   end
 
-  function Jean:jump_key_press()
-    -- only jump if not already in air
-    if not self.in_air and not self.dandy and not self.pilebunking then
-      self.waiting = 3
-      self.waiting_state = "Jump"
-    end
-    Fighter.jump_key_press(self) -- check for special move
-  end
-
   function Jean:attack(h_vel, v_vel)
     self.vel = {h_vel * self.facing, v_vel}
     self.attacking = true
@@ -800,8 +841,7 @@ end
   end
 
 
-  function Jean:dandyStep(h_vel)
-    -- self.dandy is a backstep
+  function Jean:dandyStep(h_vel) -- self.dandy is a backstep
     self.dandy = true
     self.vel[1] = h_vel * self.facing
     self:updateImage(3)
@@ -935,11 +975,7 @@ function Jean:gotHit(type)
 end
 
 function Jean:getSelfNeutral() -- don't check for facing if in dandy/pilebunker
-  if not self.in_air and not self.ko and not self.attacking and not self.dandy and not self.pilebunking then
-    return true
-  else
-    return false
-  end
+  return not self.in_air and not self.ko and not self.attacking and not self.dandy and not self.pilebunking
 end
 
 

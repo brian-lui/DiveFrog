@@ -19,18 +19,11 @@ function rightEdge() -- get temp right edge based on camera and window position
   return math.min(window.right + camera_xy[1], stage.right)
 end
 
-function quadOverlap(quad1, quad2)
-  left1, top1, right1, bottom1 = unpack(quad1)
-  left2, top2, right2, bottom2 = unpack(quad2)
-
-  if right1 > left2 and right2 > left1 and bottom1 > top2 and top1 < bottom2 then
-    return true
-  else
-    return false
-  end
+function quadOverlap(q1, q2)
+  return q1.R > q2.L and q2.R > q1.L and q1.D > q2.U and q2.D > q1.U
 end    
 
-function check_got_hit(getting_hit, attacker) -- also applies Mugshot flag for headshots
+function check_got_hit(getting_hit, attacker)
   local gothit = false
   if attacker.attacking then
     local hurt = getting_hit.hurtboxes
@@ -39,22 +32,14 @@ function check_got_hit(getting_hit, attacker) -- also applies Mugshot flag for h
       for j = 1, #hit do
         if(quadOverlap(hurt[i], hit[j])) then
           gothit = true
-          for k = 5, #hurt[i] do -- check for flags for hurtboxes
-            local flag = hurt[i][k]
-            attacker.hit_type[flag] = true
-          end
-
-          for k = 5, #hit[j] do
-            local flag = hit[j][k] -- check for flags for hurtboxes
-            attacker.hit_type[flag] = true
+          local flag_list = {hurt[i].Flag1, hit[j].Flag1, hit[j].Flag2}
+          for _, flag in pairs(flag_list) do
+            if flag then attacker.hit_type[flag] = true end
           end
         end
       end
     end
   end
-  -- for i = 5, #hurt do
-  -- ... -- to get flags
-  -- for j = 5, #hit do ...
   return gothit
 end
 
@@ -83,21 +68,14 @@ function drawDebugHurtboxes()
     for num, drawboxes in pairs(todraw) do
       local dog = drawboxes
       for i = 1, #dog do
-        if dog[i][5] == Mugshot then
+        if dog[i].Flag1 == Mugshot then
           love.graphics.setColor({0, 0, 255, 160})
         else
           love.graphics.setColor(color[num])
         end
-        local draw_width = dog[i][3] - dog[i][1]
-        local draw_height = dog[i][4] - dog[i][2]
-        love.graphics.rectangle("fill", dog[i][1], dog[i][2], draw_width, draw_height)
-
-        --[[love.graphics.line(
-          dog[i][1], dog[i][2],
-          dog[i][3], dog[i][2],
-          dog[i][3], dog[i][4],
-          dog[i][1], dog[i][4],
-          dog[i][1], dog[i][2])--]]
+        local draw_width = dog[i].R - dog[i].L
+        local draw_height = dog[i].D - dog[i].U
+        love.graphics.rectangle("fill", dog[i].L, dog[i].U, draw_width, draw_height)
       end
     end
   love.graphics.pop()
