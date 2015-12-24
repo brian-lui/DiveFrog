@@ -7,7 +7,9 @@ local buttons = require 'controls'  -- mapping of keyboard controls
 local music = require 'music' -- background music
 local character = require 'character' -- base character class
 local particles = require 'particles' -- graphics effects
-local game = {current_screen = "title"} -- start at title screen
+
+-- test
+print(love.filesystem.getSaveDirectory())
 
 -- load images
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
@@ -51,6 +53,11 @@ canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
 canvas_background = love.graphics.newCanvas(stage.width, stage.height)
 
 function love.load()
+  game = {
+    current_screen = "title",
+    best_to_x = 2,
+    current_round = 0,
+    match_winner = false}
   setBGM("Intro.ogg")
   min_dt = 1/60 -- frames per second
   next_time = love.timer.getTime()
@@ -60,12 +67,10 @@ function love.load()
   round_timer = init_round_timer
   round_end_frame = 0
   input_frozen = true
-  current_round = 0
-  best_to_x = 5
-  match_winner = false
   keybuffer = {false, false, false, false} -- log of all keystates during the round. Useful for netplay!
   prebuffer = {} -- pre-load draw instruction into future frames behind sprite
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
+  soundbuffer = {} -- pre-load sound effects into future frames
   camera_xy = {} -- corner for camera and window drawing
 end
 
@@ -83,7 +88,7 @@ function drawSprites()
     -- draw if low on time
   if round_timer <= 180 then
     love.graphics.push("all")
-      love.graphics.setColor(110, 0, 0, 150)
+      love.graphics.setColor(110, 0, 0, 200)
       love.graphics.setLineWidth(12)
       love.graphics.line(stage.center, 0, stage.center, stage.height)
     love.graphics.pop()
@@ -150,7 +155,7 @@ function drawOverlays()
     end
 
     -- win points
-    for i = 1, best_to_x do
+    for i = 1, game.best_to_x do
       if side.score >= i then
         love.graphics.draw(greenlight, window.center + (op.move * 358) - op.move * (24 * i),
         50, 0, 1, 1, op.offset * IMG.greenlight_width)
@@ -214,8 +219,8 @@ function drawOverlays()
     love.graphics.push("all")
       love.graphics.setFont(titleFont)
       love.graphics.setColor(255, 255, 255)
-      love.graphics.printf("Round " .. current_round, 0, 200, window.width, "center")
-      if p1.score == best_to_x - 1 and p2.score == best_to_x - 1 then
+      love.graphics.printf("Round " .. game.current_round, 0, 200, window.width, "center")
+      if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
         love.graphics.printf("Final round!", 0, 300, window.width, "center")
       end
     love.graphics.pop()
@@ -259,7 +264,7 @@ function love.draw()
 
     camera:set(1, 1)
     love.graphics.draw(canvas_sprites)
-    --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
+    drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
     --drawDebugSprites() -- debug: draw sprite box, center, and facing
     camera:unset()
 
@@ -303,9 +308,9 @@ function love.draw()
 
     love.graphics.push("all")
       love.graphics.setFont(gameoverFont)
-      love.graphics.draw(match_winner.win_portrait, 100, 50)
+      love.graphics.draw(game.match_winner.win_portrait, 100, 50)
       love.graphics.setColor(31, 39, 84)
-      love.graphics.printf(match_winner.win_quote, 50, 470, 700)
+      love.graphics.printf(game.match_winner.win_quote, 50, 470, 700)
       love.graphics.setColor(31, 39, 84) -- placeholder
       love.graphics.setFont(charSelectorFont) -- placeholder
       love.graphics.printf("Press return/enter please", 600, 540, 190) -- placeholder
@@ -334,7 +339,7 @@ end
 
 function love.update(dt)
   if game.current_screen == "maingame" then
-    local h_midpoint = (p1:get_Center() + p2:get_Center()) / 2
+    local h_midpoint = (p1:getCenter() + p2:getCenter()) / 2
     local highest_sprite = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2])
     local screen_bottom = stage.height - window.height
 
@@ -375,8 +380,8 @@ function love.update(dt)
     end
     -- update character positions
     t0 = love.timer.getTime()
-    p1:updatePos(p2:get_Center())
-    p2:updatePos(p1:get_Center())
+    p1:updatePos()
+    p2:updatePos()
     t1 = love.timer.getTime()
 
     -- check if anyone got hit
@@ -403,8 +408,8 @@ function love.update(dt)
     if round_timer == 0 and not input_frozen then
       round_end_frame = frame
       input_frozen = true
-      local p1_from_center = math.abs((stage.center) - p1:get_Center())
-      local p2_from_center = math.abs((stage.center) - p2:get_Center())
+      local p1_from_center = math.abs((stage.center) - p1:getCenter())
+      local p2_from_center = math.abs((stage.center) - p2:getCenter())
       if p1_from_center < p2_from_center then -- inelegant, refactor later
         p2:gotHit(p1.hit_type)
         p1:hitOpponent()
@@ -421,10 +426,10 @@ function love.update(dt)
     if frame - round_end_frame == 144 then
       for p, _ in pairs(PLAYERS) do
         if p.won then p:addScore() end
-        if p.score == best_to_x then match_winner = p end
+        if p.score == game.best_to_x then game.match_winner = p end
       end
       
-      if not match_winner then newRound()
+      if not game.match_winner then newRound()
       else -- match end
         frame = 0
         frame0 = 0
@@ -441,8 +446,8 @@ end
 
 function newRound()
 
-  p1:initialize(1, p1.super, p1.hit_flag.Mugshot, p1.score)
-  p2:initialize(2, p2.super, p2.hit_flag.Mugshot, p2.score)
+  p1:initialize(1, p2, p1.super, p1.hit_flag.Mugshot, p1.score)
+  p2:initialize(2, p1, p2.super, p2.hit_flag.Mugshot, p2.score)
 
   frame = 0
   frame0 = 0
@@ -450,10 +455,10 @@ function newRound()
   round_end = false
   round_end_frame = 100000 -- arbitrary number, larger than total round time
   input_frozen = true
-  current_round = current_round + 1
+  game.current_round = game.current_round + 1
   keybuffer = {false, false, false, false}
 
-  if p1.score == best_to_x - 1 and p2.score == best_to_x - 1 then
+  if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
     setBGMspeed(2 ^ (4/12))
   end
 end
@@ -461,13 +466,21 @@ end
 function startGame()
   game.current_screen = "maingame"
 
-  p1 = available_chars[p1_char](1, 0, false, 0)
-  p2 = available_chars[p2_char](2, 0, false, 0)
+  p1 = available_chars[p1_char](1, p2, 0, false, 0)
+  p2 = available_chars[p2_char](2, p1, 0, false, 0)
 
   -- put the move/flip/offset stuff for draw operations in p1/p2
-  p1_flags = {move = -1, flip = 1, offset = 0}
-  p2_flags = {move = 1, flip = -1, offset = 1}
-  PLAYERS = {[p1] = p1_flags, [p2] = p2_flags}
+  --p1_flags = {move = -1, flip = 1, offset = 0}
+  --p2_flags = {move = 1, flip = -1, offset = 1}
+  PLAYERS = { [p1] = {
+                      move = -1,
+                      flip = 1,
+                      offset = 0},
+              [p2] = {
+                      move = 1,
+                      flip = -1,
+                      offset = 1} } -- can add score here
+
   THINGS = {[p1] = {p2, p2.things}, [p2] = {p1, p1.things}, [p1.things] = {p2, p2.things}, [p2.things] = {p1, p1.things}} 
 
   setBGM(p2.BGM)
@@ -476,10 +489,11 @@ end
 
 function charSelect()
   setBGM("CharSelect.ogg")
-  available_chars = {Konrad, Jean}
+  available_chars = {Konrad, Jean, Sun}
   char_text = {
     {"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},
-    {"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"}
+    {"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"},
+    {"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"}
     }
   total_chars = #available_chars
   p1_char = 1 -- default to first character
@@ -525,8 +539,9 @@ function love.keypressed(key, isrepeat)
 
   if game.current_screen == "maingame" then
     -- debug
-    if key == 'z' then
-      print("POOPS!")-- testing stuff here
+    if key == 'z' then -- testing stuff here
+
+      --love.filesystem.write("Test.txt", keybuffer:getString())
     end
   end
 end
