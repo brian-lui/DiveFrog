@@ -1059,11 +1059,11 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.hitboxes_riotkick = {{L = 0, U = 0, R = 0, D = 0}}
   
   -- sound effects
-  self.BGM = "JeanTheme.ogg"
+  self.BGM = "BadfrogTheme.ogg"
   self.jump_sfx = "dummy.ogg"
   self.attack_sfx = "dummy.ogg"
   self.got_hit_sfx = "dummy.ogg"
-  self.hit_sound_sfx = "dummy.ogg"
+  self.hit_sound_sfx = "Potatoes.ogg"
   self.ground_special_sfx = "dummy.ogg"
   self.air_special_sfx = "dummy.ogg"
 
