@@ -11,13 +11,14 @@ require 'particles'
 -----------------------------------------------------------------------------]]   
 
 Fighter = class('Fighter')    
-function Fighter:initialize(init_player, init_super, init_dizzy, init_score)
+function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   --[[-------------------------------------------------------------------------
                               NO NEED TO MODIFY THESE
   ---------------------------------------------------------------------------]]
   
   dummypic = love.graphics.newImage('images/dummy.png')
   self.player = init_player 
+  self.foe = init_foe
   self.frozen = 0 -- only update sprite if this is 0. Used for e.g. super freeze
   self.score = init_score
   self.in_air = false
@@ -29,17 +30,17 @@ function Fighter:initialize(init_player, init_super, init_dizzy, init_score)
   self.hit_type = {} -- type of hit, passed through to gotHit(). E.g. for wall splat
   self.super = init_super -- max 96
   self.super_on = false 
-  self.super_drainspeed = 0.2 -- per frame 
+  self.super_drainspeed = 0.3 -- per frame 
   self.start_pos = {1, 1}
   self.pos = {1, 1} -- Top left corner of sprite
   self.vel = {0, 0}
   self.friction = 0.95 -- horizontal velocity is multiplied by this each frame
   self.friction_on = false
   self.vel_multiple = 1.0
+  self.recovery = 0 -- number of frames of recovery for some special moves
   self.hit_wall = false -- Used for wallsplat and some special moves
   self.hurtboxes = {{L = 0, U = 0, R = 0, D = 0}}
   self.hitboxes = {{L = 0, U = 0, R = 0, D = 0}}
-  self.opp_center = stage.center -- center of opponent's sprite
   self.waiting = 0 -- number of frames to wait. used for pre-jump frames etc.
   self.waiting_state = "" -- buffer the action that will be executed if special isn't pressed
   self.hit_flag = {Mugshot = init_dizzy} -- for KO animations
@@ -54,11 +55,11 @@ function Fighter:initialize(init_player, init_super, init_dizzy, init_score)
   --[[-------------------------------------------------------------------------
                             MAY NEED TO MODIFY THESE
   ---------------------------------------------------------------------------]]
-
+  self.fighter_name = "Dummy"
+  self.win_quote = "Win Quote"
   -- images
   self.icon = dummypic -- corner portrait icon
   self.win_portrait = dummypic -- win stage large portrait
-  self.win_quote = "Win Quote"
   self.stage_background = dummypic
   self.image = dummypic -- Entire tiled image
   self.image_size = {2, 2}
@@ -94,14 +95,17 @@ function Fighter:initialize(init_player, init_super, init_dizzy, init_score)
   if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
   self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)
   self.start_pos[2] = stage.floor - self.sprite_size[2]
-  self.my_center = self.pos[1] + self.sprite_size[1]
+  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
   self.gravity = self.default_gravity
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
+  self.pos[1] = self.start_pos[1]
+  self.pos[2] = self.start_pos[2]
+
 end
 
   function Fighter:jump_key_press()
-    if not self.in_air then
+    if not self.in_air and self:getNeutral() then
       self.waiting = 3
       self.waiting_state = "Jump"
     end
@@ -150,14 +154,14 @@ end
     --[[ Default attack action. Replace with character-specific attack/kickback actions
     
     -- attack if in air and not already attacking and going up and more than 50 pixels above the ground.
-    if self.in_air and not self.attacking and 
+    if self.in_air and not self.attacking and self.recovery == 0 and 
       (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
       (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
         self.waiting = 3
         self.waiting_state = "Attack"
         
     -- If on ground, kickback
-    elseif not self.in_air then
+    elseif not self.in_air and self.recovery == 0 then
       self.waiting = 3
       self.waiting_state = "Kickback"
     end
@@ -310,14 +314,14 @@ function Fighter:wonRoundRoutine() -- keep calling this if self.won is true
   end
 end
 
-function Fighter:getSelfNeutral()
-  return not self.in_air and not self.ko and not self.attacking
+function Fighter:getNeutral()
+  return not self.in_air and not self.ko and not self.attacking and self.recovery == 0
 end
 function Fighter:getPos_h() return self.pos[1] end
 function Fighter:getPos_v() return self.pos[2] end
 function Fighter:getSprite_Width() return self.sprite_size[1] end
 function Fighter:getImage_Size() return unpack(self.image_size) end
-function Fighter:get_Center() return self.pos[1] + 0.5 * self.sprite_size[1] end
+function Fighter:getCenter() return self.pos[1] + 0.5 * self.sprite_size[1] end
 function Fighter:getIcon_Width() return self.icon:getWidth() end
 function Fighter:getFrozen() if self.frozen > 0 then return true else return false end end
 function Fighter:addScore() self.score = self.score + 1 end
@@ -330,11 +334,13 @@ function Fighter:updateImage(image_index)
   return self.sprite
 end
 
-function Fighter:fix_Facing() -- change character facing if over center of opponent
-  if self:getSelfNeutral() then
-    if self.facing == 1 and self.my_center > self.opp_center then
+function Fighter:fixFacing() -- change character facing if over center of opponent
+  self.center = self:getCenter()
+  self.foe.center = self.foe:getCenter()
+  if self:getNeutral() then
+    if self.facing == 1 and self.center > self.foe.center then
       self.facing = -1
-    elseif self.facing == -1 and self.my_center < self.opp_center then
+    elseif self.facing == -1 and self.center < self.foe.center then
       self.facing = 1
     end
   end
@@ -398,7 +404,7 @@ function Fighter:updateBoxes()
   self.hitboxes = temp_hitbox
 end
 
-function Fighter:updatePos(opp_center)
+function Fighter:updatePos()
   if self.frozen == 0 then
     if self.ko then self:koRoutine() end
     if self.won then self:wonRoundRoutine() end
@@ -409,6 +415,17 @@ function Fighter:updatePos(opp_center)
       self.mugshotted = self.mugshotted - 1
       Dizzy:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2])
       if self.mugshotted == 0 then self.vel_multiple = 1.0 end
+    end
+
+    -- reduce recovery time
+    if self.recovery > 0 then
+      self.recovery = math.max(0, self.recovery - 1)
+      if self.recovery == 0 and self.in_air then
+        self.current_hurtboxes = self.hurtboxes_falling
+        self:updateImage(2)
+      elseif self.recovery == 0 and not self.in_air then
+        self:land()
+      end
     end
 
     -- update position with velocity, then apply gravity if airborne, then apply inertia
@@ -439,16 +456,12 @@ function Fighter:updatePos(opp_center)
       self.hit_wall = true
     end
 
-    -- get opponent's horizontal center point, in order to adjust facing
-    self.opp_center = opp_center
-    self.my_center = self.pos[1] + 0.5 * self.sprite_size[1]
-
-    self:fix_Facing()
+    self:fixFacing()
     self:updateBoxes()
 
     -- update image if falling
     if self.in_air and self.vel[2] > 0 and not self.attacking and not self.ko then
-      self.current_hurtboxes = self.hurtboxes_standing
+      self.current_hurtboxes = self.hurtboxes_falling
       self:updateImage(2)
     end 
     
@@ -495,7 +508,7 @@ function Fighter:stateCheck()
     end
     if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
-      self:attack(6, 8) end
+      self:attack(6, 8)
       playSFX1(self.attack_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Kickback" then
@@ -516,8 +529,8 @@ end
 -----------------------------------------------------------------------------]]                            
 
 Konrad = class('Konrad', Fighter)
-function Konrad:initialize(init_player, init_super, init_dizzy, init_score)
-  Fighter.initialize(self, init_player, init_super, init_dizzy, init_score)
+function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
+  Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.fighter_name = "Konrad"
   self.icon = love.graphics.newImage('images/Konrad/KonradIcon.png')
   self.win_portrait = love.graphics.newImage('images/Konrad/KonradPortrait.png')
@@ -538,7 +551,7 @@ function Konrad:initialize(init_player, init_super, init_dizzy, init_score)
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
   
-  self.my_center = self.pos[1] + self.sprite_size[1]
+  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
   
   --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
   self.hurtboxes_standing = {
@@ -709,8 +722,8 @@ end
 -----------------------------------------------------------------------------]]   
 
 Jean = class('Jean', Fighter)
-function Jean:initialize(init_player, init_super, init_dizzy, init_score)
-  Fighter.initialize(self, init_player, init_super, init_dizzy, init_score)
+function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
+  Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.icon = love.graphics.newImage('images/Jean/JeanIcon.png')
   self.win_portrait = love.graphics.newImage('images/Jean/JeanPortrait.png')
   self.win_quote = 'You must defeat "Wampire" to stand a chance.'
@@ -725,7 +738,7 @@ function Jean:initialize(init_player, init_super, init_dizzy, init_score)
   self.sprite_wallspace = 25 -- how many pixels to reduce when checking against stage wall
   if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  self.my_center = self.pos[1] + self.sprite_size[1]
+  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
   self.dandy = false
   self.pilebunk_ok = false
   self.pilebunking = false
@@ -736,9 +749,6 @@ function Jean:initialize(init_player, init_super, init_dizzy, init_score)
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
   
-  self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  self.my_center = self.pos[1] + self.sprite_size[1]
-
   -- sound effects
   self.jump_sfx = "Jean/JeanJump.ogg"
   self.attack_sfx = "Jean/JeanAttack.ogg"
@@ -810,7 +820,7 @@ end
 
   function Jean:attack_key_press()
     -- attack if in air and not already attacking.
-    if self.in_air and not self.attacking and 
+    if self.in_air and not self.attacking and not self.dandy and not self.pilebunking and
       (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
       (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
         self.waiting = 3
@@ -974,10 +984,178 @@ function Jean:gotHit(type)
   self.friction_on = true
 end
 
-function Jean:getSelfNeutral() -- don't check for facing if in dandy/pilebunker
+function Jean:getNeutral() -- don't check for facing if in dandy/pilebunker
   return not self.in_air and not self.ko and not self.attacking and not self.dandy and not self.pilebunking
 end
 
+
+--[[---------------------------------------------------------------------------
+                                      SUN BADFROG
+-----------------------------------------------------------------------------]]   
+
+Sun = class('Sun', Fighter)
+function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
+  Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
+
+  self.win_quote = "Robert de Niro called."
+  self.fighter_name = "Sun Badfrog"
+
+  -- images
+  self.icon = love.graphics.newImage('images/Sun/SunIcon.png')
+  self.win_portrait = love.graphics.newImage('images/Sun/SunPortrait.png')
+  self.stage_background = love.graphics.newImage('images/Sun/SunBackground.jpg')
+  self.image = love.graphics.newImage('images/Sun/SunTiles.png')
+  self.image_size = {1600, 200}
+  self.image_index = 0
+  self.sprite_size = {200, 200}
+  self.sprite_wallspace = 65
+  
+  -- character variables
+  self.default_gravity = 0.20
+  self.vel_multiple_super = 1.5
+
+  -- hitboxes. Flags must correspond to a particle class.
+  self.hurtboxes_standing = {
+    {L = 87, U = 19, R = 117, D = 47, Flag1 = Mugshot},
+    {L = 83, U = 51, R = 120, D = 108},
+    {L = 82, U = 109, R = 122, D = 139},
+    {L = 77, U = 140, R = 125, D = 169},
+    {L = 72, U = 170, R = 131, D = 198}}
+  self.hurtboxes_jumping  = {
+    {L = 87, U = 19, R = 117, D = 47, Flag1 = Mugshot},
+    {L = 83, U = 51, R = 119, D = 108},
+    {L = 82, U = 109, R = 121, D = 139},
+    {L = 77, U = 140, R = 123, D = 167}}
+  self.hurtboxes_falling = {
+    {L = 87, U = 19, R = 117, D = 47, Flag1 = Mugshot},
+    {L = 83, U = 51, R = 120, D = 108},
+    {L = 82, U = 109, R = 122, D = 139},
+    {L = 77, U = 140, R = 125, D = 198}}
+  self.hurtboxes_attacking  = {
+    {L = 75, U = 30, R = 101, D = 50, Flag1 = Mugshot},
+    {L = 74, U = 45, R = 122, D = 65},
+    {L = 73, U = 66, R = 104, D = 80},
+    {L = 73, U = 81, R = 158, D = 100},
+    {L = 78, U = 101, R = 130, D = 114},
+    {L = 88, U = 115, R = 156, D = 128},
+    {L = 141, U = 129, R = 150, D = 142}}
+  self.hurtboxes_kickback  = {
+    {L = 87, U = 19, R = 117, D = 47, Flag1 = Mugshot},
+    {L = 83, U = 51, R = 119, D = 108},
+    {L = 82, U = 109, R = 121, D = 139},
+    {L = 77, U = 140, R = 123, D = 167}}
+  self.hurtboxes_ko  = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hurtboxes_hotflame  = {
+    {L = 83, U = 12, R = 131, D = 52, Flag1 = Mugshot},
+    {L = 85, U = 59, R = 116, D = 140},
+    {L = 117, U = 73, R = 131, D = 111},
+    {L = 73, U = 141, R = 131, D = 152},
+    {L = 131, U = 153, R = 143, D = 183},
+    {L = 136, U = 184, R = 152, D = 198},
+    {L = 27, U = 162, R = 79, D = 174}}
+  self.hurtboxes_riotkick  = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hitboxes_neutral = {{L = 0, U = 0, R = 0, D = 0}}
+  self.hitboxes_attacking = {{L = 129, U = 120, R = 151, D = 162}}
+  self.hitboxes_riotkick = {{L = 0, U = 0, R = 0, D = 0}}
+  
+  -- sound effects
+  self.BGM = "JeanTheme.ogg"
+  self.jump_sfx = "dummy.ogg"
+  self.attack_sfx = "dummy.ogg"
+  self.got_hit_sfx = "dummy.ogg"
+  self.hit_sound_sfx = "dummy.ogg"
+  self.ground_special_sfx = "dummy.ogg"
+  self.air_special_sfx = "dummy.ogg"
+
+  -- Copy the below stuff after the new initialization variables for each new character
+  self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
+  if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
+  self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)
+  self.start_pos[2] = stage.floor - self.sprite_size[2]
+  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
+  self.gravity = self.default_gravity
+  self.current_hurtboxes = self.hurtboxes_standing
+  self.current_hitboxes = self.hitboxes_attacking
+  self.pos[1] = self.start_pos[1]
+  self.pos[2] = self.start_pos[2]
+
+end
+
+function Sun:attack_key_press()
+    -- attack if in air and not already attacking and either: >40 above floor, or landing and >20 above.
+  if self.in_air and not self.attacking and self.recovery == 0 and
+    (self.pos[2] + self.sprite_size[2] < stage.floor - 40 or
+    (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 20)) then
+      self.waiting = 3
+      self.waiting_state = "Attack"
+  -- if on ground, kickback
+  elseif not self.in_air and self.recovery == 0 then
+    self.waiting = 3
+    self.waiting_state = "Kickback"
+  end
+  Fighter.attack_key_press(self) -- check for special move
+end
+
+function Sun:ground_special()
+  -- Hotflame
+  if self.super >= 16 and self.recovery == 0 then -- and not hotflame already on screen
+    self.super = self.super - 16
+    self.waiting_state = ""
+    self.recovery = 45
+    self:updateImage(6)
+    self.current_hurtboxes = self.hurtboxes_hotflame
+    self.current_hitboxes = self.hitboxes_neutral
+    playSFX1(self.ground_special_sfx)
+    -- code to do hotflame or superhotflame
+  end
+
+  -- Wire Sea
+  if self.super >= 16 and self.recovery > 0 and self.recovery < 35 then
+    self.super = self.super - 16
+    self.recovery = 0
+    self.waiting_state = ""
+    playSFX1(self.ground_special_sfx)
+    WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
+    self:land()
+    p1:setFrozen(10)
+    p2:setFrozen(10)
+  end
+end
+
+
+function Sun:stateCheck()
+  if self.waiting > 0 then
+    self.waiting = self.waiting - 1
+    if self.waiting == 0 and self.waiting_state == "Jump" then
+      self.waiting_state = ""
+      self:jump(0, 12)
+      playSFX1(self.jump_sfx)
+    end
+    if self.waiting == 0 and self.waiting_state == "Attack" then 
+      self.waiting_state = ""
+      self:attack(4, 6)
+      playSFX1(self.attack_sfx)
+    end
+    if self.waiting == 0 and self.waiting_state == "Kickback" then
+      self.waiting_state = ""
+      self:kickback(-6, 4)
+      playSFX1(self.jump_sfx)
+    end
+  end
+end
+
+function Sun:extraStuff()
+  if self.super_on then
+    self.life = math.max(self.life - 1, 0)
+    if self.life == 0 then
+      round_end_frame = frame
+      input_frozen = true
+      self:gotHit(self.foe.hit_type)
+      self.foe:hitOpponent()
+      self.super_on = false
+    end
+  end
+end
 
 --[[---------------------------------------------------------------------------
                                       M. FROGSON
@@ -995,19 +1173,7 @@ Stance changes jump height and kick angle
 Special: M. Bison headstomp/devil's reverse]]
 
 
---[[---------------------------------------------------------------------------
-                                      SUN BADFROG
------------------------------------------------------------------------------]]   
 
---[[
-
-Ground Special: Sunflame (Wire Sea OK)
-Air Special: Riot Frog [Quick back jump, then slow horizontal forward kick]
-Super: 50%, Frog Install
-  [Frog Install: life counts down (same level as super meter). Lifebar changes too
-  Lose round if super = 0]
-Winquote: Robert De Niro called.
-]]--
 
 --[[---------------------------------------------------------------------------
                                       BEDFROG
