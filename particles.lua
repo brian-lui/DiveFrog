@@ -15,11 +15,28 @@ end
 
 function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift)
   local quad = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
-   self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
+    self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   return {self.image, 
     quad, 
     pos_h - self.sprite_size[1] / 2, -- returns horizontal CENTER of particle
     pos_v - self.sprite_size[2] / 2, -- returns vertical CENTER of particle
+    0, -- rotation
+    scale_x, -- scale_x: 1 is default, -1 for flip
+    scale_y, -- scale_y: 1 is default, 1 for flip
+    shift, -- offset_x
+    0, -- offset_y: 0
+    0, -- shear_x: 0
+    0} -- shear_y: 0
+end
+
+-- not centered
+function Particle:getPureDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift)
+  local quad = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
+    self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
+  return {self.image, 
+    quad, 
+    pos_h,
+    pos_v,
     0, -- rotation
     scale_x, -- scale_x: 1 is default, -1 for flip
     scale_y, -- scale_y: 1 is default, 1 for flip
@@ -193,3 +210,17 @@ function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
   end
 end
 
+---------------------------- SUN BADFROG HOTFLAME -----------------------------
+Hotflame = Particle:new(love.graphics.newImage('images/Sun/HotflameFX.png'), {90, 146}, {45, 146})
+
+function Hotflame:loadFX(pos_h, pos_v, facing, shift)
+  draw_count = draw_count + 1
+  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
+  local current_anim_frame = math.floor((frame % 8) / TIME_DIV)
+
+  postbuffer[frame] = postbuffer[frame] or {}
+  postbuffer[frame][draw_count] = Hotflame:getPureDrawable(current_anim_frame,
+    pos_h,
+    pos_v - 146,
+    facing, 1, shift)
+end

@@ -1079,6 +1079,8 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
 
+  self.hotflametime = {0, 0, 0, 0}
+  self.hotflaming_pos = {0, 0}
 end
 
 function Sun:attack_key_press()
@@ -1099,13 +1101,18 @@ end
 function Sun:ground_special()
   -- Hotflame
   if self.super >= 16 and self.recovery == 0 then -- and not hotflame already on screen
-    self.super = self.super - 16
+    self.super = self.super - 0
     self.waiting_state = ""
+    self.hotflaming = 1 -- the current hotflame flame
+    self.hotflametime = {30, 0, 0, 0, 0}
+    self.hotflaming_pos[1] = self.pos[1]
+    self.hotflaming_pos[2] = self.pos[2]
     self.recovery = 45
     self:updateImage(6)
     self.current_hurtboxes = self.hurtboxes_hotflame
     self.current_hitboxes = self.hitboxes_neutral
     playSFX1(self.ground_special_sfx)
+
     -- code to do hotflame or superhotflame
   end
 
@@ -1145,6 +1152,72 @@ function Sun:stateCheck()
 end
 
 function Sun:extraStuff()
+
+  if self.hotflametime[1] > 0 then
+    local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] + 45 * 0 ) * self.facing
+    local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] -- top corner set to floor
+    
+    local shift_factor = 0
+    if self.facing == -1 then shift_factor = 1 end
+    local shift_amount = shift_factor * (self.sprite_size[1])
+    
+    Hotflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
+
+    if self.frozen == 0 then 
+      self.hotflametime[1] = self.hotflametime[1] - 1
+      if self.hotflametime[1] == 15 then self.hotflametime[2] = 30 end
+    end
+  end
+
+  if self.hotflametime[2] > 0 then
+    local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] + 45 * 1) * self.facing 
+    local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] -- top corner set to floor
+    
+    local shift_factor = 0
+    if self.facing == -1 then shift_factor = 1 end
+    local shift_amount = shift_factor * (self.sprite_size[1])
+    
+    Hotflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
+
+    if self.frozen == 0 then 
+      self.hotflametime[2] = self.hotflametime[2] - 1
+      if self.hotflametime[2] == 15 then self.hotflametime[3] = 30 end
+    end
+  end
+    
+  if self.hotflametime[3] > 0 then
+    local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] + 45 * 2 ) * self.facing 
+    local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] -- top corner set to floor
+    
+    local shift_factor = 0
+    if self.facing == -1 then shift_factor = 1 end
+    local shift_amount = shift_factor * (self.sprite_size[1])
+    
+    Hotflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
+
+    if self.frozen == 0 then 
+      self.hotflametime[3] = self.hotflametime[3] - 1
+      if self.hotflametime[3] == 15 then self.hotflametime[4] = 30 end
+    end
+  end
+
+  if self.hotflametime[4] > 0 then
+    local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] + 45 * 3 ) * self.facing 
+    local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] -- top corner set to floor
+    
+    local shift_factor = 0
+    if self.facing == -1 then shift_factor = 1 end
+    local shift_amount = shift_factor * (self.sprite_size[1])
+    
+    Hotflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
+
+    if self.frozen == 0 then 
+      self.hotflametime[4] = self.hotflametime[4] - 1
+      if self.hotflametime[4] == 15 then self.hotflametime[5] = 30 end
+    end
+  end
+
+
   if self.super_on then
     self.life = math.max(self.life - 1, 0)
     if self.life == 0 then
