@@ -6,11 +6,11 @@ draw_count = 0 -- each object gets a new index number, to prevent overwriting
                               PARTICLE / FX CLASS
 -----------------------------------------------------------------------------]]   
 Particle = class('Particle')
-function Particle:initialize(image, image_size, sprite_size)
+function Particle:initialize(image, image_size, sprite_size, hitbox_table)
   self.image = image
   self.image_size = {image:getDimensions()}
   self.sprite_size = sprite_size
-  self.hitbox = {}
+  self.hitbox = hitbox_table
 end
 
 function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift)
@@ -18,8 +18,8 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift
    self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   return {self.image, 
     quad, 
-    pos_h - self.sprite_size[1] / 2, -- returns horizontal CENTER of sprite
-    pos_v - self.sprite_size[2] / 2, -- returns vertical CENTER of sprite
+    pos_h - self.sprite_size[1] / 2, -- returns horizontal CENTER of particle
+    pos_v - self.sprite_size[2] / 2, -- returns vertical CENTER of particle
     0, -- rotation
     scale_x, -- scale_x: 1 is default, -1 for flip
     scale_y, -- scale_y: 1 is default, 1 for flip
@@ -29,11 +29,15 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift
     0} -- shear_y: 0
 end
 
+function Particle:getHitbox()
+  return self.hitbox -- anything else we need to do here? If not can delete this
+end
+
 --[[---------------------------------------------------------------------------
                             AFTERIMAGES SUB-CLASS
 -----------------------------------------------------------------------------]]   
 AfterImage = class('AfterImage', Particle)
-function AfterImage:initialize(image, image_size, sprite_size)
+function AfterImage:initialize(image, image_size, sprite_size, hitbox_table)
   Particle.initialize(self, image, image_size, sprite_size)
 end
 
