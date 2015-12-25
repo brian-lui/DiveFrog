@@ -11,18 +11,11 @@ end
 function setBGMspeed(speed)
 	currentBGM:setPitch(speed)
 end
-currentSFX1 = nil
-function playSFX1(filename)
-	currentSFX1 = love.audio.newSource("sounds/" .. filename)
-	currentSFX1:setVolume(0.7)
-	--currentSFX1:rewind()
-	currentSFX1:play()
+
+currentSFX = nil
+function playSFX(filename)
+	currentSFX = love.audio.newSource("sounds/" .. filename)
+	currentSFX:setVolume(0.7)
+	currentSFX:play()
 end
 
-currentSFX2 = nil
-function playSFX2(filename)
-	currentSFX2 = love.audio.newSource("sounds/" .. filename)
-	currentSFX2:setVolume(0.7)
-	--currentSFX2:rewind()
-	currentSFX2:play()
-end

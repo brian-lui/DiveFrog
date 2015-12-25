@@ -400,11 +400,14 @@ function love.update(dt)
       if keybuffer[frame][3] and p2.frozen == 0 and not keybuffer[frame-1][3] then p2:jump_key_press() end
       if keybuffer[frame][4] and p2.frozen == 0 and not keybuffer[frame-1][4] then p2:attack_key_press() end
     end
+
     -- update character positions
     t0 = love.timer.getTime()
     p1:updatePos()
     p2:updatePos()
     t1 = love.timer.getTime()
+
+    if soundbuffer[frame] then playSFX(soundbuffer[frame]) end
 
     -- check if anyone got hit
     if check_got_hit(p1, p2) and check_got_hit(p2, p1) then
@@ -480,6 +483,7 @@ function newRound()
   p2.frozen = 90
   game.current_round = game.current_round + 1
   keybuffer = {false, false, false, false}
+  soundbuffer = {} -- pre-load sound effects into future frames
 
   if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
     setBGMspeed(2 ^ (4/12))
@@ -537,19 +541,19 @@ function love.keypressed(key, isrepeat)
   -- Get keys when at character select stage
   if game.current_screen == "charselect" then
     if key == buttons.p1attack or key == buttons.p2attack then
-      playSFX1(charselected_sfx)
+      playSFX(charselected_sfx)
       startGame()
     end
 
     if key == buttons.p1jump then
       if p1_char == total_chars then p1_char = 1 else p1_char = p1_char + 1 end
       portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, portraits:getDimensions())
-      playSFX1(charselect_sfx)
+      playSFX(charselect_sfx)
     end
 
     if key == buttons.p2jump then
       if p2_char == total_chars then p2_char = 1 else p2_char = p2_char + 1 end
-      playSFX2(charselect_sfx)
+      playSFX(charselect_sfx)
     end
   end
 

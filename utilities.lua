@@ -43,6 +43,12 @@ function check_got_hit(getting_hit, attacker)
   return gothit
 end
 
+function writeSound(SFX)
+  local writeframe = frame + 1
+  soundbuffer[writeframe] = SFX
+end
+
+
 function drawDebugSprites()
   love.graphics.line(p1.center, 0, p1.center, stage.height)
   love.graphics.line(p1.center, 190, p1.center + 30 * p1.facing, 190)

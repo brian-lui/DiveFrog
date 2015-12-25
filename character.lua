@@ -211,7 +211,7 @@ end
     self.current_hitboxes = self.hitboxes_attacking
     if self.super < 96 and not self.super_on then 
       self.super = math.min(self.super + 8, 96)
-      if self.super == 96 then playSFX1(super_sfx) end
+      if self.super == 96 then writeSound(super_sfx) end
     end
   end
 
@@ -219,7 +219,7 @@ end
     if self.super >= 16 and not self.super_on then
       self.super = self.super - 16
       self.waiting_state = ""
-      playSFX1(self.air_special_sfx)
+      writeSound(self.air_special_sfx)
     end
   end
 
@@ -227,7 +227,7 @@ end
     if self.super >= 16 and not self.super_on then
       self.super = self.super - 16
       self.waiting_state = ""
-      playSFX1(self.ground_special_sfx)
+      writeSound(self.ground_special_sfx)
     end
   end
 
@@ -248,8 +248,7 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
   self.vel_multiple = 1.0
   self.ko = true 
   self.attacking = false -- stops calling gotHit, since the hitbox check is now false
-  playSFX1(self.hit_sound_sfx)
-
+  writeSound(self.hit_sound_sfx)
 end
 
 function Fighter:gotKOed() -- keep calling this until self.ko is false
@@ -259,11 +258,11 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
     if self.life > 0 then self.life = math.max(self.life - 6, 0) end
   end
 
-  if frame - round_end_frame == 30 and self.hit_flag.Mugshot then playSFX1(mugshot_sfx) end -- put into soundbuffer sometime
+  if frame - round_end_frame == 30 and self.hit_flag.Mugshot then writeSound(mugshot_sfx) end -- put into soundbuffer sometime
   if frame - round_end_frame == 60 then
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
-    playSFX2(self.got_hit_sfx) 
+    writeSound(self.got_hit_sfx) 
 
     if self.hit_flag.Wallsplat then
       self.vel[1] = self.facing * -30
@@ -284,7 +283,7 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
       self.vel[1] = -self.vel[1] * 0.4
       self.hit_wall = false
       Wallsplat:loadFX(self.pos[1], self.pos[2])
-      playSFX2(explosion_sfx)
+      writeSound(explosion_sfx)
     end
   end
 end
@@ -480,7 +479,7 @@ end
 function Fighter:updateSuper()
   if self.super >= 96 then -- turn on Frog Factor
     self.super = 95.999
-    playSFX1(super_sfx)
+    writeSound(super_sfx)
     self.super_on = true
     self.vel_multiple = self.vel_multiple_super
     game.superfreeze_time = 60
@@ -511,17 +510,17 @@ function Fighter:stateCheck()
     if self.waiting == 0 and self.waiting_state == "Jump" then
       self.waiting_state = ""
       self:jump(0, 12)
-      playSFX1(self.jump_sfx)
+      writeSound(self.jump_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
       self:attack(6, 8)
-      playSFX1(self.attack_sfx)
+      writeSound(self.attack_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Kickback" then
       self.waiting_state = ""
       self:kickback(-6, 6)
-      playSFX1(self.jump_sfx)
+      writeSound(self.jump_sfx)
     end
   end
 --]]
@@ -642,7 +641,7 @@ end
     self.pos[2] + self.sprite_size[2] < stage.floor - 50 then
       self.super = self.super - 16
       self.waiting_state = ""
-      playSFX1(self.air_special_sfx)
+      writeSound(self.air_special_sfx)
       --self:attack, but with flame flag
       self.vel = {14 * self.facing, 19}
       self.attacking = true  
@@ -657,7 +656,7 @@ end
     if self.super >= 16 and not self.super_on then
       self.super = self.super - 16
       self.waiting_state = ""
-      playSFX1(self.ground_special_sfx)
+      writeSound(self.ground_special_sfx)
       self:jump(0, 29, 1.2)
     end
   end
@@ -688,26 +687,26 @@ end
       if self.waiting == 0 and self.waiting_state == "Jump" then
         self.waiting_state = ""
         self:jump(0, 14, self.default_gravity)
-        playSFX1(self.jump_sfx)
+        writeSound(self.jump_sfx)
         local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
         JumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
       end
       if self.waiting == 0 and self.waiting_state == "DoubleJump" then
         self.waiting_state = ""
         self:jump(4.8, 4.8, self.default_gravity)
-        playSFX1(self.doublejump_sfx)
+        writeSound(self.doublejump_sfx)
         local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
         DoubleJumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2 , self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
       end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
         self.waiting_state = ""
         self:attack(7.2, 9.6)
-        playSFX1(self.attack_sfx)
+        writeSound(self.attack_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Kickback" then
         self.waiting_state = ""
         self:kickback(-7.2, 7.2)
-        playSFX1(self.jump_sfx)
+        writeSound(self.jump_sfx)
       end
     end
   end
@@ -881,12 +880,12 @@ end
   function Jean:air_special()
     if self.super_on then
       self.waiting_state = ""
-      playSFX1(self.air_special_sfx)
+      writeSound(self.air_special_sfx)
       self:jump(0, -36)
     elseif self.super >= 8 and not self.attacking then
       self.super = self.super - 8
       self.waiting_state = ""
-      playSFX1(self.air_special_sfx)
+      writeSound(self.air_special_sfx)
       self:jump(0, -36)
     end
   end    
@@ -895,7 +894,7 @@ end
     if self.super_on and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 8
       self.waiting_state = ""
-      playSFX1(self.ground_special_sfx)
+      writeSound(self.ground_special_sfx)
       WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
       self:land()
       p1:setFrozen(10)
@@ -903,7 +902,7 @@ end
     elseif self.super >= 16 and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 16
       self.waiting_state = ""
-      playSFX1(self.ground_special_sfx)
+      writeSound(self.ground_special_sfx)
       WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
       self:land()
       p1:setFrozen(10)
@@ -917,22 +916,22 @@ end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
         self:attack(9.6, 9.6)
-        playSFX1(self.attack_sfx)
+        writeSound(self.attack_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Dandy" then
         self.waiting_state = ""
         self:dandyStep(-36)        
-        playSFX1(self.dandy_sfx)
+        writeSound(self.dandy_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Pilebunker" then
         self.waiting_state = ""
         self:pilebunk(56)        
-        playSFX1(self.pilebunker_sfx)
+        writeSound(self.pilebunker_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Jump" then
         self.waiting_state = ""
         self:jump(0, 14)
-        playSFX1(self.jump_sfx)
+        writeSound(self.jump_sfx)
       end      
     end
   end
@@ -1146,11 +1145,11 @@ function Sun:ground_special()
       self.hotflametime = {30, 0, 0, 0, 0}
       self.hotflaming_pos[1] = self.pos[1]
       self.hotflaming_pos[2] = self.pos[2]
-      playSFX1(self.hotflamefx_sfx)
+      writeSound(self.hotflamefx_sfx)
     elseif self.super_on then
       self.life = self.life - 40
       self.hotterflametime = 40
-      playSFX1(self.hotterflamefx_sfx)
+      writeSound(self.hotterflamefx_sfx)
     end
   end
 
@@ -1163,7 +1162,7 @@ function Sun:ground_special()
     end
     self.recovery = 0
     self.waiting_state = ""
-    playSFX1(self.ground_special_sfx)
+    writeSound(self.ground_special_sfx)
     WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
     self:land()
     p1:setFrozen(10)
@@ -1177,7 +1176,7 @@ function Sun:air_special()
   if self.super >= 8 and not self.super_on and self:getNeutral() and v_distance > 100 then
     self.super = self.super - 8
     self.waiting_state = ""
-    playSFX1(self.air_special_sfx)
+    writeSound(self.air_special_sfx)
     self.gravity = 0
     self.vel[1] = -60 * self.facing
     self.vel[2] = v_distance / 30
@@ -1191,7 +1190,7 @@ function Sun:stateCheck()
     if self.waiting == 0 and self.waiting_state == "Jump" then
       self.waiting_state = ""
       self:jump(0, 15)
-      playSFX1(self.jump_sfx)
+      writeSound(self.jump_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
@@ -1200,7 +1199,7 @@ function Sun:stateCheck()
     if self.waiting == 0 and self.waiting_state == "Kickback" then
       self.waiting_state = ""
       self:kickback(-4, 7)
-      playSFX1(self.jump_sfx)
+      writeSound(self.jump_sfx)
     end
   end
 end
@@ -1222,7 +1221,7 @@ function Sun:extraStuff()
         self.hotflametime[i] = self.hotflametime[i] - 1
         if self.hotflametime[i] == 15 then
           self.hotflametime[i + 1] = 30
-          playSFX1(self.hotflamefx_sfx)
+          writeSound(self.hotflamefx_sfx)
         end
 
         self.hitboxes_hotflame[#self.hitboxes_hotflame + 1] = {
@@ -1318,7 +1317,7 @@ end
 function Sun:updateSuper()
   if self.super >= 96 then
     self.super = 95.999
-    playSFX1(super_sfx)
+    writeSound(super_sfx)
     self.super_on = true
     self.vel_multiple = self.vel_multiple_super
     game.superfreeze_time = 120
