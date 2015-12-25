@@ -68,7 +68,7 @@ function love.load()
   init_round_timer = 1200 -- round time in frames
   round_timer = init_round_timer
   round_end_frame = 0
-  input_frozen = true
+  round_ended = false
   keybuffer = {false, false, false, false} -- log of all keystates during the round. Useful for netplay!
   prebuffer = {} -- pre-load draw instruction into future frames behind sprite
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
@@ -378,11 +378,9 @@ function love.update(dt)
     end
 
     frame = frame + 1
-    -- unfreeze inputs after fade in
-    if frame - frame0 == 90 then input_frozen = false end 
 
     -- count down timer if not in some kind of freeze
-    if not input_frozen and not (p1:getFrozen() and p2:getFrozen()) then
+    if not round_ended and not (p1.frozen > 0 and p2.frozen > 0) then
       round_timer = round_timer - 1
     end
 
@@ -396,11 +394,11 @@ function love.update(dt)
 
     -- read keystate from keybuffer and call the associated functions
     -- only call if the key was pressed this frame, but not pressed last frame
-    if not input_frozen then
-      if keybuffer[frame][1] and not p1:getFrozen() and not keybuffer[frame-1][1] then p1:jump_key_press() end
-      if keybuffer[frame][2] and not p1:getFrozen() and not keybuffer[frame-1][2] then p1:attack_key_press() end
-      if keybuffer[frame][3] and not p2:getFrozen() and not keybuffer[frame-1][3] then p2:jump_key_press() end
-      if keybuffer[frame][4] and not p2:getFrozen() and not keybuffer[frame-1][4] then p2:attack_key_press() end
+    if not round_ended then
+      if keybuffer[frame][1] and p1.frozen == 0 and not keybuffer[frame-1][1] then p1:jump_key_press() end
+      if keybuffer[frame][2] and p1.frozen == 0 and not keybuffer[frame-1][2] then p1:attack_key_press() end
+      if keybuffer[frame][3] and p2.frozen == 0 and not keybuffer[frame-1][3] then p2:jump_key_press() end
+      if keybuffer[frame][4] and p2.frozen == 0 and not keybuffer[frame-1][4] then p2:attack_key_press() end
     end
     -- update character positions
     t0 = love.timer.getTime()
@@ -411,27 +409,27 @@ function love.update(dt)
     -- check if anyone got hit
     if check_got_hit(p1, p2) and check_got_hit(p2, p1) then
       round_end_frame = frame
-      input_frozen = true
+      round_ended = true
       p1:gotHit(p2.hit_type)
       p2:gotHit(p1.hit_type)
 
     elseif check_got_hit(p1, p2) then
       round_end_frame = frame
-      input_frozen = true
+      round_ended = true
       p1:gotHit(p2.hit_type)
       p2:hitOpponent()
 
     elseif check_got_hit(p2, p1) then
       round_end_frame = frame
-      input_frozen = true
+      round_ended = true
       p2:gotHit(p1.hit_type)
       p1:hitOpponent()
     end
 
     -- check if timeout
-    if round_timer == 0 and not input_frozen then
+    if round_timer == 0 then
       round_end_frame = frame
-      input_frozen = true
+      round_ended = true
       local p1_from_center = math.abs((stage.center) - p1:getCenter())
       local p2_from_center = math.abs((stage.center) - p2:getCenter())
       if p1_from_center < p2_from_center then -- inelegant, refactor later
@@ -476,9 +474,10 @@ function newRound()
   frame = 0
   frame0 = 0
   round_timer = init_round_timer
-  round_end = false
+  round_ended = false
   round_end_frame = 100000 -- arbitrary number, larger than total round time
-  input_frozen = true
+  p1.frozen = 90
+  p2.frozen = 90
   game.current_round = game.current_round + 1
   keybuffer = {false, false, false, false}
 

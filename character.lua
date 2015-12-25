@@ -327,7 +327,6 @@ function Fighter:getSprite_Width() return self.sprite_size[1] end
 function Fighter:getImage_Size() return unpack(self.image_size) end
 function Fighter:getCenter() return self.pos[1] + 0.5 * self.sprite_size[1] end
 function Fighter:getIcon_Width() return self.icon:getWidth() end
-function Fighter:getFrozen() if self.frozen > 0 then return true else return false end end
 function Fighter:addScore() self.score = self.score + 1 end
 function Fighter:setPos(pos) self.pos = {pos[1], pos[2]} end
 function Fighter:setFacing(facing) self.facing = facing end
@@ -1339,7 +1338,7 @@ function Sun:updateSuper()
     self.life = math.max(self.life - 1, 0)
     if self.life == 0 then
       round_end_frame = frame
-      input_frozen = true
+      round_ended = true
       self:gotHit(self.foe.hit_type)
       self.foe:hitOpponent()
       self.super_on = false
