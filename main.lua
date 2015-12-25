@@ -74,7 +74,7 @@ function love.load()
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
   soundbuffer = {} -- pre-load sound effects into future frames
   camera_xy = {} -- corner for camera and window drawing
-
+  debug = {boxes = false, sprites = false, midpoints = false, camera = false, keybuffer = false}
 end
 
 function drawBackground()
@@ -272,9 +272,7 @@ function love.draw()
       canvas_overlays:clear()
     end
 
-    if game.superfreeze_time > 0 then
-      camera:scale(0.5, 0.5)
-    end
+    if game.superfreeze_time > 0 then camera:scale(0.5, 0.5) end
 
     camera:set(0.5, 1)
     love.graphics.draw(canvas_background)
@@ -282,20 +280,19 @@ function love.draw()
 
     camera:set(1, 1)
     love.graphics.draw(canvas_sprites)
-    --drawDebugHurtboxes() -- debug: draw hurtboxes and hitboxes
-    --drawDebugSprites() -- debug: draw sprite box, center, and facing
+    if debug.boxes then drawDebugHurtboxes() end 
+    if debug.sprites then drawDebugSprites() end 
     camera:unset()
 
     camera:set(0, 0)
     love.graphics.draw(canvas_overlays)
-    --drawMidLines() -- debug: draw midscreen of window and stage (thick dot is window)
+    if debug.midpoints then drawMidPoints() end
     camera:unset()      
 
-    if game.superfreeze_time > 0 then
-      camera:scale(2, 2)
-    end
-    --print(unpack(camera_xy)) -- print camera position
-    --print(keybuffer[frame][1], keybuffer[frame][2], keybuffer[frame][3], keybuffer[frame][4])
+    if game.superfreeze_time > 0 then camera:scale(2, 2) end
+
+    if debug.camera then print(unpack(camera_xy)) end
+    if debug.keybuffer then print(unpack(keybuffer[frame])) end
   end
 
   if game.current_screen == "charselect" then
@@ -433,7 +430,7 @@ function love.update(dt)
       round_ended = true
       local p1_from_center = math.abs((stage.center) - p1:getCenter())
       local p2_from_center = math.abs((stage.center) - p2:getCenter())
-      if p1_from_center < p2_from_center then -- inelegant, refactor later
+      if p1_from_center < p2_from_center then
         p2:gotHit(p1.hit_type)
         p1:hitOpponent()
       elseif p2_from_center < p1_from_center then
@@ -563,10 +560,11 @@ function love.keypressed(key, isrepeat)
   end
 
   if game.current_screen == "maingame" then
-    -- debug
-    if key == 'z' then -- testing stuff here
-
-      --love.filesystem.write("Test.txt", keybuffer:getString())
-    end
+    -- debug keys
+    if key == '1' then debug.boxes = not debug.boxes end
+    if key == '2' then debug.sprites = not debug.sprites end
+    if key == '3' then debug.midpoints = not debug.midpoints end
+    if key == '4' then debug.camera = not debug.camera end
+    if key == '5' then debug.keybuffer = not debug.keybuffer end
   end
 end

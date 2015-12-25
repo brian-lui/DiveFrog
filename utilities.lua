@@ -58,7 +58,7 @@ function drawDebugSprites()
   love.graphics.rectangle("line", p2.pos[1], p2.pos[2], p2.sprite_size[1], p2.sprite_size[2])
 end      
 
-function drawMidLines()
+function drawMidPoints()
   love.graphics.push("all")
     love.graphics.setLineWidth(10)
     love.graphics.line(stage.center - 5, stage.height / 2, stage.center + 5, stage.height / 2)

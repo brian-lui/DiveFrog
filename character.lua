@@ -1059,7 +1059,8 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
     {L = 125, U = 35, R = 134, D = 70},
     {L = 110, U = 83, R = 196, D = 105}}
   self.hitboxes_neutral = {{L = 0, U = 0, R = 0, D = 0}}
-  self.hitboxes_attacking = {{L = 129, U = 120, R = 151, D = 162}}
+  self.hitboxes_attacking = {{L = 129, U = 120, R = 151, D = 162},
+    {L = 129, U = 50, R = 139, D = 119}}
   self.hitboxes_riotkick = {{L = 189, U = 64, R = 199, D = 109, Flag1 = "Wallsplat"}}
   self.hitboxes_hotflame = {{L = 0, U = 0, R = 0, D = 0}}
 
