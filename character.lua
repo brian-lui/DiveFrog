@@ -34,7 +34,7 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.start_pos = {1, 1}
   self.pos = {1, 1} -- Top left corner of sprite
   self.vel = {0, 0}
-  self.friction = 0.95 -- horizontal velocity is multiplied by this each frame
+  self.friction = 0.94 -- horizontal velocity is multiplied by this each frame
   self.friction_on = false
   self.vel_multiple = 1.0
   self.recovery = 0 -- number of frames of recovery for some special moves
@@ -68,7 +68,7 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.sprite_wallspace = 0 -- how many pixels to reduce when checking against stage wall
   
   -- character variables
-  self.default_gravity = 0.25
+  self.default_gravity = 0.3
   self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.7 for Mugshotted
 
   -- hitboxes. Flags must correspond to a particle class.
@@ -262,7 +262,7 @@ function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
     playSFX2(self.got_hit_sfx) 
 
     if self.hit_flag.Wallsplat then
-      self.vel[1] = self.facing * -50
+      self.vel[1] = self.facing * -30
       self.vel[2] = -5
       self.pos[2] = self.pos[2] - 30
       self.gravity = 0.2
@@ -465,36 +465,40 @@ function Fighter:updatePos()
       self:updateImage(2)
     end 
     
-    -- code to handle super meter on/off
-    if self.super == 96 then
-      self.super_on = true
-      self.vel_multiple = self.vel_multiple_super
-      -- extra code for camera zoom in on character
-      p1:setFrozen(30)
-      p2:setFrozen(30)
-      -- extra code for background palette greying out
-    end
-
-    if self.super_on and not (self.ko or self.won) then
-      self.super = self.super - self.super_drainspeed
-      -- after-images
-      local shadow = AfterImage(self.image, self.image_size, self.sprite_size)
-      local shift = 0
-      if self.facing == -1 then shift = self:getSprite_Width() end
-      shadow:loadFX(self.pos[1], self.pos[2], self.sprite, self.facing, shift)
-    end
-
-    if self.super <= 0 then
-      self.super_on = false
-      self.vel_multiple = 1.0
-    end
-
+    self:updateSuper() -- Frog Factor related logic
     self:stateCheck() -- check for button presses and change actions
     self:extraStuff() -- any character-specific routines
     return self.pos
   elseif self.frozen > 0 then
     self.frozen = self.frozen - 1
   end
+end
+
+function Fighter:updateSuper()
+  if self.super >= 96 then -- turn on Frog Factor
+    self.super = 95.999
+    playSFX1(super_sfx)
+    self.super_on = true
+    self.vel_multiple = self.vel_multiple_super
+    -- extra code for camera zoom in on character
+    p1:setFrozen(30)
+    p2:setFrozen(30)
+    -- extra code for background palette greying out
+  end
+
+  if self.super_on and not (self.ko or self.won) then -- drain super
+    self.super = self.super - self.super_drainspeed
+    -- after-images
+    local shadow = AfterImage(self.image, self.image_size, self.sprite_size)
+    local shift = 0
+    if self.facing == -1 then shift = self:getSprite_Width() end
+    shadow:loadFX(self.pos[1], self.pos[2], self.sprite, self.facing, shift)
+  end
+
+  if self.super <= 0 then -- turn off Frog Factor
+    self.super_on = false
+    self.vel_multiple = 1.0
+  end  
 end
 
 function Fighter:stateCheck()
@@ -541,7 +545,7 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   self.image_size = {1200, 200}
   self.sprite_size = {200, 200}
   self.sprite_wallspace = 50 -- how many pixels to reduce when checking against stage wall
-  self.default_gravity = 0.25
+  self.default_gravity = 0.36
   self.double_jump = false
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
@@ -637,7 +641,7 @@ end
       self.waiting_state = ""
       playSFX1(self.air_special_sfx)
       --self:attack, but with flame flag
-      self.vel = {12 * self.facing, 16}
+      self.vel = {14 * self.facing, 19}
       self.attacking = true  
       self:updateImage(4)
       self.gravity = 0
@@ -651,7 +655,7 @@ end
       self.super = self.super - 16
       self.waiting_state = ""
       playSFX1(self.ground_special_sfx)
-      self:jump(0, 24, 1.0)
+      self:jump(0, 29, 1.2)
     end
   end
 
@@ -680,26 +684,26 @@ end
       self.waiting = self.waiting - 1
       if self.waiting == 0 and self.waiting_state == "Jump" then
         self.waiting_state = ""
-        self:jump(0, 12, self.default_gravity)
+        self:jump(0, 14, self.default_gravity)
         playSFX1(self.jump_sfx)
         local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
         JumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
       end
       if self.waiting == 0 and self.waiting_state == "DoubleJump" then
         self.waiting_state = ""
-        self:jump(4, 4, self.default_gravity)
+        self:jump(4.8, 4.8, self.default_gravity)
         playSFX1(self.doublejump_sfx)
         local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
         DoubleJumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2 , self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
       end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
         self.waiting_state = ""
-        self:attack(6, 8)
+        self:attack(7.2, 9.6)
         playSFX1(self.attack_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Kickback" then
         self.waiting_state = ""
-        self:kickback(-6, 6)
+        self:kickback(-7.2, 7.2)
         playSFX1(self.jump_sfx)
       end
     end
@@ -734,7 +738,7 @@ function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_sco
   self.image_size = {1200, 200}
   self.vel_multiple_super = 1.3
   self.sprite_size = {150, 200}
-  self.default_gravity = 0.35
+  self.default_gravity = 0.42
   self.sprite_wallspace = 25 -- how many pixels to reduce when checking against stage wall
   if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
@@ -844,10 +848,7 @@ end
     self.gravity = 0
     self.current_hurtboxes = self.hurtboxes_attacking
     self.current_hitboxes = self.hitboxes_attacking
-    if self.super < 96 and not self.super_on then 
-      self.super = math.min(self.super + 8, 96)
-      if self.super == 96 then playSFX1(super_sfx) end
-    end
+    if not self.super_on then self.super = math.min(self.super + 8, 96) end
   end
 
 
@@ -857,10 +858,7 @@ end
     self:updateImage(3)
     self.current_hurtboxes = self.hurtboxes_dandy
     self.friction_on = false
-    if self.super < 96 and not self.super_on then 
-      self.super = math.min(self.super + 4, 96)
-      if self.super == 96 then playSFX1(super_sfx) end
-    end
+    if not self.super_on then self.super = math.min(self.super + 4, 96) end
   end
 
   function Jean:pilebunk(h_vel)
@@ -874,22 +872,19 @@ end
     self:updateImage(6)
     self.current_hurtboxes = self.hurtboxes_pilebunker
     self.current_hitboxes = self.hitboxes_pilebunker
-    if self.super < 96 and not self.super_on then 
-      self.super = math.min(self.super + 10, 96)
-      if self.super == 96 then playSFX1(super_sfx) end
-    end
+    if not self.super_on then self.super = math.min(self.super + 10, 96) end
   end
 
   function Jean:air_special()
     if self.super_on then
       self.waiting_state = ""
       playSFX1(self.air_special_sfx)
-      self:jump(0, -30)
+      self:jump(0, -36)
     elseif self.super >= 8 and not self.attacking then
       self.super = self.super - 8
       self.waiting_state = ""
       playSFX1(self.air_special_sfx)
-      self:jump(0, -30)
+      self:jump(0, -36)
     end
   end    
 
@@ -918,31 +913,31 @@ end
       self.waiting = self.waiting - 1
       if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
-        self:attack(8, 8)
+        self:attack(9.6, 9.6)
         playSFX1(self.attack_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Dandy" then
         self.waiting_state = ""
-        self:dandyStep(-25)        
+        self:dandyStep(-36)        
         playSFX1(self.dandy_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Pilebunker" then
         self.waiting_state = ""
-        self:pilebunk(36)        
+        self:pilebunk(56)        
         playSFX1(self.pilebunker_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Jump" then
         self.waiting_state = ""
-        self:jump(0, 12)
+        self:jump(0, 14)
         playSFX1(self.jump_sfx)
       end      
     end
   end
 
   function Jean:extraStuff()
-    if self.dandy or self.pilebunking then self.vel[1] = self.vel[1] * 0.8 end -- custom friction
+    if self.dandy or self.pilebunking then self.vel[1] = self.vel[1] * 0.77 end -- custom friction
     -- during dandy step's slowing end part, allow pilebunker
-    if self.dandy and math.abs(self.vel[1]) >= 0.1 and math.abs(self.vel[1]) < 3 then
+    if self.dandy and math.abs(self.vel[1]) >= 0.1 and math.abs(self.vel[1]) < 3.6 then
       self.pilebunk_ok = true
     else self.pilebunk_ok = false 
     end 
@@ -958,7 +953,7 @@ end
     end
 
     -- stop pilebunking, and change to recovery frames
-    if self.pilebunking and math.abs(self.vel[1]) >= 0.001 and math.abs(self.vel[1]) < 1 then
+    if self.pilebunking and math.abs(self.vel[1]) >= 0.001 and math.abs(self.vel[1]) < 1.2 then
       self.attacking = false
       self:updateImage(7)
       self.current_hurtboxes = self.hurtboxes_pilebunkerB
@@ -1011,7 +1006,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.sprite_wallspace = 65
   
   -- character variables
-  self.default_gravity = 0.20
+  self.default_gravity = 0.24
   self.vel_multiple_super = 1.5
 
   -- hitboxes. Flags must correspond to a particle class.
@@ -1131,8 +1126,8 @@ end
 
 function Sun:ground_special()
   -- Hotflame
-  if self.super >= 16 and self.recovery == 0 and not self:getHotflame() then
-    self.super = self.super - 0
+  if self.super >= 8 and self.recovery == 0 and not self:getHotflame() then
+    self.super = self.super - 8
     self.waiting_state = ""
     self.hotflaming = 1 -- the current hotflame flame
     self.hotflametime = {30, 0, 0, 0, 0}
@@ -1167,7 +1162,7 @@ function Sun:air_special()
     self.waiting_state = ""
     playSFX1(self.air_special_sfx)
     self.gravity = 0
-    self.vel[1] = -50 * self.facing
+    self.vel[1] = -60 * self.facing
     self.vel[2] = v_distance / 30
     self.riotbackdash = true
   end
@@ -1178,16 +1173,16 @@ function Sun:stateCheck()
     self.waiting = self.waiting - 1
     if self.waiting == 0 and self.waiting_state == "Jump" then
       self.waiting_state = ""
-      self:jump(0, 12)
+      self:jump(0, 15)
       playSFX1(self.jump_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
-      self:attack(4, 6)
+      self:attack(5, 8)
     end
     if self.waiting == 0 and self.waiting_state == "Kickback" then
       self.waiting_state = ""
-      self:kickback(-6, 4)
+      self:kickback(-8, 5)
       playSFX1(self.jump_sfx)
     end
   end
@@ -1253,8 +1248,8 @@ self.hitboxes_hotflame = {{L = 0, U = 0, R = 0, D = 0}}
 
 if self.riotbackdash then
   local v_distance = stage.floor - (self.pos[2] + self.sprite_size[2])
-  if v_distance < 50 and self.hit_wall then
-    self.vel[1] = 9 * self.facing
+  if v_distance < 10 and self.hit_wall then
+    self.vel[1] = 14 * self.facing
     self.vel[2] = 0
     self.hit_wall = false
     self.riotbackdash = false
@@ -1293,7 +1288,6 @@ function Sun:wonRoundRoutine()
   self.riotkick = false
   Fighter.wonRoundRoutine(self)
 end
-
 
 if self.super_on then
   self.life = math.max(self.life - 1, 0)
