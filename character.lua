@@ -248,7 +248,7 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
 
 end
 
-function Fighter:koRoutine() -- keep calling koRoutine() until self.ko is false
+function Fighter:gotKOed() -- keep calling this until self.ko is false
   if frame - round_end_frame < 60 then    
     self.vel = {0, 0}
     self.gravity = 0
@@ -292,7 +292,7 @@ function Fighter:hitOpponent() -- execute this one time, when you hit the oppone
   currentBGM:pause()
 end
 
-function Fighter:wonRoundRoutine() -- keep calling this if self.won is true
+function Fighter:victoryPose() -- keep calling this if self.won is true
   if frame - round_end_frame < 60 then
     self.vel = {0, 0}
     self.gravity = 0
@@ -315,7 +315,7 @@ function Fighter:wonRoundRoutine() -- keep calling this if self.won is true
 end
 
 function Fighter:getNeutral()
-  return not self.in_air and not self.ko and not self.attacking and self.recovery == 0
+  return not self.ko and not self.attacking and self.recovery == 0
 end
 function Fighter:getPos_h() return self.pos[1] end
 function Fighter:getPos_v() return self.pos[2] end
@@ -337,7 +337,7 @@ end
 function Fighter:fixFacing() -- change character facing if over center of opponent
   self.center = self:getCenter()
   self.foe.center = self.foe:getCenter()
-  if self:getNeutral() then
+  if self:getNeutral() and not self.in_air then
     if self.facing == 1 and self.center > self.foe.center then
       self.facing = -1
     elseif self.facing == -1 and self.center < self.foe.center then
@@ -406,8 +406,8 @@ end
 
 function Fighter:updatePos()
   if self.frozen == 0 then
-    if self.ko then self:koRoutine() end
-    if self.won then self:wonRoundRoutine() end
+    if self.ko then self:gotKOed() end
+    if self.won then self:victoryPose() end
 
     -- check if mugshotted. If so, set slowdown and reduce counter
     if self.mugshotted > 0 then
@@ -480,10 +480,10 @@ function Fighter:updateSuper()
     playSFX1(super_sfx)
     self.super_on = true
     self.vel_multiple = self.vel_multiple_super
-    -- extra code for camera zoom in on character
-    p1:setFrozen(30)
-    p2:setFrozen(30)
-    -- extra code for background palette greying out
+    game.superfreeze_time = 60
+    game.superfreeze_player = self
+    p1:setFrozen(60)
+    p2:setFrozen(60)
   end
 
   if self.super_on and not (self.ko or self.won) then -- drain super
@@ -980,7 +980,7 @@ function Jean:gotHit(type)
 end
 
 function Jean:getNeutral() -- don't check for facing if in dandy/pilebunker
-  return not self.in_air and not self.ko and not self.attacking and not self.dandy and not self.pilebunking
+  return not self.ko and not self.attacking and not self.dandy and not self.pilebunking
 end
 
 
@@ -1003,10 +1003,10 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.image_size = {1600, 200}
   self.image_index = 0
   self.sprite_size = {200, 200}
-  self.sprite_wallspace = 65
+  self.sprite_wallspace = 50
   
   -- character variables
-  self.default_gravity = 0.24
+  self.default_gravity = 0.3
   self.vel_multiple_super = 1.5
 
   -- hitboxes. Flags must correspond to a particle class.
@@ -1096,7 +1096,7 @@ function Sun:getHotflame()
 end
 
 function Sun:getNeutral()
-  return not self.in_air and not self.ko and self.recovery == 0
+  return not self.ko and not self.riotbackdash and not self.riotkick and self.recovery == 0
 end
 
 function Sun:attack(h_vel, v_vel)
@@ -1110,14 +1110,14 @@ function Sun:land()
 end
 
 function Sun:attack_key_press()
-    -- attack if in air and not riotkicking either: >40 above floor, or landing and >20 above.
-  if self.in_air and not self.riotkicking and not self.kicking and self.recovery == 0 and
+    -- attack if in air and not riotkick/attack either: >40 above floor, or landing and >20 above.
+  if self.in_air and self:getNeutral() and
     (self.pos[2] + self.sprite_size[2] < stage.floor - 40 or
     (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 20)) then
       self.waiting = 3
       self.waiting_state = "Attack"
   -- if on ground, kickback
-  elseif not self.in_air and self.recovery == 0 then
+  elseif not self.in_air and self:getNeutral() then
     self.waiting = 3
     self.waiting_state = "Kickback"
   end
@@ -1126,7 +1126,7 @@ end
 
 function Sun:ground_special()
   -- Hotflame
-  if self.super >= 8 and self.recovery == 0 and not self:getHotflame() then
+  if self.super >= 8 and self:getNeutral() and not self:getHotflame() then
     self.super = self.super - 8
     self.waiting_state = ""
     self.hotflaming = 1 -- the current hotflame flame
@@ -1157,7 +1157,7 @@ end
 function Sun:air_special()
   local v_distance = stage.floor - (self.pos[2] + self.sprite_size[2])
 
-  if self.super >= 8 and not self.super_on and v_distance > 100 then
+  if self.super >= 8 and not self.super_on and self:getNeutral() and v_distance > 100 then
     self.super = self.super - 8
     self.waiting_state = ""
     playSFX1(self.air_special_sfx)
@@ -1215,64 +1215,67 @@ function Sun:extraStuff()
     end
   end
 
-local temp_hotflame = {}
-  for i = 1, #self.hitboxes_hotflame do
-    temp_hotflame[i] = {L = 0, U = 0, R = 0, D = 0}
+  local temp_hotflame = {}
+    for i = 1, #self.hitboxes_hotflame do
+      temp_hotflame[i] = {L = 0, U = 0, R = 0, D = 0}
+    end
+
+  if self.attacking and self.facing == 1 then
+    for i = 1, #self.hitboxes_hotflame do
+      temp_hotflame[i].L = self.hitboxes_hotflame[i].L + self.hotflaming_pos[1]
+      temp_hotflame[i].U = self.hitboxes_hotflame[i].U + self.hotflaming_pos[2]
+      temp_hotflame[i].R = self.hitboxes_hotflame[i].R + self.hotflaming_pos[1]
+      temp_hotflame[i].D = self.hitboxes_hotflame[i].D + self.hotflaming_pos[2]
+      temp_hotflame[i].Flag1 = self.hitboxes_hotflame[i].Flag1
+      temp_hotflame[i].Flag2 = self.hitboxes_hotflame[i].Flag2
+    end
+  elseif self.attacking and self.facing == -1 then
+    for i = 1, #self.hitboxes_hotflame do
+      temp_hotflame[i].L = self.hotflaming_pos[1] - self.hitboxes_hotflame[i].R + self.sprite_size[1]
+      temp_hotflame[i].U = self.hitboxes_hotflame[i].U + self.hotflaming_pos[2]
+      temp_hotflame[i].R = self.hotflaming_pos[1] - self.hitboxes_hotflame[i].L + self.sprite_size[1]
+      temp_hotflame[i].D = self.hitboxes_hotflame[i].D + self.hotflaming_pos[2]
+      temp_hotflame[i].Flag1 = self.hitboxes_hotflame[i].Flag1
+      temp_hotflame[i].Flag2 = self.hitboxes_hotflame[i].Flag2
+    end
   end
 
-if self.attacking and self.facing == 1 then
-  for i = 1, #self.hitboxes_hotflame do
-    temp_hotflame[i].L = self.hitboxes_hotflame[i].L + self.hotflaming_pos[1]
-    temp_hotflame[i].U = self.hitboxes_hotflame[i].U + self.hotflaming_pos[2]
-    temp_hotflame[i].R = self.hitboxes_hotflame[i].R + self.hotflaming_pos[1]
-    temp_hotflame[i].D = self.hitboxes_hotflame[i].D + self.hotflaming_pos[2]
-    temp_hotflame[i].Flag1 = self.hitboxes_hotflame[i].Flag1
-    temp_hotflame[i].Flag2 = self.hitboxes_hotflame[i].Flag2
+  for i = 1, #temp_hotflame do
+    self.hitboxes[#self.hitboxes+1] = temp_hotflame[i]
   end
-elseif self.attacking and self.facing == -1 then
-  for i = 1, #self.hitboxes_hotflame do
-    temp_hotflame[i].L = self.hotflaming_pos[1] - self.hitboxes_hotflame[i].R + self.sprite_size[1]
-    temp_hotflame[i].U = self.hitboxes_hotflame[i].U + self.hotflaming_pos[2]
-    temp_hotflame[i].R = self.hotflaming_pos[1] - self.hitboxes_hotflame[i].L + self.sprite_size[1]
-    temp_hotflame[i].D = self.hitboxes_hotflame[i].D + self.hotflaming_pos[2]
-    temp_hotflame[i].Flag1 = self.hitboxes_hotflame[i].Flag1
-    temp_hotflame[i].Flag2 = self.hitboxes_hotflame[i].Flag2
+
+  self.hitboxes_hotflame = {{L = 0, U = 0, R = 0, D = 0}}
+
+  if self.riotbackdash then
+    local v_distance = stage.floor - (self.pos[2] + self.sprite_size[2])
+    if v_distance < 10 and self.hit_wall then
+      self.vel[1] = 12 * self.facing
+      self.vel[2] = 0
+      self.hit_wall = false
+      self.riotbackdash = false
+      self.riotkick = true
+      self.attacking = true
+    end
   end
-end
 
-for i = 1, #temp_hotflame do
-  self.hitboxes[#self.hitboxes+1] = temp_hotflame[i]
-end
-
-self.hitboxes_hotflame = {{L = 0, U = 0, R = 0, D = 0}}
-
-if self.riotbackdash then
-  local v_distance = stage.floor - (self.pos[2] + self.sprite_size[2])
-  if v_distance < 10 and self.hit_wall then
-    self.vel[1] = 14 * self.facing
-    self.vel[2] = 0
-    self.hit_wall = false
-    self.riotbackdash = false
-    self.riotkick = true
-    self.attacking = true
+  if self.riotkick then
+    self:updateImage(7)
+    self.current_hurtboxes = self.hurtboxes_riotkick
+    self.current_hitboxes = self.hitboxes_riotkick
+    if self.hit_wall then
+      self.riotkick = false
+      self.attacking = false
+      self.gravity = self.default_gravity
+      self.vel[1] = 0
+      self.vel[2] = 0
+    end
   end
-end
 
-if self.riotkick then
-  self:updateImage(7)
-  self.current_hurtboxes = self.hurtboxes_riotkick
-  self.current_hitboxes = self.hitboxes_riotkick
-  if self.hit_wall then
-    self.riotkick = false
-    self.attacking = false
-    self.gravity = self.default_gravity
-    self.vel[1] = 0
-    self.vel[2] = 0
-  end
 end
 
 function Sun:gotHit(type_table)
   self.riotkick = false
+  self.riotbackdash = false
   self.hotflametime = {0, 0, 0, 0, 0}
   self.hitboxes = self.hitboxes_neutral
   Fighter.gotHit(self, type_table)
@@ -1284,22 +1287,48 @@ function Sun:hitOpponent()
   Fighter.hitOpponent(self)
 end
 
-function Sun:wonRoundRoutine()
+function Sun:victoryPose()
   self.riotkick = false
-  Fighter.wonRoundRoutine(self)
+  self.riotbackdash = false
+  Fighter.victoryPose(self)
 end
 
-if self.super_on then
-  self.life = math.max(self.life - 1, 0)
-  if self.life == 0 then
-    round_end_frame = frame
-    input_frozen = true
-    self:gotHit(self.foe.hit_type)
-    self.foe:hitOpponent()
-    self.super_on = false
+function Sun:updateSuper()
+  if self.super >= 96 then
+    self.super = 95.999
+    playSFX1(super_sfx)
+    self.super_on = true
+    self.vel_multiple = self.vel_multiple_super
+    game.superfreeze_time = 120
+    game.superfreeze_player = self
+    p1:setFrozen(120)
+    p2:setFrozen(120)
   end
+
+  if self.super_on and not (self.ko or self.won) then 
+    self.super = self.super - self.super_drainspeed
+    -- after-images
+    local shadow = AfterImage(self.image, self.image_size, self.sprite_size)
+    local shift = 0
+    if self.facing == -1 then shift = self:getSprite_Width() end
+    shadow:loadFX(self.pos[1], self.pos[2], self.sprite, self.facing, shift)
+    -- life drain
+    self.life = math.max(self.life - 1, 0)
+    if self.life == 0 then
+      round_end_frame = frame
+      input_frozen = true
+      self:gotHit(self.foe.hit_type)
+      self.foe:hitOpponent()
+      self.super_on = false
+    end
+  end
+
+  if self.super <= 0 then -- turn off Frog Factor
+    self.super_on = false
+    self.vel_multiple = 1.0
+  end  
 end
-end
+
 
 --[[---------------------------------------------------------------------------
                                       M. FROGSON

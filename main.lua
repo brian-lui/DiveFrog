@@ -57,7 +57,9 @@ function love.load()
     current_screen = "title",
     best_to_x = 2,
     current_round = 0,
-    match_winner = false}
+    match_winner = false,
+    superfreeze_time = 0,
+    superfreeze_player = nil}
   setBGM("Intro.ogg")
   min_dt = 1/60 -- frames per second
   next_time = love.timer.getTime()
@@ -72,11 +74,19 @@ function love.load()
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
   soundbuffer = {} -- pre-load sound effects into future frames
   camera_xy = {} -- corner for camera and window drawing
+
 end
 
 function drawBackground()
   canvas_background:clear()
-  love.graphics.draw(p2.stage_background, 0, 0) 
+  if game.superfreeze_time > 0 then
+    love.graphics.push("all")
+      love.graphics.setColor(96, 96, 96)
+      love.graphics.draw(p2.stage_background, 0, 0) 
+    love.graphics.pop()
+  else
+    love.graphics.draw(p2.stage_background, 0, 0) 
+  end
 end
 
 function drawSprites()
@@ -256,7 +266,15 @@ function love.draw()
   if game.current_screen == "maingame" then
     canvas_background:renderTo(drawBackground)
     canvas_sprites:renderTo(drawSprites)
-    canvas_overlays:renderTo(drawOverlays)
+    if game.superfreeze_time == 0 then
+      canvas_overlays:renderTo(drawOverlays)
+    else
+      canvas_overlays:clear()
+    end
+
+    if game.superfreeze_time > 0 then
+      camera:scale(0.5, 0.5)
+    end
 
     camera:set(0.5, 1)
     love.graphics.draw(canvas_background)
@@ -273,6 +291,9 @@ function love.draw()
     --drawMidLines() -- debug: draw midscreen of window and stage (thick dot is window)
     camera:unset()      
 
+    if game.superfreeze_time > 0 then
+      camera:scale(2, 2)
+    end
     --print(unpack(camera_xy)) -- print camera position
     --print(keybuffer[frame][1], keybuffer[frame][2], keybuffer[frame][3], keybuffer[frame][4])
   end
@@ -339,20 +360,22 @@ end
 
 function love.update(dt)
   if game.current_screen == "maingame" then
-    local h_midpoint = (p1:getCenter() + p2:getCenter()) / 2
-    local highest_sprite = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2])
-    local screen_bottom = stage.height - window.height
+    if game.superfreeze_time == 0 then
+      local h_midpoint = (p1:getCenter() + p2:getCenter()) / 2
+      local highest_sprite = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2])
+      local screen_bottom = stage.height - window.height
 
-    --[[ camera x-position is the horizontal midpoint minus half the window width,
-    however, the window cannot go past 0 on the left or the stage width on the right.
-    For camera y-position, stage.height - window.height is the lowest down the screen.
-    Then we get the y-pos of the bottom of the highest sprite on the screen, and move
-    the camera up by this amount divided by 8. 
-    --]]
-    camera_xy = {clamp(h_midpoint - window.center, 0, stage.width - window.width),
-      screen_bottom - (stage.floor - highest_sprite) / 8 }
+      camera_xy = {clamp(h_midpoint - window.center, 0, stage.width - window.width),
+        screen_bottom - (stage.floor - highest_sprite) / 8 }
     
-    camera:setPosition(unpack(camera_xy))
+      camera:setPosition(unpack(camera_xy))
+    else
+      game.superfreeze_time = game.superfreeze_time - 1
+      print(game.superfreeze_player:getCenter())
+      local h_position = game.superfreeze_player:getCenter()
+      camera:setPosition(h_position - 0.5 * window.center, game.superfreeze_player.pos[2])
+      print("Orig:", h_position, "Clamped:", clamp(h_position, 0, stage.width - window.width))
+    end
 
     frame = frame + 1
     -- unfreeze inputs after fade in
@@ -362,6 +385,7 @@ function love.update(dt)
     if not input_frozen and not (p1:getFrozen() and p2:getFrozen()) then
       round_timer = round_timer - 1
     end
+
 
     -- get button press state, and write to keybuffer table
     keybuffer[frame] = {
