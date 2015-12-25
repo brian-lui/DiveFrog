@@ -491,19 +491,8 @@ function startGame()
   p1 = available_chars[p1_char](1, p2, 0, false, 0)
   p2 = available_chars[p2_char](2, p1, 0, false, 0)
 
-  -- put the move/flip/offset stuff for draw operations in p1/p2
-  --p1_flags = {move = -1, flip = 1, offset = 0}
-  --p2_flags = {move = 1, flip = -1, offset = 1}
-  PLAYERS = { [p1] = {
-                      move = -1,
-                      flip = 1,
-                      offset = 0},
-              [p2] = {
-                      move = 1,
-                      flip = -1,
-                      offset = 1} } -- can add score here
-
-  THINGS = {[p1] = {p2, p2.things}, [p2] = {p1, p1.things}, [p1.things] = {p2, p2.things}, [p2.things] = {p1, p1.things}} 
+  PLAYERS = { [p1] = {move = -1, flip = 1, offset = 0},
+              [p2] = {move = 1, flip = -1, offset = 1}}
 
   setBGM(p2.BGM)
   newRound()
@@ -559,12 +548,10 @@ function love.keypressed(key, isrepeat)
     end
   end
 
-  if game.current_screen == "maingame" then
-    -- debug keys
-    if key == '1' then debug.boxes = not debug.boxes end
-    if key == '2' then debug.sprites = not debug.sprites end
-    if key == '3' then debug.midpoints = not debug.midpoints end
-    if key == '4' then debug.camera = not debug.camera end
-    if key == '5' then debug.keybuffer = not debug.keybuffer end
-  end
+  if key == '1' then debug.boxes = not debug.boxes end
+  if key == '2' then debug.sprites = not debug.sprites end
+  if key == '3' then debug.midpoints = not debug.midpoints end
+  if key == '4' then debug.camera = not debug.camera end
+  if key == '5' then debug.keybuffer = not debug.keybuffer end
+
 end

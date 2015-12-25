@@ -44,8 +44,6 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.waiting = 0 -- number of frames to wait. used for pre-jump frames etc.
   self.waiting_state = "" -- buffer the action that will be executed if special isn't pressed
   self.hit_flag = {Mugshot = init_dizzy} -- for KO animations
-  self.things = {} -- projectiles, etc.
-  self.things.attacking = false
   if self.hit_flag.Mugshot then
     self.mugshotted = 240 -- add 90 frames to this, because of round start fade-in
     self.super = math.max(self.super - 24, 0)
