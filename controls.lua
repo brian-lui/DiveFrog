@@ -3,11 +3,11 @@
 return {
   quit = 'escape',
 
-  p1jump = 'd',
-  p1attack = 'f',
+  p1jump = 'a',
+  p1attack = 's',
 
-  p2jump = 'kp5',
-  p2attack = 'kp6',
+  p2jump = 'l',
+  p2attack = ';',
   
   start = 'return'
 }

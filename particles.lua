@@ -211,7 +211,7 @@ function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
 end
 
 ---------------------------- SUN BADFROG HOTFLAME -----------------------------
-Hotflame = Particle:new(love.graphics.newImage('images/Sun/HotflameFX.png'), {90, 146}, {45, 146})
+Hotflame = Particle:new(love.graphics.newImage('images/Sun/HotflameFX.png'), {120, 195}, {60, 195})
 
 function Hotflame:loadFX(pos_h, pos_v, facing, shift)
   draw_count = draw_count + 1
@@ -221,6 +221,6 @@ function Hotflame:loadFX(pos_h, pos_v, facing, shift)
   postbuffer[frame] = postbuffer[frame] or {}
   postbuffer[frame][draw_count] = Hotflame:getPureDrawable(current_anim_frame,
     pos_h,
-    pos_v - 146,
+    pos_v - self.sprite_size[2],
     facing, 1, shift)
 end

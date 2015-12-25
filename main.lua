@@ -55,7 +55,7 @@ canvas_background = love.graphics.newCanvas(stage.width, stage.height)
 function love.load()
   game = {
     current_screen = "title",
-    best_to_x = 2,
+    best_to_x = 5,
     current_round = 0,
     match_winner = false,
     superfreeze_time = 0,
@@ -490,8 +490,8 @@ end
 function startGame()
   game.current_screen = "maingame"
 
-  p1 = available_chars[p1_char](1, p2, 48, false, 0)
-  p2 = available_chars[p2_char](2, p1, 48, false, 0)
+  p1 = available_chars[p1_char](1, p2, 0, false, 0)
+  p2 = available_chars[p2_char](2, p1, 0, false, 0)
 
   -- put the move/flip/offset stuff for draw operations in p1/p2
   --p1_flags = {move = -1, flip = 1, offset = 0}
