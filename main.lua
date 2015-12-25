@@ -371,10 +371,8 @@ function love.update(dt)
       camera:setPosition(unpack(camera_xy))
     else
       game.superfreeze_time = game.superfreeze_time - 1
-      print(game.superfreeze_player:getCenter())
       local h_position = game.superfreeze_player:getCenter()
       camera:setPosition(h_position - 0.5 * window.center, game.superfreeze_player.pos[2])
-      print("Orig:", h_position, "Clamped:", clamp(h_position, 0, stage.width - window.width))
     end
 
     frame = frame + 1

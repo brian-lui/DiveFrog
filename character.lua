@@ -71,8 +71,8 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.default_gravity = 0.3
   self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.7 for Mugshotted
 
-  -- hitboxes. Flags must correspond to a particle class.
-  self.hurtboxes_standing = {{L = 0, U = 0, R = 0, D = 0, Flag1 = Mugshot}}
+  -- hitboxes
+  self.hurtboxes_standing = {{L = 0, U = 0, R = 0, D = 0, Flag1 = "Mugshot"}}
   self.hurtboxes_jumping  = {{L = 0, U = 0, R = 0, D = 0}}
   self.hurtboxes_falling = {{L = 0, U = 0, R = 0, D = 0}}
   self.hurtboxes_attacking  = {{L = 0, U = 0, R = 0, D = 0}}
@@ -232,12 +232,12 @@ end
   end
 
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
-  if type_table[Mugshot] then
+  if type_table.Mugshot and not type_table.Projectile then
     Mugshot:loadFX()
     self.hit_flag.Mugshot = true
   end
 
-  if type_table[Wallsplat] then
+  if type_table.Wallsplat then
     self.hit_flag.Wallsplat = true
   end
 
@@ -561,41 +561,41 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   
   --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
   self.hurtboxes_standing = {
-    {L = 78, U = 28, R = 119, D = 50, Flag1 = Mugshot},
-    {L = 69, U = 51, R = 124, D = 79, Flag1 = Mugshot},
+    {L = 78, U = 28, R = 119, D = 50, Flag1 = "Mugshot"},
+    {L = 69, U = 51, R = 124, D = 79, Flag1 = "Mugshot"},
     {L = 76, U = 85, R = 120, D = 101},
     {L = 70, U = 105, R = 129, D = 142},
     {L = 75, U = 143, R = 124, D = 172},
     {L = 82, U = 173, R = 120, D = 190}}
   self.hurtboxes_jumping  = {
-    {L = 78, U = 28, R = 119, D = 50, Flag1 = Mugshot},
-    {L = 69, U = 51, R = 124, D = 79, Flag1 = Mugshot},
+    {L = 78, U = 28, R = 119, D = 50, Flag1 = "Mugshot"},
+    {L = 69, U = 51, R = 124, D = 79, Flag1 = "Mugshot"},
     {L = 76, U = 85, R = 120, D = 101},
     {L = 70, U = 105, R = 129, D = 142},
     {L = 75, U = 143, R = 124, D = 172},
     {L = 82, U = 173, R = 120, D = 190}}
   self.hurtboxes_falling = {
-    {L = 78, U = 28, R = 119, D = 50, Flag1 = Mugshot},
-    {L = 69, U = 51, R = 124, D = 79, Flag1 = Mugshot},
+    {L = 78, U = 28, R = 119, D = 50, Flag1 = "Mugshot"},
+    {L = 69, U = 51, R = 124, D = 79, Flag1 = "Mugshot"},
     {L = 76, U = 85, R = 120, D = 101},
     {L = 70, U = 105, R = 129, D = 142},
     {L = 75, U = 143, R = 124, D = 172},
     {L = 82, U = 173, R = 120, D = 190}}
   self.hurtboxes_attacking  = {
-    {L = 67, U = 20, R = 109, D = 59, Flag1 = Mugshot},
+    {L = 67, U = 20, R = 109, D = 59, Flag1 = "Mugshot"},
     {L = 75, U = 60, R = 104, D = 103},
     {L = 68, U = 104, R = 91, D = 135},
     {L = 100, U = 105, R = 114, D = 136},
     {L = 111, U = 137, R = 128, D = 157},
     {L = 125, U = 158, R = 138, D = 183}}
   self.hurtboxes_kickback  = {
-    {L = 82, U = 25, R = 123, D = 71, Flag1 = Mugshot},
-    {L = 71, U = 41, R = 128, D = 72, Flag1 = Mugshot},
+    {L = 82, U = 25, R = 123, D = 71, Flag1 = "Mugshot"},
+    {L = 71, U = 41, R = 128, D = 72, Flag1 = "Mugshot"},
     {L = 70, U = 73, R = 119, D = 165},
     {L = 72, U = 166, R = 111, D = 182}}
 
   self.hitboxes_attacking = {{L = 119, U = 166, R = 137, D = 183}}
-  self.hitboxes_hyperkick = {{L = 119, U = 166, R = 137, D = 183, Flag1 = Fire}}
+  self.hitboxes_hyperkick = {{L = 119, U = 166, R = 137, D = 183, Flag1 = "Fire"}}
 
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
@@ -766,28 +766,28 @@ function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_sco
   self.air_special_sfx = "Jean/JeanAirSpecial.ogg"
 
   self.hurtboxes_standing = {
-    {L = 53, U = 27, R = 95, D = 50, Flag1 = Mugshot},
-    {L = 44, U = 51, R = 102, D = 79, Flag1 = Mugshot},
+    {L = 53, U = 27, R = 95, D = 50, Flag1 = "Mugshot"},
+    {L = 44, U = 51, R = 102, D = 79, Flag1 = "Mugshot"},
     {L = 51, U = 85, R = 95, D = 101},
     {L = 45, U = 105, R = 104, D = 142},
     {L = 50, U = 143, R = 99, D = 172},
     {L = 57, U = 173, R = 95, D = 190}}
   self.hurtboxes_jumping  = {
-    {L = 53, U = 27, R = 95, D = 50, Flag1 = Mugshot},
-    {L = 44, U = 51, R = 102, D = 79, Flag1 = Mugshot},
+    {L = 53, U = 27, R = 95, D = 50, Flag1 = "Mugshot"},
+    {L = 44, U = 51, R = 102, D = 79, Flag1 = "Mugshot"},
     {L = 51, U = 85, R = 95, D = 101},
     {L = 45, U = 105, R = 104, D = 142},
     {L = 50, U = 143, R = 99, D = 172},
     {L = 57, U = 173, R = 95, D = 190}}
   self.hurtboxes_falling = {
-    {L = 53, U = 27, R = 95, D = 50, Flag1 = Mugshot},
-    {L = 44, U = 51, R = 102, D = 79, Flag1 = Mugshot},
+    {L = 53, U = 27, R = 95, D = 50, Flag1 = "Mugshot"},
+    {L = 44, U = 51, R = 102, D = 79, Flag1 = "Mugshot"},
     {L = 51, U = 85, R = 95, D = 101},
     {L = 45, U = 105, R = 104, D = 142},
     {L = 50, U = 143, R = 99, D = 172},
     {L = 57, U = 173, R = 95, D = 190}}
   self.hurtboxes_attacking  = {
-    {L = 10, U = 24, R = 57, D = 69, Flag1 = Mugshot},
+    {L = 10, U = 24, R = 57, D = 69, Flag1 = "Mugshot"},
     {L = 61, U = 58, R = 77, D = 69},
     {L = 31, U = 72, R = 83, D = 109},
     {L = 42, U = 110, R = 93, D = 126},
@@ -795,28 +795,28 @@ function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_sco
     {L = 118, U = 138, R = 131, D = 149},
     {L = 62, U = 151, R = 145, D = 172}}
   self.hurtboxes_dandy  = {
-    {L = 11, U = 33, R = 39, D = 76, Flag1 = Mugshot},
+    {L = 11, U = 33, R = 39, D = 76, Flag1 = "Mugshot"},
     {L = 15, U = 82, R = 45, D = 129},
     {L = 24, U = 131, R = 61, D = 151},
     {L = 62, U = 142, R = 73, D = 151},
     {L = 33, U = 152, R = 82, D = 166},
     {L = 47, U = 167, R = 95, D = 186}}
   self.hurtboxes_pilebunker = {
-    {L = 6, U = 36, R = 37, D = 71, Flag1 = Mugshot},
+    {L = 6, U = 36, R = 37, D = 71, Flag1 = "Mugshot"},
     {L = 17, U = 68, R = 71, D = 137},
     {L = 72, U = 87, R = 130, D = 92},
     {L = 73, U = 128, R = 100, D = 137},
     {L = 42, U = 140, R = 108, D = 187},
     {L = 110, U = 152, R = 118, D = 187}}
   self.hurtboxes_pilebunkerB = {
-    {L = 15, U = 36, R = 46, D = 71, Flag1 = Mugshot},
+    {L = 15, U = 36, R = 46, D = 71, Flag1 = "Mugshot"},
     {L = 17, U = 68, R = 71, D = 137},
     {L = 73, U = 128, R = 83, D = 137},
     {L = 42, U = 140, R = 98, D = 187},
     {L = 100, U = 165, R = 113, D = 180}}
 
   self.hitboxes_attacking = {{L = 130, U = 154, R = 147, D = 172}}
-  self.hitboxes_pilebunker = {{L = 86, U = 85, R = 148, D = 92, Flag1 = Wallsplat}}
+  self.hitboxes_pilebunker = {{L = 86, U = 85, R = 148, D = 92, Flag1 = "Wallsplat"}}
 
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
@@ -996,6 +996,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
 
   self.win_quote = "Robert de Niro called."
   self.fighter_name = "Sun Badfrog"
+  self.super_drainspeed = 0.25 -- per frame 
 
   -- images
   self.icon = love.graphics.newImage('images/Sun/SunIcon.png')
@@ -1013,23 +1014,23 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
 
   -- hitboxes. Flags must correspond to a particle class.
   self.hurtboxes_standing = {
-    {L = 87, U = 19, R = 117, D = 47, Flag1 = Mugshot},
+    {L = 87, U = 19, R = 117, D = 47, Flag1 = "Mugshot"},
     {L = 83, U = 51, R = 120, D = 108},
     {L = 82, U = 109, R = 122, D = 139},
     {L = 77, U = 140, R = 125, D = 169},
     {L = 72, U = 170, R = 131, D = 198}}
   self.hurtboxes_jumping  = {
-    {L = 87, U = 19, R = 117, D = 47, Flag1 = Mugshot},
+    {L = 87, U = 19, R = 117, D = 47, Flag1 = "Mugshot"},
     {L = 83, U = 51, R = 119, D = 108},
     {L = 82, U = 109, R = 121, D = 139},
     {L = 77, U = 140, R = 123, D = 167}}
   self.hurtboxes_falling = {
-    {L = 87, U = 19, R = 117, D = 47, Flag1 = Mugshot},
+    {L = 87, U = 19, R = 117, D = 47, Flag1 = "Mugshot"},
     {L = 83, U = 51, R = 120, D = 108},
     {L = 82, U = 109, R = 122, D = 139},
     {L = 77, U = 140, R = 125, D = 198}}
   self.hurtboxes_attacking  = {
-    {L = 75, U = 30, R = 101, D = 50, Flag1 = Mugshot},
+    {L = 75, U = 30, R = 101, D = 50, Flag1 = "Mugshot"},
     {L = 74, U = 45, R = 122, D = 65},
     {L = 73, U = 66, R = 104, D = 80},
     {L = 73, U = 81, R = 158, D = 100},
@@ -1037,13 +1038,13 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
     {L = 88, U = 115, R = 156, D = 128},
     {L = 141, U = 129, R = 150, D = 142}}
   self.hurtboxes_kickback  = {
-    {L = 87, U = 19, R = 117, D = 47, Flag1 = Mugshot},
+    {L = 87, U = 19, R = 117, D = 47, Flag1 = "Mugshot"},
     {L = 83, U = 51, R = 119, D = 108},
     {L = 82, U = 109, R = 121, D = 139},
     {L = 77, U = 140, R = 123, D = 167}}
   self.hurtboxes_ko  = {{L = 0, U = 0, R = 0, D = 0}}
   self.hurtboxes_hotflame  = {
-    {L = 83, U = 12, R = 131, D = 52, Flag1 = Mugshot},
+    {L = 83, U = 12, R = 131, D = 52, Flag1 = "Mugshot"},
     {L = 85, U = 59, R = 116, D = 140},
     {L = 117, U = 73, R = 131, D = 111},
     {L = 73, U = 141, R = 131, D = 152},
@@ -1051,7 +1052,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
     {L = 136, U = 184, R = 152, D = 198},
     {L = 27, U = 162, R = 79, D = 174}}
   self.hurtboxes_riotkick  = {
-    {L = 74, U = 19, R = 106, D = 50, Flag1 = Mugshot},
+    {L = 74, U = 19, R = 106, D = 50, Flag1 = "Mugshot"},
     {L = 62, U = 55, R = 103, D = 114},
     {L = 56, U = 135, R = 116, D = 155},
     {L = 26, U = 91, R = 65, D = 106},
@@ -1059,7 +1060,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
     {L = 110, U = 83, R = 196, D = 105}}
   self.hitboxes_neutral = {{L = 0, U = 0, R = 0, D = 0}}
   self.hitboxes_attacking = {{L = 129, U = 120, R = 151, D = 162}}
-  self.hitboxes_riotkick = {{L = 189, U = 64, R = 199, D = 109, Flag1 = Wallsplat}}
+  self.hitboxes_riotkick = {{L = 189, U = 64, R = 199, D = 109, Flag1 = "Wallsplat"}}
   self.hitboxes_hotflame = {{L = 0, U = 0, R = 0, D = 0}}
 
   -- sound effects
@@ -1117,10 +1118,10 @@ function Sun:land()
 end
 
 function Sun:attack_key_press()
-    -- attack if in air and not riotkick/attack either: >35 above floor, or landing and >20 above.
+    -- attack if in air and not riotkick/attack either: >50 above floor, or landing and >30 above.
   if self.in_air and self:getNeutral() and
-    (self.pos[2] + self.sprite_size[2] < stage.floor - 35 or
-    (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 20)) then
+    (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
+    (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
       self.waiting = 3
       self.waiting_state = "Attack"
   -- if on ground, kickback
@@ -1139,15 +1140,15 @@ function Sun:ground_special()
     self:updateImage(6)
     self.current_hurtboxes = self.hurtboxes_hotflame
     self.current_hitboxes = self.hitboxes_neutral
+    self.hotflaming_pos[1] = self.pos[1]
+    self.hotflaming_pos[2] = self.pos[2]
 
     if not self.super_on then
       self.super = self.super - 8
       self.hotflametime = {30, 0, 0, 0, 0}
-      self.hotflaming_pos[1] = self.pos[1]
-      self.hotflaming_pos[2] = self.pos[2]
       writeSound(self.hotflamefx_sfx)
     elseif self.super_on then
-      self.life = self.life - 40
+      self.life = self.life - 20
       self.hotterflametime = 40
       writeSound(self.hotterflamefx_sfx)
     end
@@ -1156,7 +1157,7 @@ function Sun:ground_special()
   -- Wire Sea
   if self.super >= 16 and self.recovery > 15 and self.recovery < 40 then
     if self.super_on then
-      self.life = self.life - 40
+      self.life = self.life - 20
     else
       self.super = self.super - 16
     end
@@ -1213,7 +1214,7 @@ function Sun:extraStuff()
       
       local shift_factor = 0
       if self.facing == -1 then shift_factor = 1 end
-      local shift_amount = shift_factor * (self.sprite_size[1])
+      local shift_amount = shift_factor * self.sprite_size[1]
       
       Hotflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
 
@@ -1229,11 +1230,35 @@ function Sun:extraStuff()
           U = self.sprite_size[2] - 120, 
           R = self.sprite_size[1] + (45 * (i - 1)) + 45 , 
           D = self.sprite_size[2],
-          Flag1 = Fire,
+          Flag1 = "Fire",
           Flag2 = "Projectile"} 
       end
     end
   end
+
+  if self.hotterflametime > 0 then
+
+    self.attacking = true
+    local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] - self.sprite_wallspace) * self.facing 
+    local v_pos = self.hotflaming_pos[2] + self.sprite_size[2]
+
+    local shift_factor = 0
+    if self.facing == -1 then shift_factor = 1 end
+    local shift_amount = shift_factor * self.sprite_size[1]
+
+    Hotterflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
+
+    if self.frozen == 0 and not self.foe.hit_flag.Projectile then
+      self.hotterflametime = self.hotterflametime - 1
+      self.hitboxes_hotflame[1] = {
+        L = self.sprite_size[1] - self.sprite_wallspace,
+        U = self.sprite_size[2] - 165,
+        R = self.sprite_size[1] - self.sprite_wallspace + 126,
+        D = self.sprite_size[2],
+        Flag1 = "Fire",
+        Flag2 = "Projectile"}
+    end
+  end  
 
   local temp_hotflame = {}
     for i = 1, #self.hitboxes_hotflame do
@@ -1334,7 +1359,7 @@ function Sun:updateSuper()
     if self.facing == -1 then shift = self:getSprite_Width() end
     shadow:loadFX(self.pos[1], self.pos[2], self.sprite, self.facing, shift)
     -- life drain
-    self.life = math.max(self.life - 1, 0)
+    self.life = math.max(self.life - 0.73, 0)
     if self.life == 0 then
       round_end_frame = frame
       round_ended = true

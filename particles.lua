@@ -224,3 +224,18 @@ function Hotflame:loadFX(pos_h, pos_v, facing, shift)
     pos_v - self.sprite_size[2],
     facing, 1, shift)
 end
+
+-------------------------- SUN BADFROG HOTTERFLAME ----------------------------
+Hotterflame = Particle:new(love.graphics.newImage('images/Sun/HotterflameFX.png'), {300, 252}, {150, 252})
+
+function Hotterflame:loadFX(pos_h, pos_v, facing, shift)
+  draw_count = draw_count + 1
+  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
+  local current_anim_frame = math.floor((frame % 8) / TIME_DIV)
+
+  postbuffer[frame] = postbuffer[frame] or {}
+  postbuffer[frame][draw_count] = Hotterflame:getPureDrawable(current_anim_frame,
+    pos_h,
+    pos_v - self.sprite_size[2],
+    facing, 1, shift)
+end
