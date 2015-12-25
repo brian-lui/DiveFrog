@@ -19,7 +19,7 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   dummypic = love.graphics.newImage('images/dummy.png')
   self.player = init_player 
   self.foe = init_foe
-  self.frozen = 0 -- only update sprite if this is 0. Used for e.g. super freeze
+  self.frozen = 90 -- only update sprite if this is 0. Used for e.g. super freeze
   self.score = init_score
   self.in_air = false
   self.life = 280 -- 280 pixels in the life bar

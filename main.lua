@@ -73,7 +73,7 @@ function love.load()
   prebuffer = {} -- pre-load draw instruction into future frames behind sprite
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
   soundbuffer = {} -- pre-load sound effects into future frames
-  camera_xy = {} -- corner for camera and window drawing
+  camera_xy = {} -- top left window corner for camera and window drawing
   debug = {boxes = false, sprites = false, midpoints = false, camera = false, keybuffer = false}
 end
 
@@ -357,6 +357,8 @@ end
 
 function love.update(dt)
   if game.current_screen == "maingame" then
+    frame = frame + 1
+
     if game.superfreeze_time == 0 then
       local h_midpoint = (p1:getCenter() + p2:getCenter()) / 2
       local highest_sprite = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2])
@@ -372,13 +374,9 @@ function love.update(dt)
       camera:setPosition(h_position - 0.5 * window.center, game.superfreeze_player.pos[2])
     end
 
-    frame = frame + 1
-
-    -- count down timer if not in some kind of freeze
     if not round_ended and not (p1.frozen > 0 and p2.frozen > 0) then
       round_timer = round_timer - 1
     end
-
 
     -- get button press state, and write to keybuffer table
     keybuffer[frame] = {
@@ -388,7 +386,6 @@ function love.update(dt)
     love.keyboard.isDown(buttons.p2attack)}
 
     -- read keystate from keybuffer and call the associated functions
-    -- only call if the key was pressed this frame, but not pressed last frame
     if not round_ended then
       if keybuffer[frame][1] and p1.frozen == 0 and not keybuffer[frame-1][1] then p1:jump_key_press() end
       if keybuffer[frame][2] and p1.frozen == 0 and not keybuffer[frame-1][2] then p1:attack_key_press() end
@@ -442,7 +439,7 @@ function love.update(dt)
       end 
     end  
 
-    -- after round ended and drew end round stuff, start new round
+    -- after round ended and displayed round end stuff, start new round
     if frame - round_end_frame == 144 then
       for p, _ in pairs(PLAYERS) do
         if p.won then p:addScore() end
@@ -474,8 +471,6 @@ function newRound()
   round_timer = init_round_timer
   round_ended = false
   round_end_frame = 100000 -- arbitrary number, larger than total round time
-  p1.frozen = 90
-  p2.frozen = 90
   game.current_round = game.current_round + 1
   keybuffer = {false, false, false, false}
   soundbuffer = {} -- pre-load sound effects into future frames
@@ -507,22 +502,20 @@ function charSelect()
     {"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"}
     }
   total_chars = #available_chars
-  p1_char = 1 -- default to first character
-  p2_char = 2 -- default to second character
+  p1_char = 1
+  p2_char = 2
   game.current_screen = "charselect"
 end
 
 function love.keypressed(key, isrepeat)
   if key == buttons.quit then love.event.quit() end
 
-  -- Get keys when at title stage
   if game.current_screen == "title" then
     if key ==  buttons.start then
       charSelect()
     end
   end
 
-  -- Get keys when at character select stage
   if game.current_screen == "charselect" then
     if key == buttons.p1attack or key == buttons.p2attack then
       playSFX(charselected_sfx)
