@@ -1,5 +1,6 @@
 require 'utilities' -- helper functions
 require 'camera'
+local json = require ("dkjson")
 local class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
 local window = require 'window'  -- current view of stage
@@ -7,9 +8,6 @@ local buttons = require 'controls'  -- mapping of keyboard controls
 local music = require 'music' -- background music
 local character = require 'character' -- base character class
 local particles = require 'particles' -- graphics effects
-
--- test
-print(love.filesystem.getSaveDirectory())
 
 -- load images
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
@@ -563,5 +561,10 @@ function love.keypressed(key, isrepeat)
   if key == '3' then debug.midpoints = not debug.midpoints end
   if key == '4' then debug.camera = not debug.camera end
   if key == '5' then debug.keybuffer = not debug.keybuffer end
-
+  if key == '6' then print(love.filesystem.getSaveDirectory()) end
+  if key == '7' then 
+  	local output_keybuffer = json.encode(keybuffer)
+  	local filename = os.date("%Y.%m.%d.%H%M") .. " Keybuffer.txt"
+  	success = love.filesystem.write(filename, output_keybuffer)
+  end
 end
