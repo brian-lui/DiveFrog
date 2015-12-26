@@ -171,7 +171,7 @@ function drawOverlays()
 
   for side, op in pairs(PLAYERS) do
     -- HP bars
-    love.graphics.draw(hpbar, window.center + (op.move * 335), 20, 0, op.flip, 1)
+    love.graphics.draw(hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
     if side.life < 280 then
       love.graphics.push("all")
         love.graphics.setColor(220, 0, 0, 255)
@@ -449,7 +449,7 @@ function love.update(dt)
     end  
 
     if soundbuffer[frame] then playSFX(soundbuffer[frame]) end
-    
+
     -- after round ended and displayed round end stuff, start new round
     if frame - round_end_frame == 144 then
       for p, _ in pairs(PLAYERS) do
