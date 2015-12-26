@@ -14,7 +14,8 @@ local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
 local titlescreen = love.graphics.newImage('images/Title.jpg')  
 local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
 local hpbar = love.graphics.newImage('images/HPBar.png')
-local superbar = love.graphics.newImage('images/SuperBar.png')
+local superbar = love.graphics.newImage('images/SuperBarBase.png')
+local supermeter = love.graphics.newImage('images/SuperMeter.png')
 local frogfactor = love.graphics.newImage('images/FrogFactor.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
 local greenlight = love.graphics.newImage('images/GreenLight.png')
@@ -24,6 +25,8 @@ local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensio
 IMG = {greenlight_width = greenlight:getWidth(),
   frogfactor_width = frogfactor:getWidth(),
   frogfactor_height = frogfactor:getHeight(),
+  supermeter_width = supermeter:getWidth(),
+  supermeter_height = supermeter:getHeight() / 8,
   superbar_width = superbar:getWidth()
   }
 
@@ -191,39 +194,32 @@ function drawOverlays()
     -- super bars
     love.graphics.push("all")
     if not side.super_on then
-      -- super bar images
-      love.graphics.setColor(255, 255, 255)
+      -- super bar base
+      love.graphics.setColor(255, 255, 255, 144)
       love.graphics.draw(superbar, window.center + (op.move * 375), window.height - 35,
         0, 1, 1, op.offset * IMG.superbar_width)
-      -- dark line
-      love.graphics.setLineWidth(1)
-      love.graphics.setColor(17, 94, 17)
-      love.graphics.line(window.center + op.move * 368,
-        window.height - 30,
-        math.max(window.center + op.move * 368, window.center + op.move * 370 - op.move * side.super),
-        window.height - 30)
-      -- thick bar
-      love.graphics.setLineWidth(12)
-      love.graphics.setColor(44, 212, 44)
-      love.graphics.line(window.center + op.move * 369,
-        window.height - 22.5,
-        window.center + op.move * 369 - op.move * side.super,
-        window.height - 22.5)
-      -- white line ornament
-      if (frame % 48) * 2 < side.super then
-        love.graphics.setLineWidth(4)
-        love.graphics.setColor(255, 255, 255, 180)
-        love.graphics.line(window.center + op.move * 369 - op.move * (frame % 48) * 2,
-          window.height - 30, 
-          window.center + op.move * 369 - op.move * (frame % 48) * 2,
-          window.height - 17)
-      end
-    
+
+      -- super bar quad
+      local supermeterQuad = love.graphics.newQuad(0, math.floor(frame % 64 / 8), IMG.supermeter_width * (side.super / 96),
+      	IMG.supermeter_height, IMG.supermeter_width, IMG.supermeter_height)
+
+      local supermeterColor = {0, 64 + side.super * 2, 0, 255}
+	    if side.super >= 32 and side.super < 64 then
+	    	supermeterColor = {96 + side.super, 96 + side.super, 192 + side.super, 255}
+	    elseif side.super >= 64 then
+	    	supermeterColor = {255, 255, 0, 255}
+	    end
+
+      love.graphics.setColor(supermeterColor)
+      love.graphics.draw(supermeter, supermeterQuad, window.center+(op.move * 373),
+      	window.height - 33, 0, op.flip, 1, 0)
+
     else -- if super full, draw frog factor
       local frogfactorQuad = love.graphics.newQuad(0, 0, IMG.frogfactor_width * (side.super / 96),
         IMG.frogfactor_height, IMG.frogfactor_width, IMG.frogfactor_height)
       love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
-      love.graphics.draw(frogfactor, frogfactorQuad, window.center + (op.move * 390), window.height - 60, 0, 1, 1, (op.offset * 140))
+      love.graphics.draw(frogfactor, frogfactorQuad, window.center + (op.move * 390),
+       	window.height - 60, 0, 1, 1, (op.offset * 140))
     end
     love.graphics.pop()
   end

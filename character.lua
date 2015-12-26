@@ -1138,7 +1138,6 @@ function Sun:ground_special()
   -- Hotflame
   if self.super >= 8 and self:getNeutral() and not self:getHotflame() then
     self.waiting_state = ""
-    self.recovery = 45
     self:updateImage(6)
     self.current_hurtboxes = self.hurtboxes_hotflame
     self.current_hitboxes = self.hitboxes_neutral
@@ -1149,10 +1148,12 @@ function Sun:ground_special()
       self.super = self.super - 8
       self.hotflametime = {30, 0, 0, 0, 0}
       writeSound(self.hotflamefx_sfx)
+      self.recovery = 45
     elseif self.super_on and self.life > 25 then
       self.life = self.life - 20
       self.hotterflametime = 40
       writeSound(self.hotterflamefx_sfx)
+      self.recovery = 15
     end
   end
 
@@ -1387,15 +1388,29 @@ end
 -----------------------------------------------------------------------------]]   
 
 --[[
+A combination of M.Bison (dictator), and M.Jackson (singer)
 
-Wears M. Bison uniform, but has white face
- Kickback is replaced by moonwalk
+Wears hat like this: http://images2.fanpop.com/image/photos/9200000/Moonwalker-moonwalk-9210708-300-400.jpg
+Apart from headgear, wears red M. Bison uniform
+Face is white
 
-Moonwalk: plays 4 notes from Billie Jean bassline. Changes stance. Next moonwalk plays the next 4 notes, and changes stance again
+M. Frogson has two stances. The first stance he jumps high and kicks at a steep angle. The second stance he jumps low and kicks at a shallow angle.
 
-Stance changes jump height and kick angle
+Kickback is replaced by Moonwalk. M. Frogson slides backwards. Each Moonwalk toggles between the stances.
+When Moonwalk is executed, it plays 4 notes from the Billie Jean bassline: https://www.youtube.com/watch?v=7xkce8W4YlE
+It alternates between notes 1-4 of the first 8 notes, and notes 5-8.
 
-Special: M. Bison headstomp/devil's reverse]]
+Air special: M. Bison's devil's reverse.
+Ground special: No idea yet.
+
+
+Vocals needed:
+
+Divekick (two vocals, one for each stance)
+Devil's reverse (similar to what M. Bison says? I don't know what he says)
+Vocal for when M. Frogson gets KOed
+Vocal for ground special? I don't know yet
+]]
 
 
 
