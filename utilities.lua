@@ -44,7 +44,7 @@ function check_got_hit(getting_hit, attacker)
 end
 
 function writeSound(SFX)
-  local writeframe = frame + 1
+  local writeframe = frame
   soundbuffer[writeframe] = SFX
 end
 

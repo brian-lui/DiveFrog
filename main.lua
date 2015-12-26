@@ -408,7 +408,7 @@ function love.update(dt)
     p2:updatePos()
     t1 = love.timer.getTime()
 
-    if soundbuffer[frame] then playSFX(soundbuffer[frame]) end
+
 
     -- check if anyone got hit
     if check_got_hit(p1, p2) and check_got_hit(p2, p1) then
@@ -448,6 +448,8 @@ function love.update(dt)
       end 
     end  
 
+    if soundbuffer[frame] then playSFX(soundbuffer[frame]) end
+    
     -- after round ended and displayed round end stuff, start new round
     if frame - round_end_frame == 144 then
       for p, _ in pairs(PLAYERS) do
