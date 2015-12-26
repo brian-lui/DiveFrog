@@ -61,7 +61,8 @@ function love.load()
     superfreeze_time = 0,
     superfreeze_player = nil,
     BGM = nil,
-  	background_color = nil}
+  	background_color = nil,
+  	identical_players = false}
   setBGM("Intro.ogg")
   min_dt = 1/60 -- frames per second
   next_time = love.timer.getTime()
@@ -81,19 +82,18 @@ end
 
 function drawBackground()
   canvas_background:clear()
-  if game.superfreeze_time > 0 then
-    love.graphics.push("all")
-      love.graphics.setColor(96, 96, 96)
-      love.graphics.draw(p2.stage_background, 0, 0) 
-    love.graphics.pop()
-  elseif game.background_color then
-  	love.graphics.push("all")
-      love.graphics.setColor(game.background_color)
-      love.graphics.draw(p2.stage_background, 0, 0) 
-    love.graphics.pop()
-  else
-    love.graphics.draw(p2.stage_background, 0, 0) 
+  local temp_color = {255, 255, 255, 255}
+
+  if game.background_color then
+  	temp_color = game.background_color
+  elseif game.superfreeze_time > 0 then
+  	temp_color = {96, 96, 96, 255}
   end
+
+  love.graphics.push("all")
+    love.graphics.setColor(temp_color)
+    love.graphics.draw(p2.stage_background, 0, 0) 
+  love.graphics.pop()
 end
 
 function drawSprites()
@@ -136,7 +136,14 @@ function drawSprites()
   if p1.facing == -1 then p1shift = p1:getSprite_Width() end
   
   love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
-  love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
+  
+  local p2_color = {255, 255, 255, 255}
+  if game.identical_players then p2_color = {180, 220, 180, 255} end
+
+	love.graphics.push("all")
+		love.graphics.setColor(p2_color)
+		love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
+	love.graphics.pop()
 
   --[[----------------------------------------------
                   OVER-SPRITE LAYER      
@@ -494,6 +501,7 @@ function startGame()
 
   p1 = available_chars[p1_char](1, p2, 0, false, 0)
   p2 = available_chars[p2_char](2, p1, 0, false, 0)
+  if p1_char == p2_char then game.identical_players = true end
 
   PLAYERS = { [p1] = {move = -1, flip = 1, offset = 0},
               [p2] = {move = 1, flip = -1, offset = 1}}
