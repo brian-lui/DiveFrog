@@ -59,7 +59,9 @@ function love.load()
     current_round = 0,
     match_winner = false,
     superfreeze_time = 0,
-    superfreeze_player = nil}
+    superfreeze_player = nil,
+    BGM = nil,
+  	background_color = nil}
   setBGM("Intro.ogg")
   min_dt = 1/60 -- frames per second
   next_time = love.timer.getTime()
@@ -82,6 +84,11 @@ function drawBackground()
   if game.superfreeze_time > 0 then
     love.graphics.push("all")
       love.graphics.setColor(96, 96, 96)
+      love.graphics.draw(p2.stage_background, 0, 0) 
+    love.graphics.pop()
+  elseif game.background_color then
+  	love.graphics.push("all")
+      love.graphics.setColor(game.background_color)
       love.graphics.draw(p2.stage_background, 0, 0) 
     love.graphics.pop()
   else
@@ -110,6 +117,7 @@ function drawSprites()
   if prebuffer[frame] then
     love.graphics.push("all")
     for particle_index, particle_value in pairs(prebuffer[frame]) do
+    	prebuffer[frame][particle_index][12] = prebuffer[frame][particle_index][12] or {255, 255, 255, 255}
       love.graphics.setColor(prebuffer[frame][particle_index][12]) -- 12 is RGB table
       love.graphics.draw(unpack(prebuffer[frame][particle_index]))
     end
@@ -472,6 +480,7 @@ function newRound()
   round_ended = false
   round_end_frame = 100000 -- arbitrary number, larger than total round time
   game.current_round = game.current_round + 1
+  game.background_color = nil
   keybuffer = {false, false, false, false}
   soundbuffer = {} -- pre-load sound effects into future frames
 
@@ -488,8 +497,8 @@ function startGame()
 
   PLAYERS = { [p1] = {move = -1, flip = 1, offset = 0},
               [p2] = {move = 1, flip = -1, offset = 1}}
-
-  setBGM(p2.BGM)
+  game.BGM = p2.BGM
+  setBGM(game.BGM)
   newRound()
 end
 

@@ -990,6 +990,7 @@ end
 
 Sun = class('Sun', Fighter)
 function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
+  if self.super_on then setBGM(game.BGM) end
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
 
   self.win_quote = "Robert de Niro called."
@@ -1058,12 +1059,13 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
     {L = 110, U = 83, R = 196, D = 105}}
   self.hitboxes_neutral = {{L = 0, U = 0, R = 0, D = 0}}
   self.hitboxes_attacking = {{L = 129, U = 120, R = 151, D = 162},
-    {L = 129, U = 50, R = 139, D = 119}}
+    {L = 129, U = 100, R = 139, D = 119}}
   self.hitboxes_riotkick = {{L = 189, U = 64, R = 199, D = 109, Flag1 = "Wallsplat"}}
   self.hitboxes_hotflame = {{L = 0, U = 0, R = 0, D = 0}}
 
   -- sound effects
-  self.BGM = "BadfrogTheme.ogg"
+  self.BGM = "SunTheme.ogg"
+  self.aura_BGM = "SunAuraCrackle.ogg"
   self.jump_sfx = "Sun/SunJump.ogg"
   self.got_hit_sfx = "dummy.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
@@ -1072,6 +1074,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.hotflamefx_sfx = "Sun/Hotflame.ogg"
   self.hotterflamefx_sfx = "Sun/Hotterflame.ogg"
   self.radio_sfx = "dummy.ogg"
+
 
   -- Copy the below stuff after the new initialization variables for each new character
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
@@ -1146,7 +1149,7 @@ function Sun:ground_special()
       self.super = self.super - 8
       self.hotflametime = {30, 0, 0, 0, 0}
       writeSound(self.hotflamefx_sfx)
-    elseif self.super_on then
+    elseif self.super_on and self.life > 25 then
       self.life = self.life - 20
       self.hotterflametime = 40
       writeSound(self.hotterflamefx_sfx)
@@ -1155,9 +1158,9 @@ function Sun:ground_special()
 
   -- Wire Sea
   if self.super >= 16 and self.recovery > 15 and self.recovery < 40 then
-    if self.super_on then
+    if self.super_on and self.life > 25 then
       self.life = self.life - 20
-    else
+    elseif not self.super_on then
       self.super = self.super - 16
     end
     self.recovery = 0
@@ -1173,8 +1176,8 @@ end
 function Sun:air_special()
   local v_distance = stage.floor - (self.pos[2] + self.sprite_size[2])
 
-  if self.super >= 8 and not self.super_on and self:getNeutral() and v_distance > 100 then
-    self.super = self.super - 8
+  if self.super >= 8 and self:getNeutral() and v_distance > 100 then
+    if not self.super_on then self.super = self.super - 8 end
     self.waiting_state = ""
     writeSound(self.air_special_sfx)
     self.gravity = 0
@@ -1344,33 +1347,37 @@ function Sun:updateSuper()
     writeSound(super_sfx)
     self.super_on = true
     self.vel_multiple = self.vel_multiple_super
-    game.superfreeze_time = 120
+    game.superfreeze_time = 60
     game.superfreeze_player = self
-    p1:setFrozen(120)
-    p2:setFrozen(120)
+    p1:setFrozen(60)
+    p2:setFrozen(60)
+    setBGM(self.aura_BGM)
+    game.background_color = {255, 128, 128, 255}
   end
 
-  if self.super_on and not (self.ko or self.won) then 
-    self.super = self.super - self.super_drainspeed
-    -- after-images
-    local shadow = AfterImage(self.image, self.image_size, self.sprite_size)
+  if self.super_on then
     local shift = 0
     if self.facing == -1 then shift = self:getSprite_Width() end
-    shadow:loadFX(self.pos[1], self.pos[2], self.sprite, self.facing, shift)
-    -- life drain
-    self.life = math.max(self.life - 0.73, 0)
-    if self.life == 0 then
-      round_end_frame = frame
-      round_ended = true
-      self:gotHit(self.foe.hit_type)
-      self.foe:hitOpponent()
-      self.super_on = false
+    SunAura:loadFX(self.pos[1], self.pos[2] + self.sprite_size[2], self.facing, shift)
+
+    if not (self.ko or self.won) then
+      self.super = self.super - self.super_drainspeed
+      self.life = math.max(self.life - 0.73, 0)
+      if self.life == 0 then
+        round_end_frame = frame
+        round_ended = true
+        self:gotHit(self.foe.hit_type)
+        self.foe:hitOpponent()
+      end
     end
   end
 
-  if self.super <= 0 then -- turn off Frog Factor
+  if self.super < 0 then -- turn off Frog Factor
+    self.super = 0
     self.super_on = false
     self.vel_multiple = 1.0
+    setBGM(game.BGM)
+    game.background_color = {255, 128, 128, 255}
   end  
 end
 

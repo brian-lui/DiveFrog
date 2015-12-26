@@ -13,7 +13,7 @@ function Particle:initialize(image, image_size, sprite_size, hitbox_table)
   self.hitbox = hitbox_table
 end
 
-function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift)
+function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift, RGBTable)
   local quad = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
     self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   return {self.image, 
@@ -30,7 +30,7 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift
 end
 
 -- not centered
-function Particle:getPureDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift)
+function Particle:getPureDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift, RGBTable)
   local quad = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
     self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   return {self.image, 
@@ -44,21 +44,19 @@ function Particle:getPureDrawable(image_index, pos_h, pos_v, scale_x, scale_y, s
     0, -- offset_y: 0
     0, -- shear_x: 0
     0} -- shear_y: 0
+    -- RGBTable not supported yet
 end
 
-function Particle:getHitbox()
-  return self.hitbox -- anything else we need to do here? If not can delete this
-end
 
 --[[---------------------------------------------------------------------------
                             AFTERIMAGES SUB-CLASS
 -----------------------------------------------------------------------------]]   
 AfterImage = class('AfterImage', Particle)
-function AfterImage:initialize(image, image_size, sprite_size, hitbox_table)
+function AfterImage:initialize(image, image_size, sprite_size)
   Particle.initialize(self, image, image_size, sprite_size)
 end
 
-function AfterImage:loadFX(pos_h, pos_v, quad, facing, shift, RGBTable)
+function AfterImage:loadFX(pos_h, pos_v, quad, facing, shift)
   draw_count = draw_count + 1
   prebuffer[frame + 10] = prebuffer[frame + 10] or {}
   prebuffer[frame + 10][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, {255, 180, 0, 200}}
@@ -235,6 +233,21 @@ function Hotterflame:loadFX(pos_h, pos_v, facing, shift)
 
   postbuffer[frame] = postbuffer[frame] or {}
   postbuffer[frame][draw_count] = Hotterflame:getPureDrawable(current_anim_frame,
+    pos_h,
+    pos_v - self.sprite_size[2],
+    facing, 1, shift)
+end
+
+------------------------------ SUN BADFROG AURA -------------------------------
+SunAura = Particle:new(love.graphics.newImage('images/Sun/Aura.png'), {800, 250}, {200, 250})
+
+function SunAura:loadFX(pos_h, pos_v, facing, shift)
+  draw_count = draw_count + 1
+  local TIME_DIV = 6 -- advance the animation every TIME_DIV frames
+  local current_anim_frame = math.floor((frame % 24) / TIME_DIV)
+
+  prebuffer[frame] = prebuffer[frame] or {}
+  prebuffer[frame][draw_count] = SunAura:getPureDrawable(current_anim_frame,
     pos_h,
     pos_v - self.sprite_size[2],
     facing, 1, shift)
