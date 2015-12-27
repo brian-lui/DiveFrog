@@ -71,7 +71,7 @@ function love.load()
   next_time = love.timer.getTime()
   frame = 0 -- framecount
   frame0 = 0 -- timer for start of round fade in
-  init_round_timer = 1200 -- round time in frames
+  init_round_timer = 400 -- round time in frames
   round_timer = init_round_timer
   round_end_frame = 0
   round_ended = false
@@ -109,9 +109,27 @@ function drawSprites()
     -- draw if low on time
   if round_timer <= 180 then
     love.graphics.push("all")
-      love.graphics.setColor(110, 0, 0, 200)
+      love.graphics.setColor(100 + (180 - round_timer) / 2, 0, 0, 200)
       love.graphics.setLineWidth(12)
       love.graphics.line(stage.center, 0, stage.center, stage.height)
+    if round_timer > 0 then
+    	love.graphics.setLineWidth(1)
+    	local alpha = (180 - round_timer) / 2 + 90
+    	local lines = {
+    		left_1 = {pos = stage.center - 2 * round_timer, color = {255, 0, 0, alpha}},
+    		right_1 = {pos = stage.center + 2 * round_timer, color = {255, 0, 0, alpha}},
+    		left_2 = {pos = stage.center - 4 * round_timer, color = {220, 220, 0, alpha}},
+    		right_2 = {pos = stage.center + 4 * round_timer, color = {220, 220, 0, alpha}},
+    		left_3 = {pos = stage.center - 6 * round_timer, color = {220, 220, 220, aslpha}},
+    		right_3 = {pos = stage.center + 6 * round_timer, color = {220, 220, 220, alpha}},
+    		left_4 = {pos = stage.center - 12 * round_timer, color = {255, 255, 255, alpha}},
+    		right_4 = {pos = stage.center + 12 * round_timer, color = {255, 255, 255, alpha}}
+    		}
+    	for _, line in pairs(lines) do
+    		love.graphics.setColor(line.color)
+    		love.graphics.line(line.pos, 0, line.pos, stage.height)
+    	end
+    end
     love.graphics.pop()
   end
 
