@@ -26,6 +26,7 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.ko = false
   self.won = false
   self.attacking = false
+  self.color = nil
   self.mugshotted = 0 -- frames the character is mugshotted for
   self.hit_type = {} -- type of hit, passed through to gotHit(). E.g. for wall splat
   self.super = init_super -- max 96
@@ -241,6 +242,10 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
 
   if type_table.Projectile then
     self.hit_flag.Projectile = true
+  end
+
+  if type_table.Fire then
+    self.color = {255, 0, 0, 255}
   end
 
   self.vel_multiple = 1.0
@@ -1067,13 +1072,14 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.BGM = "SunTheme.ogg"
   self.aura_BGM = "SunAuraCrackle.ogg"
   self.jump_sfx = "Sun/SunJump.ogg"
-  self.got_hit_sfx = "dummy.ogg"
+  self.got_hit_sfx = "Sun/SolKO.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
   self.ground_special_sfx = "WireSea.ogg"
   self.air_special_sfx = "dummy.ogg"
+  self.hotflame_sfx = "Sun/SolHotflame.ogg"
   self.hotflamefx_sfx = "Sun/Hotflame.ogg"
   self.hotterflamefx_sfx = "Sun/Hotterflame.ogg"
-  self.radio_sfx = "dummy.ogg"
+  self.radio_sfx = "Sun/SolDragonInstall.ogg"
 
 
   -- Copy the below stuff after the new initialization variables for each new character
@@ -1143,16 +1149,17 @@ function Sun:ground_special()
     self.current_hitboxes = self.hitboxes_neutral
     self.hotflaming_pos[1] = self.pos[1]
     self.hotflaming_pos[2] = self.pos[2]
+    writeSound(self.hotflame_sfx)
 
     if not self.super_on then
       self.super = self.super - 8
       self.hotflametime = {30, 0, 0, 0, 0}
-      writeSound(self.hotflamefx_sfx)
+      --writeSound(self.hotflamefx_sfx)
       self.recovery = 45
     elseif self.super_on and self.life > 25 then
       self.life = self.life - 20
       self.hotterflametime = 40
-      writeSound(self.hotterflamefx_sfx)
+      --writeSound(self.hotterflamefx_sfx)
       self.recovery = 15
     end
   end
@@ -1350,9 +1357,10 @@ function Sun:updateSuper()
     self.vel_multiple = self.vel_multiple_super
     game.superfreeze_time = 60
     game.superfreeze_player = self
-    p1:setFrozen(60)
-    p2:setFrozen(60)
+    p1:setFrozen(100)
+    p2:setFrozen(100)
     setBGM(self.aura_BGM)
+    writeSound(self.radio_sfx)
     game.background_color = {255, 128, 128, 255}
   end
 
