@@ -246,7 +246,7 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
 
   if type_table.Fire then
     self.hitflag.Fire = true
-
+    self.color = {255, 0, 0, 255}
   end
 
   self.vel_multiple = 1.0
@@ -284,7 +284,6 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
     self.current_hitboxes = self.hitboxes_neutral
 
     if self.hitflag.Fire then
-      self.color = {255, 0, 0, 255}
       local shift = 0
       if self.facing == -1 then shift = self:getSprite_Width() end
       OnFire:loadFX(self.pos[1], self.pos[2], self.facing, shift)
@@ -610,7 +609,7 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
 
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
-
+  self.hyperkicking = false
   -- sound effects
   self.jump_sfx = "Konrad/KonradJump.ogg"
   self.doublejump_sfx = "Konrad/KonradDoubleJump.ogg"
@@ -653,9 +652,9 @@ end
       self.super = self.super - 16
       self.waiting_state = ""
       writeSound(self.air_special_sfx)
-      --self:attack, but with flame flag
       self.vel = {14 * self.facing, 19}
       self.attacking = true  
+      self.hyperkicking = true
       self:updateImage(4)
       self.gravity = 0
       self.current_hurtboxes = self.hurtboxes_attacking
@@ -685,6 +684,7 @@ end
     self.in_air = false
     self.attacking = false
     self.double_jump = false
+    self.hyperkicking = false
     if not self.ko then
       self.vel = {0, 0}
       self:updateImage(0)
@@ -721,15 +721,17 @@ end
       end
     end
   end
+
+  function Konrad:victoryPose()
+    if frame - round_end_frame == 60 then self.hyperkicking = false end
+    Fighter.victoryPose(self)
+  end
+
   function Konrad:extraStuff()
-    -- low quality code to check for hyperkick and apply flames
-    if math.abs(self.vel[1]) == 12 and self.vel[2] == 16 then
-      local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
-
-      -- I hard coded the position ok. sorry
-      HyperKickFlames:loadFX(self.pos[1] + (self.sprite_size[1] - self.sprite_wallspace * 2) * self.facing + 5,
-       self.pos[2] + self.sprite_size[2], self.facing, shift * (self.sprite_size[1] + 80))
-
+    if self.hyperkicking and not self.ko then
+      local shift = 0
+      if self.facing == -1 then shift = self:getSprite_Width() end
+      HyperKickFlames:loadFX(self.pos[1], self.pos[2], self.facing, shift)
     end
   end
 

@@ -112,7 +112,7 @@ end
 -- example for a cycling particle, that's only called if Konrad is still in hyper kick
 -- this example doesn't care about the start frame. We need another variable if we care
 
-HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), {360, 160}, {90, 160})
+HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), {800, 200}, {200, 200})
 
 function HyperKickFlames:loadFX(pos_h, pos_v, facing, shift)
   draw_count = draw_count + 1
@@ -120,10 +120,10 @@ function HyperKickFlames:loadFX(pos_h, pos_v, facing, shift)
   local current_anim_frame = math.floor((frame % 8) / TIME_DIV)
 
   postbuffer[frame] = postbuffer[frame] or {}
-  postbuffer[frame][draw_count] = HyperKickFlames:getDrawable(current_anim_frame,
-    pos_h, -- we want the corner, not the center for this anim
-    pos_v - self.sprite_size[2] / 2, -- ditto
-    facing, 1, shift) -- hard coded variables ok. I don't want to think too hard for this
+  postbuffer[frame][draw_count] = HyperKickFlames:getPureDrawable(current_anim_frame,
+    pos_h, 
+    pos_v,
+    facing, 1, shift)
 end
 
 ------------------------------- KICKBACK DUST ---------------------------------
