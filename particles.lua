@@ -90,6 +90,24 @@ function Dizzy:loadFX(pos_h, pos_v)
   postbuffer[frame][draw_count] = Dizzy:getDrawable(0, pos_h, pos_v, 1, 1, 0)
 end
 
+----------------------------------- ON FIRE -----------------------------------
+OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'), {800, 200}, {200, 200})
+
+function OnFire:loadFX(pos_h, pos_v, facing, shift)
+  draw_count = draw_count + 1
+  local TIME_DIV = 3 -- advance the animation every TIME_DIV frames
+  local TOTAL_FRAMES = 4
+  local current_anim_frame = math.floor((frame % (TIME_DIV * TOTAL_FRAMES) / TIME_DIV))
+
+  postbuffer[frame] = postbuffer[frame] or {}
+  postbuffer[frame][draw_count] = OnFire:getPureDrawable(current_anim_frame,
+    pos_h,
+    pos_v,
+    facing, 1, shift)
+end
+
+
+
 -------------------------- KONRAD HYPER KICK FLAMES ---------------------------
 -- example for a cycling particle, that's only called if Konrad is still in hyper kick
 -- this example doesn't care about the start frame. We need another variable if we care

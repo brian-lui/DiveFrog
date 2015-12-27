@@ -44,11 +44,11 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.hitboxes = {{L = 0, U = 0, R = 0, D = 0}}
   self.waiting = 0 -- number of frames to wait. used for pre-jump frames etc.
   self.waiting_state = "" -- buffer the action that will be executed if special isn't pressed
-  self.hit_flag = {Mugshot = init_dizzy} -- for KO animations
-  if self.hit_flag.Mugshot then
+  self.hitflag = {Mugshot = init_dizzy} -- for KO animations
+  if self.hitflag.Mugshot then
     self.mugshotted = 240 -- add 90 frames to this, because of round start fade-in
     self.super = math.max(self.super - 24, 0)
-    self.hit_flag.Mugshot = false
+    self.hitflag.Mugshot = false
   end
 
   --[[-------------------------------------------------------------------------
@@ -233,19 +233,20 @@ end
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
   if type_table.Mugshot and not type_table.Projectile then
     Mugshot:loadFX()
-    self.hit_flag.Mugshot = true
+    self.hitflag.Mugshot = true
   end
 
   if type_table.Wallsplat then
-    self.hit_flag.Wallsplat = true
+    self.hitflag.Wallsplat = true
   end
 
   if type_table.Projectile then
-    self.hit_flag.Projectile = true
+    self.hitflag.Projectile = true
   end
 
   if type_table.Fire then
-    self.color = {255, 0, 0, 255}
+    self.hitflag.Fire = true
+
   end
 
   self.vel_multiple = 1.0
@@ -261,13 +262,13 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
     if self.life > 0 then self.life = math.max(self.life - 6, 0) end
   end
 
-  if frame - round_end_frame == 30 and self.hit_flag.Mugshot then writeSound(mugshot_sfx) end -- put into soundbuffer sometime
+  if frame - round_end_frame == 30 and self.hitflag.Mugshot then writeSound(mugshot_sfx) end
   if frame - round_end_frame == 60 then
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
     writeSound(self.got_hit_sfx) 
 
-    if self.hit_flag.Wallsplat then
+    if self.hitflag.Wallsplat then
       self.vel[1] = self.facing * -30
       self.vel[2] = -5
       self.pos[2] = self.pos[2] - 30
@@ -282,7 +283,14 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
     self.current_hurtboxes = self.hurtboxes_ko
     self.current_hitboxes = self.hitboxes_neutral
 
-    if self.hit_flag.Wallsplat and self.hit_wall then
+    if self.hitflag.Fire then
+      self.color = {255, 0, 0, 255}
+      local shift = 0
+      if self.facing == -1 then shift = self:getSprite_Width() end
+      OnFire:loadFX(self.pos[1], self.pos[2], self.facing, shift)
+    end
+
+    if self.hitflag.Wallsplat and self.hit_wall then
       self.vel[1] = -self.vel[1] * 0.4
       self.hit_wall = false
       Wallsplat:loadFX(self.pos[1], self.pos[2])
@@ -1228,7 +1236,7 @@ function Sun:extraStuff()
       
       Hotflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
 
-      if self.frozen == 0 and not self.foe.hit_flag.Projectile then 
+      if self.frozen == 0 and not self.foe.hitflag.Projectile then 
         self.hotflametime[i] = self.hotflametime[i] - 1
         if self.hotflametime[i] == 15 then
           self.hotflametime[i + 1] = 30
@@ -1258,7 +1266,7 @@ function Sun:extraStuff()
 
     Hotterflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
 
-    if self.frozen == 0 and not self.foe.hit_flag.Projectile then
+    if self.frozen == 0 and not self.foe.hitflag.Projectile then
       self.hotterflametime = self.hotterflametime - 1
       self.hitboxes_hotflame[1] = {
         L = self.sprite_size[1] - self.sprite_wallspace,

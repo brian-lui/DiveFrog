@@ -518,8 +518,8 @@ end
 
 function newRound()
 
-  p1:initialize(1, p2, p1.super, p1.hit_flag.Mugshot, p1.score)
-  p2:initialize(2, p1, p2.super, p2.hit_flag.Mugshot, p2.score)
+  p1:initialize(1, p2, p1.super, p1.hitflag.Mugshot, p1.score)
+  p2:initialize(2, p1, p2.super, p2.hitflag.Mugshot, p2.score)
 
   frame = 0
   frame0 = 0
