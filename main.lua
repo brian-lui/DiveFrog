@@ -53,6 +53,8 @@ canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
 canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
 canvas_background = love.graphics.newCanvas(stage.width, stage.height)
 
+test = {}
+
 function love.load()
   game = {
     current_screen = "title",
@@ -78,7 +80,8 @@ function love.load()
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
   soundbuffer = {} -- pre-load sound effects into future frames
   camera_xy = {} -- top left window corner for camera and window drawing
-  debug = {boxes = false, sprites = false, midpoints = false, camera = false, keybuffer = false}
+  debug = {boxes = false, sprites = false, midpoints = false, camera = false,
+  	keybuffer = false}
 end
 
 function drawBackground()
@@ -162,14 +165,21 @@ function drawOverlays()
   --[[----------------------------------------------
                        OVERLAYS      
   ----------------------------------------------]]--
+    																				test.o0 = love.timer.getTime()
   -- timer
   love.graphics.push("all")
+    																				test.timer0 = love.timer.getTime()
+  	local displayed_time = math.ceil(round_timer * min_dt)
+    																				test.timer1 = love.timer.getTime()
     love.graphics.setColor(230, 147, 5)
     love.graphics.setFont(timerFont)
-    love.graphics.printf(math.ceil(round_timer * min_dt), 0, 6, window.width, "center")
+    																				test.timer2 = love.timer.getTime()
+    love.graphics.printf(displayed_time, 0, 6, window.width, "center")
+    																				test.timer3 = love.timer.getTime()
   love.graphics.pop()
 
   for side, op in pairs(PLAYERS) do
+  																					test.o1 = love.timer.getTime()
     -- HP bars
     love.graphics.draw(hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
     if side.life < 280 then
@@ -179,7 +189,7 @@ function drawOverlays()
         love.graphics.line(window.center + (op.move * 333), 34, window.center + (op.move * 333) - op.move * (280 - side.life), 34)
       love.graphics.pop()
     end
-
+  																					test.o2 = love.timer.getTime()
     -- win points
     for i = 1, game.best_to_x do
       if side.score >= i then
@@ -187,10 +197,10 @@ function drawOverlays()
         50, 0, 1, 1, op.offset * IMG.greenlight_width)
       end
     end
-
+  																					test.o3 = love.timer.getTime()
     -- player icons
     love.graphics.draw(side.icon, window.center + (op.move * 390), 10, 0, 1, 1, op.offset * side:getIcon_Width())
-
+  																					test.o4 = love.timer.getTime()
     -- super bars
     love.graphics.push("all")
     if not side.super_on then
@@ -198,7 +208,7 @@ function drawOverlays()
       love.graphics.setColor(255, 255, 255, 144)
       love.graphics.draw(superbar, window.center + (op.move * 375), window.height - 35,
         0, 1, 1, op.offset * IMG.superbar_width)
-
+  																					test.o5 = love.timer.getTime()
       -- super bar quad
       local supermeterQuad = love.graphics.newQuad(0, math.floor(frame % 64 / 8), IMG.supermeter_width * (side.super / 96),
       	IMG.supermeter_height, IMG.supermeter_width, IMG.supermeter_height)
@@ -213,7 +223,7 @@ function drawOverlays()
       love.graphics.setColor(supermeterColor)
       love.graphics.draw(supermeter, supermeterQuad, window.center+(op.move * 373),
       	window.height - 33, 0, op.flip, 1, 0)
-
+  																					test.o6 = love.timer.getTime()
     else -- if super full, draw frog factor
       local frogfactorQuad = love.graphics.newQuad(0, 0, IMG.frogfactor_width * (side.super / 96),
         IMG.frogfactor_height, IMG.frogfactor_width, IMG.frogfactor_height)
@@ -222,6 +232,7 @@ function drawOverlays()
        	window.height - 60, 0, 1, 1, (op.offset * 140))
     end
     love.graphics.pop()
+      																			test.o7 = love.timer.getTime()
   end
 
   --[[----------------------------------------------
@@ -244,7 +255,7 @@ function drawOverlays()
       end
     love.graphics.pop()
   end
-
+  																					test.o8 = love.timer.getTime()
   --[[----------------------------------------------
                  OVERLAYS - ROUND END      
   ----------------------------------------------]]--
@@ -269,35 +280,39 @@ function drawOverlays()
       love.graphics.pop()
     end
   end
+  																					test.o9 = love.timer.getTime()  
 end
 
 function love.draw()
   if game.current_screen == "maingame" then
+  																					test.t0 = love.timer.getTime()
     canvas_background:renderTo(drawBackground)
+  																					test.t1 = love.timer.getTime()
     canvas_sprites:renderTo(drawSprites)
+  																					test.t2 = love.timer.getTime()
     if game.superfreeze_time == 0 then
       canvas_overlays:renderTo(drawOverlays)
     else
       canvas_overlays:clear()
     end
-
+  																					test.t3 = love.timer.getTime()
     if game.superfreeze_time > 0 then camera:scale(0.5, 0.5) end
 
     camera:set(0.5, 1)
     love.graphics.draw(canvas_background)
     camera:unset()
-
+  																					test.t4 = love.timer.getTime()
     camera:set(1, 1)
     love.graphics.draw(canvas_sprites)
     if debug.boxes then drawDebugHurtboxes() end 
     if debug.sprites then drawDebugSprites() end 
     camera:unset()
-
+  																					test.t5 = love.timer.getTime()
     camera:set(0, 0)
     love.graphics.draw(canvas_overlays)
     if debug.midpoints then drawMidPoints() end
     camera:unset()      
-
+  																					test.t6 = love.timer.getTime()
     if game.superfreeze_time > 0 then camera:scale(2, 2) end
 
     if debug.camera then print(unpack(camera_xy)) end
@@ -357,11 +372,13 @@ function love.draw()
   if game.current_screen == "title" then love.graphics.draw(titlescreen, 0, 0, 0) end
 
   local cur_time = love.timer.getTime() -- time after drawing all the stuff
+
   if cur_time - next_time >= 0 then
     next_time = cur_time -- time needed to sleep until the next frame (?)
   end
-
+    																					test.t7 = love.timer.getTime()
   love.timer.sleep(next_time - cur_time) -- advance time to next frame (?)
+    																					test.t8 = love.timer.getTime()
 end
 
 function love.update(dt)
@@ -403,12 +420,8 @@ function love.update(dt)
     end
 
     -- update character positions
-    t0 = love.timer.getTime()
     p1:updatePos()
     p2:updatePos()
-    t1 = love.timer.getTime()
-
-
 
     -- check if anyone got hit
     if check_got_hit(p1, p2) and check_got_hit(p2, p1) then
@@ -431,7 +444,7 @@ function love.update(dt)
     end
 
     -- check if timeout
-    if round_timer == 0 then
+    if round_timer == 0 and not round_ended then
       round_end_frame = frame
       round_ended = true
       local p1_from_center = math.abs((stage.center) - p1:getCenter())
@@ -564,5 +577,49 @@ function love.keypressed(key, isrepeat)
   	local output_keybuffer = json.encode(keybuffer)
   	local filename = os.date("%Y.%m.%d.%H%M") .. " Keybuffer.txt"
   	success = love.filesystem.write(filename, output_keybuffer)
+  end
+  if key == '8' then
+  	local calc_background = (test.t1 - test.t0) * 100 / min_dt
+  	local calc_sprites = (test.t2 - test.t1) * 100 / min_dt
+  	local calc_overlays = (test.t3 - test.t2) * 100 / min_dt
+  	local draw_background = (test.t4 - test.t3) * 100 / min_dt
+  	local draw_sprites = (test.t5 - test.t4) * 100 / min_dt
+  	local draw_overlays = (test.t6 - test.t5) * 100 / min_dt
+  	local sleep = (test.t8 - test.t7) * 100 / min_dt
+  	print("Calculate background:", calc_background)
+  	print("Calculate sprites:", calc_sprites)
+  	print("Calculate overlays:", calc_overlays)
+  	print("Draw background:", draw_background)
+  	print("Draw sprites:", draw_sprites)
+  	print("Draw overlays:", draw_overlays)
+  	print("Sleep:", sleep)
+  end
+  if key == '9' then
+  	local o_timer = (test.o1 - test.o0) * 100 / min_dt
+  	local o_hpbar = (test.o2 - test.o1) * 200 / min_dt
+  	local o_winpoint = (test.o3 - test.o2) * 200 / min_dt
+  	local o_icon = (test.o4 - test.o3) * 200/ min_dt
+  	local o_superbase = (test.o5 - test.o4) * 200/ min_dt
+  	local o_superquad = (test.o6 - test.o5) * 200/ min_dt
+  	local o_frogfactor = (test.o7 - test.o6) * 200/ min_dt
+  	local o_roundstart = (test.o8 - test.o7) * 100/ min_dt
+  	local o_roundend = (test.o9 - test.o8) * 100/ min_dt
+  	print("Calculate timer:", o_timer)
+  	print("Calculate HP bars:", o_hpbar)
+  	print("Calculate win points:", o_winpoint)
+  	print("Calculate icons:", o_icon)
+  	print("Calculate super bar base:", o_superbase)
+  	print("Calculate super bar quad:", o_superquad)
+  	print("Calculate frog factor quad:", o_frogfactor)
+  	print("Calculate round start fade in:", o_roundstart)
+   	print("Calculate round end fade out:", o_roundend)
+  end
+  if key == '0' then
+  	local timer_calc = (test.timer1 - test.timer0) * 100 / min_dt
+  	local timer_font = (test.timer2 - test.timer1) * 100 / min_dt  	
+  	local timer_print = (test.timer3 - test.timer2) * 100 / min_dt  	  	
+  	print("Calculate timer:", timer_color)
+  	print("Set timer font:", timer_font)
+  	print("Print timer:", timer_print)
   end
 end
