@@ -1438,4 +1438,6 @@ Vocal for ground special? I don't know yet
 --[[A large sprite character to test the particle offsets to make sure that they're coded well
 Air Special: Has Vlad's jetpack, which costs a lot of meter to use
 Ground Special: Bedman's Deja Vu, he can kick from the same place as the last kick
+
+Idea for win quote: "Go home and be a family frog."
 ]]

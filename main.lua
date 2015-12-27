@@ -244,11 +244,11 @@ function drawOverlays()
       local supermeterQuad = love.graphics.newQuad(0, math.floor(frame % 64 / 8), IMG.supermeter_width * (side.super / 96),
       	IMG.supermeter_height, IMG.supermeter_width, IMG.supermeter_height)
 
-      local supermeterColor = {0, 64 + side.super * 2, 0, 255}
+      local supermeterColor = {0, 32 + side.super * 2, 0, 255}
 	    if side.super >= 32 and side.super < 64 then
-	    	supermeterColor = {96 + side.super, 96 + side.super, 192 + side.super, 255}
+	    	supermeterColor = {80 + side.super, 80 + side.super, 160 + side.super, 255}
 	    elseif side.super >= 64 then
-	    	supermeterColor = {255, 255, 0, 255}
+	    	supermeterColor = {159 + side.super, 159 + side.super, 0, 255}
 	    end
 
       love.graphics.setColor(supermeterColor)
