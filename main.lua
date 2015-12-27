@@ -71,7 +71,7 @@ function love.load()
   next_time = love.timer.getTime()
   frame = 0 -- framecount
   frame0 = 0 -- timer for start of round fade in
-  init_round_timer = 400 -- round time in frames
+  init_round_timer = 1200 -- round time in frames
   round_timer = init_round_timer
   round_end_frame = 0
   round_ended = false
@@ -157,12 +157,25 @@ function drawSprites()
   if p2.facing == -1 then p2shift = p2:getSprite_Width() end
   if p1.facing == -1 then p1shift = p1:getSprite_Width() end
   
-  love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
-  
+  local p1_color = {255, 255, 255, 255}
   local p2_color = {255, 255, 255, 255}
-  if game.identical_players then p2_color = {180, 220, 180, 255} end
+
+  if p1.color then
+    for i = 1, 4 do	p1_color[i] = p1.color[i]	end
+   end
+  if p2.color then
+  	for i = 1, 4 do	p2_color[i] = p2.color[i]	end
+  end
+
+  if game.identical_players then
+  	p2_color[1] = p2_color[1] * 0.7
+  	p2_color[2] = p2_color[2] * 0.85
+  	p2_color[3] = p2_color[3] * 0.7 
+   end
 
 	love.graphics.push("all")
+	  love.graphics.setColor(p1_color)
+	  love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
 		love.graphics.setColor(p2_color)
 		love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
 	love.graphics.pop()
@@ -369,7 +382,7 @@ function love.draw()
     love.graphics.push("all")
       love.graphics.setFont(gameoverFont)
       love.graphics.draw(game.match_winner.win_portrait, 100, 50)
-      love.graphics.setColor(31, 39, 84)
+      love.graphics.setF(31, 39, 84)
       love.graphics.printf(game.match_winner.win_quote, 50, 470, 700)
       love.graphics.setColor(31, 39, 84) -- placeholder
       love.graphics.setFont(charSelectorFont) -- placeholder
@@ -604,12 +617,12 @@ function love.keypressed(key, isrepeat)
   	local draw_sprites = (test.t5 - test.t4) * 100 / min_dt
   	local draw_overlays = (test.t6 - test.t5) * 100 / min_dt
   	local sleep = (test.t8 - test.t7) * 100 / min_dt
-  	print("Calculate background:", calc_background)
-  	print("Calculate sprites:", calc_sprites)
-  	print("Calculate overlays:", calc_overlays)
-  	print("Draw background:", draw_background)
-  	print("Draw sprites:", draw_sprites)
-  	print("Draw overlays:", draw_overlays)
+  	print("Calculate background % of CPU:", calc_background)
+  	print("Calculate sprites    % of CPU:", calc_sprites)
+  	print("Calculate overlays   % of CPU:", calc_overlays)
+  	print("Draw background      % of CPU:", draw_background)
+  	print("Draw sprites         % of CPU:", draw_sprites)
+  	print("Draw overlays        % of CPU:", draw_overlays)
   	print("Sleep:", sleep)
   end
   if key == '9' then
@@ -622,22 +635,22 @@ function love.keypressed(key, isrepeat)
   	local o_frogfactor = (test.o7 - test.o6) * 200/ min_dt
   	local o_roundstart = (test.o8 - test.o7) * 100/ min_dt
   	local o_roundend = (test.o9 - test.o8) * 100/ min_dt
-  	print("Calculate timer:", o_timer)
-  	print("Calculate HP bars:", o_hpbar)
-  	print("Calculate win points:", o_winpoint)
-  	print("Calculate icons:", o_icon)
-  	print("Calculate super bar base:", o_superbase)
-  	print("Calculate super bar quad:", o_superquad)
-  	print("Calculate frog factor quad:", o_frogfactor)
-  	print("Calculate round start fade in:", o_roundstart)
-   	print("Calculate round end fade out:", o_roundend)
+  	print("Calculate timer               % of CPU:", o_timer)
+  	print("Calculate HP bars             % of CPU:", o_hpbar)
+  	print("Calculate win points          % of CPU:", o_winpoint)
+  	print("Calculate icons               % of CPU:", o_icon)
+  	print("Calculate super bar base      % of CPU:", o_superbase)
+  	print("Calculate super bar quad      % of CPU:", o_superquad)
+  	print("Calculate frog factor quad    % of CPU:", o_frogfactor)
+  	print("Calculate round start fade in % of CPU:", o_roundstart)
+   	print("Calculate round end fade out  % of CPU:", o_roundend)
   end
   if key == '0' then
   	local timer_calc = (test.timer1 - test.timer0) * 100 / min_dt
   	local timer_font = (test.timer2 - test.timer1) * 100 / min_dt  	
   	local timer_print = (test.timer3 - test.timer2) * 100 / min_dt  	  	
-  	print("Calculate timer:", timer_color)
-  	print("Set timer font:", timer_font)
-  	print("Print timer:", timer_print)
+  	print("Calculate timer % of CPU:", timer_color)
+  	print("Set timer font  % of CPU:", timer_font)
+  	print("Print timer     % of CPU:", timer_print)
   end
 end
