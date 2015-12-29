@@ -174,9 +174,9 @@ function drawSprites()
 
 	love.graphics.push("all")
 	  love.graphics.setColor(p1_color)
-	  love.graphics.draw(p1.image, p1.sprite, p1:getPos_h(), p1:getPos_v(), 0, p1.facing, 1, p1shift, 0)
+	  love.graphics.draw(p1.image, p1.sprite, p1.pos[1], p1.pos[2], 0, p1.facing, 1, p1shift, 0)
 		love.graphics.setColor(p2_color)
-		love.graphics.draw(p2.image, p2.sprite, p2:getPos_h(), p2:getPos_v(), 0, p2.facing, 1, p2shift, 0)
+		love.graphics.draw(p2.image, p2.sprite, p2.pos[1], p2.pos[2], 0, p2.facing, 1, p2shift, 0)
 	love.graphics.pop()
 
   --[[----------------------------------------------

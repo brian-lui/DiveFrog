@@ -9,7 +9,6 @@ require 'particles'
 --[[---------------------------------------------------------------------------
                                 FIGHTER SUPERCLASS
 -----------------------------------------------------------------------------]]   
-
 Fighter = class('Fighter')    
 function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   --[[-------------------------------------------------------------------------
@@ -339,20 +338,14 @@ end
 function Fighter:getNeutral()
   return not self.ko and not self.attacking and self.recovery == 0
 end
-function Fighter:getPos_h() return self.pos[1] end
-function Fighter:getPos_v() return self.pos[2] end
 function Fighter:getSprite_Width() return self.sprite_size[1] end
-function Fighter:getImage_Size() return unpack(self.image_size) end
 function Fighter:getCenter() return self.pos[1] + 0.5 * self.sprite_size[1] end
 function Fighter:getIcon_Width() return self.icon:getWidth() end
 function Fighter:addScore() self.score = self.score + 1 end
-function Fighter:setPos(pos) self.pos = {pos[1], pos[2]} end
-function Fighter:setFacing(facing) self.facing = facing end
 function Fighter:setFrozen(frames) self.frozen = frames end
 
 function Fighter:updateImage(image_index)
   self.sprite = love.graphics.newQuad(image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  return self.sprite
 end
 
 function Fighter:fixFacing() -- change character facing if over center of opponent
@@ -373,17 +366,14 @@ end
 
 function Fighter:updateBoxes()
   -- initialize temp variable to hold hurtbox/hitbox quads
-
   local temp_hurtbox = {}
   for i = 1, #self.current_hurtboxes do
     temp_hurtbox[i] = {L = 0, U = 0, R = 0, D = 0}
   end
-
   local temp_hitbox = {}
   for i = 1, #self.current_hitboxes do
     temp_hitbox[i] = {L = 0, U = 0, R = 0, D = 0}
   end
-
   -- iterate over the current hurtboxes/hitboxes list
   if self.facing == 1 then
     for i = 1, #self.current_hurtboxes do
@@ -393,7 +383,6 @@ function Fighter:updateBoxes()
       temp_hurtbox[i].D = self.current_hurtboxes[i].D + self.pos[2]
       temp_hurtbox[i].Flag1 = self.current_hurtboxes[i].Flag1
     end
-
   elseif self.facing == -1 then
     for i = 1, #self.current_hurtboxes do
       temp_hurtbox[i].L = - self.current_hurtboxes[i].R + self.pos[1] + self.sprite_size[1]
@@ -412,7 +401,6 @@ function Fighter:updateBoxes()
       temp_hitbox[i].D = self.current_hitboxes[i].D + self.pos[2]
       temp_hitbox[i].Flag1 = self.current_hitboxes[i].Flag1
       temp_hitbox[i].Flag2 = self.current_hitboxes[i].Flag2
-
     end
   elseif self.attacking and self.facing == -1 then
     for i = 1, #self.current_hitboxes do
@@ -424,7 +412,7 @@ function Fighter:updateBoxes()
       temp_hitbox[i].Flag2 = self.current_hitboxes[i].Flag2
     end
   end
-  
+
   self.hurtboxes = temp_hurtbox
   self.hitboxes = temp_hitbox
 end
@@ -499,7 +487,7 @@ function Fighter:updatePos()
 end
 
 function Fighter:updateSuper()
-  if self.super >= 96 then -- turn on Frog Factor
+  if self.super >= 96 then
     self.super = 95.999
     writeSound(super_sfx)
     self.super_on = true
@@ -510,7 +498,7 @@ function Fighter:updateSuper()
     p2:setFrozen(60)
   end
 
-  if self.super_on and not (self.ko or self.won) then -- drain super
+  if self.super_on and not (self.ko or self.won) then
     self.super = self.super - self.super_drainspeed
     -- after-images
     local shadow = AfterImage(self.image, self.image_size, self.sprite_size, 1)
@@ -553,7 +541,6 @@ end
 --[[---------------------------------------------------------------------------
                                       KONRAD 
 -----------------------------------------------------------------------------]]                            
-
 Konrad = class('Konrad', Fighter)
 function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
@@ -634,9 +621,7 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   self.got_hit_sfx = "Konrad/KonradKO.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
   self.ground_special_sfx = "Konrad/KonradHyperJump.ogg"
-
 end
-
 
   function Konrad:jump_key_press()
     if self.in_air and not self.attacking and not self.double_jump then
@@ -695,7 +680,6 @@ end
     self.current_hurtboxes = self.hurtboxes_jumping
   end
 
-
   function Konrad:land() -- called when character lands on floor
     self.in_air = false
     self.attacking = false
@@ -724,8 +708,6 @@ end
         DoubleJumpDust:postLoadFX(self.pos[1] + 30,
           self.pos[2] + self.sprite_size[2] - KickbackDust.sprite_size[2],
           self.facing, self.shift * (self.sprite_size[1] - 60))
-
-
       end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
         self.waiting_state = ""
@@ -751,11 +733,9 @@ end
     end
   end
 
-
 --[[---------------------------------------------------------------------------
                                 MUSTACHIOED JEAN
 -----------------------------------------------------------------------------]]   
-
 Jean = class('Jean', Fighter)
 function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
@@ -853,11 +833,8 @@ function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_sco
 
   self.hitboxes_attacking = {{L = 130, U = 154, R = 147, D = 172}}
   self.hitboxes_pilebunker = {{L = 86, U = 85, R = 148, D = 92, Flag1 = "Wallsplat"}}
-
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
-
-  
 end
 
   function Jean:attack_key_press()
@@ -1004,7 +981,6 @@ end
       self.dandy = false
       self.friction_on = false
       self.vel[1] = 0
-      --self.pilebunk_ok = false
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
     end
@@ -1021,11 +997,9 @@ function Jean:getNeutral() -- don't check for facing if in dandy/pilebunker
   return not self.ko and not self.attacking and not self.dandy and not self.pilebunking
 end
 
-
 --[[---------------------------------------------------------------------------
                                       SUN BADFROG
 -----------------------------------------------------------------------------]]   
-
 Sun = class('Sun', Fighter)
 function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   if self.super_on then setBGM(game.BGM) end
@@ -1107,10 +1081,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.jump_sfx = "Sun/SunJump.ogg"
   self.got_hit_sfx = "Sun/SolKO.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
-  self.air_special_sfx = "dummy.ogg"
   self.hotflame_sfx = "Sun/SolHotflame.ogg"
-  self.hotflamefx_sfx = "Sun/Hotflame.ogg"
-  self.hotterflamefx_sfx = "Sun/Hotterflame.ogg"
   self.radio_sfx = "Sun/SolDragonInstall.ogg"
 
   -- Copy the below stuff after the new initialization variables for each new character
@@ -1171,7 +1142,6 @@ function Sun:attack_key_press()
     (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
       self.waiting = 3
       self.waiting_state = "Attack"
-  
   elseif not self.in_air and self:getNeutral() then
     self.waiting = 3
     self.waiting_state = "Kickback"
@@ -1226,7 +1196,7 @@ function Sun:air_special()
   if self.super >= 8 and self:getNeutral() and v_distance > 100 then
     if not self.super_on then self.super = self.super - 8 end
     self.waiting_state = ""
-    writeSound(self.air_special_sfx)
+    --writeSound(self.air_special_sfx)
     self.gravity = 0
     self.vel[1] = -60 * self.facing
     self.vel[2] = v_distance / 30
@@ -1255,6 +1225,9 @@ function Sun:stateCheck()
 end
 
 function Sun:extraStuff()
+  --[[-------------------------------------------------------------------------
+                            HOTFLAME/HOTTERFLAME LOGIC
+  -------------------------------------------------------------------------]]--        
   for i = 1, 4 do
     if self.hotflametime[i] > 0 then
       self.attacking = true
@@ -1282,7 +1255,6 @@ function Sun:extraStuff()
   end
 
   if self.hotterflametime > 0 then
-
     self.attacking = true
     local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] - self.sprite_wallspace) * self.facing 
     local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] - Hotterflame.sprite_size[2]
@@ -1302,9 +1274,9 @@ function Sun:extraStuff()
   end  
 
   local temp_hotflame = {}
-    for i = 1, #self.hitboxes_hotflame do
-      temp_hotflame[i] = {L = 0, U = 0, R = 0, D = 0}
-    end
+  for i = 1, #self.hitboxes_hotflame do
+    temp_hotflame[i] = {L = 0, U = 0, R = 0, D = 0}
+  end
 
   if self.attacking and not self.won and not self.foe.won and self.facing == 1 then
     for i = 1, #self.hitboxes_hotflame do
@@ -1332,6 +1304,7 @@ function Sun:extraStuff()
 
   self.hitboxes_hotflame = {{L = 0, U = 0, R = 0, D = 0}}
 
+  --------------------------------RIOT KICK -----------------------------------
   if self.riotbackdash then
     local v_distance = stage.floor - (self.pos[2] + self.sprite_size[2])
     if v_distance < 10 and self.hit_wall then
@@ -1420,7 +1393,6 @@ function Sun:updateSuper()
   end  
 end
 
-
 --[[---------------------------------------------------------------------------
                                       M. FROGSON
 -----------------------------------------------------------------------------]]   
@@ -1449,9 +1421,6 @@ Devil's reverse (similar to what M. Bison says? I don't know what he says)
 Vocal for when M. Frogson gets KOed
 Vocal for ground special? I don't know yet
 ]]
-
-
-
 
 --[[---------------------------------------------------------------------------
                                       BEDFROG
