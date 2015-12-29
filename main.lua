@@ -30,7 +30,7 @@ IMG = {greenlight_width = greenlight:getWidth(),
   superbar_width = superbar:getWidth()
   }
 
--- load fonts
+-- load fontss
 local titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 60)
 local charInfoFont = love.graphics.newFont('/fonts/CharSelect.ttf', 21)
 local charSelectorFont = love.graphics.newFont('/fonts/GoodDog.otf', 18)
@@ -41,8 +41,7 @@ local gameoverFont = love.graphics.newFont('/fonts/GoodDog.otf', 40)
 super_sfx = "SuperFull.ogg"
 charselect_sfx = "CharSelectSFX.ogg"
 charselected_sfx = "CharSelectedSFX.ogg"
-mugshot_sfx = "Mugshot.ogg"
-explosion_sfx = "Explosion.ogg"
+--explosion_sfx = "Explosion.ogg"
 
 -- build screen
 love.window.setMode(window.width, window.height, { borderless = true })
@@ -85,7 +84,7 @@ function love.load()
 end
 
 function drawBackground()
-  canvas_background:clear()
+  love.graphics.clear()
   local temp_color = {255, 255, 255, 255}
 
   if game.background_color then
@@ -101,7 +100,7 @@ function drawBackground()
 end
 
 function drawSprites()
-  canvas_sprites:clear()
+  love.graphics.clear()
 
   --[[----------------------------------------------
                         MID-LINE      
@@ -192,7 +191,7 @@ function drawSprites()
 end
 
 function drawOverlays()
-  canvas_overlays:clear()
+  love.graphics.clear()
   --[[----------------------------------------------
                        OVERLAYS      
   ----------------------------------------------]]--
@@ -321,11 +320,7 @@ function love.draw()
   																					test.t1 = love.timer.getTime()
     canvas_sprites:renderTo(drawSprites)
   																					test.t2 = love.timer.getTime()
-    if game.superfreeze_time == 0 then
-      canvas_overlays:renderTo(drawOverlays)
-    else
-      canvas_overlays:clear()
-    end
+    canvas_overlays:renderTo(drawOverlays)
   																					test.t3 = love.timer.getTime()
     if game.superfreeze_time > 0 then camera:scale(0.5, 0.5) end
 
@@ -340,7 +335,7 @@ function love.draw()
     camera:unset()
   																					test.t5 = love.timer.getTime()
     camera:set(0, 0)
-    love.graphics.draw(canvas_overlays)
+    if game.superfreeze_time == 0 then love.graphics.draw(canvas_overlays) end
     if debug.midpoints then drawMidPoints() end
     camera:unset()      
   																					test.t6 = love.timer.getTime()
@@ -382,7 +377,7 @@ function love.draw()
     love.graphics.push("all")
       love.graphics.setFont(gameoverFont)
       love.graphics.draw(game.match_winner.win_portrait, 100, 50)
-      love.graphics.setF(31, 39, 84)
+      love.graphics.setColor(31, 39, 84)
       love.graphics.printf(game.match_winner.win_quote, 50, 470, 700)
       love.graphics.setColor(31, 39, 84) -- placeholder
       love.graphics.setFont(charSelectorFont) -- placeholder
@@ -652,5 +647,16 @@ function love.keypressed(key, isrepeat)
   	print("Calculate timer % of CPU:", timer_color)
   	print("Set timer font  % of CPU:", timer_font)
   	print("Print timer     % of CPU:", timer_print)
+  end
+  if key == '-' then
+  	local globaltable = {}
+  	local num = 1
+  	for k, v in pairs(_G) do
+  		globaltable[num] = k
+  		num = num + 1
+  	end
+  	local output_globals = json.encode(globaltable)
+  	local filename = os.date("%Y.%m.%d.%H%M") .. " globals.txt"
+  	success = love.filesystem.write(filename, output_globals)
   end
 end

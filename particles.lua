@@ -6,37 +6,29 @@ draw_count = 0 -- each object gets a new index number, to prevent overwriting
                               PARTICLE / FX CLASS
 -----------------------------------------------------------------------------]]   
 Particle = class('Particle')
-function Particle:initialize(image, image_size, sprite_size, hitbox_table)
+function Particle:initialize(image, image_size, sprite_size, time_per_frame, sound, h_center, v_center)
   self.image = image
   self.image_size = {image:getDimensions()}
   self.sprite_size = sprite_size
+  self.sprite_center = sprite_size[1] / 2
   self.hitbox = hitbox_table
+  self.sound = sound
+  self.total_frames = image_size[1] / sprite_size[1]
+  self.time_per_frame = time_per_frame
+  self.total_time = time_per_frame * self.total_frames
+  if h_center then self.h_adjust = self.sprite_size[1] / 2 else self.h_adjust = 0 end
+  if v_center then self.v_adjust = self.sprite_size[2] / 2 else self.v_adjust = 0 end
+
 end
 
+-- not centered
 function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift, RGBTable)
   local quad = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
     self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   return {self.image, 
     quad, 
-    pos_h - self.sprite_size[1] / 2, -- returns horizontal CENTER of particle
-    pos_v - self.sprite_size[2] / 2, -- returns vertical CENTER of particle
-    0, -- rotation
-    scale_x, -- scale_x: 1 is default, -1 for flip
-    scale_y, -- scale_y: 1 is default, 1 for flip
-    shift, -- offset_x
-    0, -- offset_y: 0
-    0, -- shear_x: 0
-    0} -- shear_y: 0
-end
-
--- not centered
-function Particle:getPureDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift, RGBTable)
-  local quad = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
-    self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  return {self.image, 
-    quad, 
-    pos_h,
-    pos_v,
+    pos_h - self.h_adjust,
+    pos_v - self.v_adjust,
     0, -- rotation
     scale_x, -- scale_x: 1 is default, -1 for flip
     scale_y, -- scale_y: 1 is default, 1 for flip
@@ -47,170 +39,105 @@ function Particle:getPureDrawable(image_index, pos_h, pos_v, scale_x, scale_y, s
     -- RGBTable not supported yet
 end
 
+-- called each frame while condition is valid
+function Particle:preRepeatFX(pos_h, pos_v, facing, shift) 
+  draw_count = draw_count + 1
+  local current_anim = math.floor(frame % (self.total_time) / self.time_per_frame)
+  prebuffer[frame] = prebuffer[frame] or {}
+  prebuffer[frame][draw_count] = self:getDrawable(current_anim,
+    pos_h,
+    pos_v,
+    facing, math.abs(facing), shift)
+end
+
+ -- called each frame while condition is valid
+function Particle:postRepeatFX(pos_h, pos_v, facing, shift)
+  draw_count = draw_count + 1
+
+  local current_anim = math.floor(frame % (self.total_time) / self.time_per_frame)
+  postbuffer[frame] = postbuffer[frsame] or {}
+  postbuffer[frame][draw_count] = self:getDrawable(current_anim,
+    pos_h,
+    pos_v,
+    facing, math.abs(facing), shift)
+end
+
+-- called once, loads entire anim
+function Particle:postLoadFX(pos_h, pos_v, facing, shift, time_to_display)
+  draw_count = draw_count + 1
+  local duration = time_to_display or self.total_time - 1
+  for i = frame, (frame + duration) do
+    local current_anim = math.floor((i - frame) / self.time_per_frame)
+
+    postbuffer[i] = postbuffer[i] or {}
+    postbuffer[i][draw_count] = self:getDrawable(current_anim,
+      pos_h,
+      pos_v,
+      facing, math.abs(facing), shift)
+  end
+end
+
+function Particle:playSound()
+  playSFX(self.sound)
+end
 
 --[[---------------------------------------------------------------------------
                             AFTERIMAGES SUB-CLASS
 -----------------------------------------------------------------------------]]   
 AfterImage = class('AfterImage', Particle)
-function AfterImage:initialize(image, image_size, sprite_size)
-  Particle.initialize(self, image, image_size, sprite_size)
+function AfterImage:initialize(image, image_size, sprite_size, time_per_frame, sound)
+  Particle.initialize(self, image, image_size, sprite_size, time_per_frame, sound)
 end
 
 function AfterImage:loadFX(pos_h, pos_v, quad, facing, shift)
-  draw_count = draw_count + 1
-  prebuffer[frame + 10] = prebuffer[frame + 10] or {}
-  prebuffer[frame + 10][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, {255, 180, 0, 200}}
-  draw_count = draw_count + 1
-  prebuffer[frame + 20] = prebuffer[frame + 20] or {}
-  prebuffer[frame + 20][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, {255, 180, 0, 120}}
-end
-
---------------------------------- MUGSHOTTED ----------------------------------
--- example for a single-image particle, with no need to cycle through
--- called once
-Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'), {600, 140}, {600, 140})
-function Mugshot:loadFX()
-  draw_count = draw_count + 1
-  
-  for i = (frame + 20), (frame + 90) do
-    postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = Mugshot:getDrawable(0, 400 + camera_xy[1], 200 + camera_xy[2], 1, 1, 0)
+  local shadow = {
+    [8] = {255, 180, 0, 200},
+    [16] = {255, 180, 0, 150}, 
+    [24] = {255, 180, 0, 100}
+  }
+    
+  for s_frame, color in pairs(shadow) do
+    draw_count = draw_count + 1
+    prebuffer[frame + s_frame] = prebuffer[frame + s_frame] or {}
+    prebuffer[frame + s_frame][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, color}
   end
 end
   
------------------------------------ DIZZY -------------------------------------
--- example for a single-image particle, with no need to cycle through
--- called repeatedly while character is dizzy
-Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), {70, 50}, {70, 50})
-function Dizzy:loadFX(pos_h, pos_v)
-  draw_count = draw_count + 1
+------------------------------ COMMON PARTICLES -------------------------------
+Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
+  {600, 140}, {600, 140}, 60, "Mugshot.ogg", true, true)
+Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'),
+  {70, 50}, {70, 50}, 1, true)
+OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'),
+  {800, 200}, {200, 200}, 3)
+JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), 
+  {528, 60}, {132, 60}, 4, "dummy.ogg", true, true)
+KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), 
+  {162, 42}, {54, 42}, 4)
+WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'),
+  {610, 122}, {122, 122}, 3, "WireSea.ogg", true, true)
+Wallsplat = Particle:new(love.graphics.newImage('images/Wallsplat.png'),
+  {3072, 128}, {128, 128}, 3, "Explosion.ogg")
 
-  -- write the animation frames to postbuffer
-  postbuffer[frame] = postbuffer[frame] or {}
-  postbuffer[frame][draw_count] = Dizzy:getDrawable(0, pos_h, pos_v, 1, 1, 0)
-end
-
------------------------------------ ON FIRE -----------------------------------
-OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'), {800, 200}, {200, 200})
-
-function OnFire:loadFX(pos_h, pos_v, facing, shift)
-  draw_count = draw_count + 1
-  local TIME_DIV = 3 -- advance the animation every TIME_DIV frames
-  local TOTAL_FRAMES = 4
-  local current_anim_frame = math.floor((frame % (TIME_DIV * TOTAL_FRAMES) / TIME_DIV))
-
-  postbuffer[frame] = postbuffer[frame] or {}
-  postbuffer[frame][draw_count] = OnFire:getPureDrawable(current_anim_frame,
-    pos_h,
-    pos_v,
-    facing, 1, shift)
-end
+----------------------------------- KONRAD ------------------------------------
+HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'),
+  {800, 200}, {200, 200}, 2, "Konrad/KonradHyperKick.ogg")
+DoubleJumpDust = Particle:new(love.graphics.newImage('images/Konrad/DoubleJumpDust.png'),
+  {162, 43}, {54, 43}, 4, "Konrad/KonradDoubleJump.ogg")
 
 
-
--------------------------- KONRAD HYPER KICK FLAMES ---------------------------
--- example for a cycling particle, that's only called if Konrad is still in hyper kick
--- this example doesn't care about the start frame. We need another variable if we care
-
-HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), {800, 200}, {200, 200})
-
-function HyperKickFlames:loadFX(pos_h, pos_v, facing, shift)
-  draw_count = draw_count + 1
-  local TIME_DIV = 2 -- advance the animation every TIME_DIV frames
-  local current_anim_frame = math.floor((frame % 8) / TIME_DIV)
-
-  postbuffer[frame] = postbuffer[frame] or {}
-  postbuffer[frame][draw_count] = HyperKickFlames:getPureDrawable(current_anim_frame,
-    pos_h, 
-    pos_v,
-    facing, 1, shift)
-end
-
-------------------------------- KICKBACK DUST ---------------------------------
-KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), {162, 42}, {54, 42})
-
-function KickbackDust:loadFX(pos_h, pos_v, facing, shift)
-  draw_count = draw_count + 1
-
-  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
-  for i = frame, (frame + 11) do
-    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
-
-    -- write the animation frames to postbuffer
-    postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = KickbackDust:getDrawable(index, pos_h, pos_v, facing, 1, shift * 54)
-  end
-end
-
-
---------------------------------- JUMP DUST -----------------------------------
-JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), {528, 60}, {132, 60})
-
-function JumpDust:loadFX(pos_h, pos_v, facing, shift)
-  draw_count = draw_count + 1
-
-  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
-  for i = frame, (frame + 15) do
-    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
-
-    -- write the animation frames to postbuffer
-    postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = JumpDust:getDrawable(index, pos_h, pos_v, facing, 1, shift * 132)
-  end
-end
-
--------------------------- KONRAD DOUBLE-JUMP DUST ----------------------------
-DoubleJumpDust = Particle:new(love.graphics.newImage('images/Konrad/DoubleJumpDust.png'), {162, 43}, {54, 43})
-
-function DoubleJumpDust:loadFX(pos_h, pos_v, facing, shift)
-  draw_count = draw_count + 1
-
-  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
-  for i = frame, (frame + 11) do
-    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
-
-    -- write the animation frames to postbuffer
-    postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = DoubleJumpDust:getDrawable(index, pos_h, pos_v, facing, 1, shift * 54)
-  end
-end
+-------------------------------- SUN BADFROG ----------------------------------
+SunAura = Particle:new(love.graphics.newImage('images/Sun/Aura.png'),
+  {800, 250}, {200, 250}, 6)
+Hotflame = Particle:new(love.graphics.newImage('images/Sun/HotflameFX.png'),
+  {120, 195}, {60, 195}, 4, "Sun/Hotflame.ogg")
+Hotterflame = Particle:new(love.graphics.newImage('images/Sun/HotterflameFX.png'),
+  {300, 252}, {150, 252}, 4, "Sun/Hotterflame.ogg")
 
 
 
---------------------------------- WALLSPLAT -----------------------------------
-Wallsplat = Particle:new(love.graphics.newImage('images/Wallsplat.png'), {3072, 128}, {128, 128})
-
-function Wallsplat:loadFX(pos_h, pos_v)
-  draw_count = draw_count + 1
-
-  local TIME_DIV = 3 -- advance the animation every TIME_DIV frames
-  for i = frame, (frame + 71) do
-    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
-
-    -- write the animation frames to postbuffer
-    postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = Wallsplat:getDrawable(index, pos_h - 20, pos_v - 20, 3, 3, 0)
-  end
-end
-
----------------------------------- WIRE SEA -----------------------------------
-WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'), {610, 122}, {122, 122})
-
-function WireSea:loadFX(pos_h, pos_v)
-  draw_count = draw_count + 1
-
-  local TIME_DIV = 3 -- advance the animation every TIME_DIV frames
-  for i = frame, (frame + 14) do
-    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
-
-    -- write the animation frames to postbuffer
-    postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = WireSea:getDrawable(index, pos_h, pos_v, 1, 1, 0)
-  end
-end
-
---------------------------------- EXPLOSION -----------------------------------
-Explosion = Particle:new(love.graphics.newImage('images/Explosion.png'), {768, 64}, {64, 64})
+---------------------------- EXPLOSION ----------------------------------------
+Explosion = Particle:new(love.graphics.newImage('images/Explosion.png'), {768, 64}, {64, 64}, 2)
 
 function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
   draw_count = draw_count + 1
@@ -222,51 +149,8 @@ function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
 
     -- write the animation frames to postbuffer
     postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = Explosion:getDrawable(index, pos_h + h_displacement, pos_v + (vel_v * index), 2, 1, 0)
+    postbuffer[i][draw_count] = Explosion:getDrawable(index, pos_h + h_displacement - self.sprite_size[1] / 2, pos_v + (vel_v * index) - self.sprite_size[2] / 2, 2, 1, 0)
   end
 end
 
----------------------------- SUN BADFROG HOTFLAME -----------------------------
-Hotflame = Particle:new(love.graphics.newImage('images/Sun/HotflameFX.png'), {120, 195}, {60, 195})
 
-function Hotflame:loadFX(pos_h, pos_v, facing, shift)
-  draw_count = draw_count + 1
-  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
-  local current_anim_frame = math.floor((frame % 8) / TIME_DIV)
-
-  postbuffer[frame] = postbuffer[frame] or {}
-  postbuffer[frame][draw_count] = Hotflame:getPureDrawable(current_anim_frame,
-    pos_h,
-    pos_v - self.sprite_size[2],
-    facing, 1, shift)
-end
-
--------------------------- SUN BADFROG HOTTERFLAME ----------------------------
-Hotterflame = Particle:new(love.graphics.newImage('images/Sun/HotterflameFX.png'), {300, 252}, {150, 252})
-
-function Hotterflame:loadFX(pos_h, pos_v, facing, shift)
-  draw_count = draw_count + 1
-  local TIME_DIV = 4 -- advance the animation every TIME_DIV frames
-  local current_anim_frame = math.floor((frame % 8) / TIME_DIV)
-
-  postbuffer[frame] = postbuffer[frame] or {}
-  postbuffer[frame][draw_count] = Hotterflame:getPureDrawable(current_anim_frame,
-    pos_h,
-    pos_v - self.sprite_size[2],
-    facing, 1, shift)
-end
-
------------------------------- SUN BADFROG AURA -------------------------------
-SunAura = Particle:new(love.graphics.newImage('images/Sun/Aura.png'), {800, 250}, {200, 250})
-
-function SunAura:loadFX(pos_h, pos_v, facing, shift)
-  draw_count = draw_count + 1
-  local TIME_DIV = 6 -- advance the animation every TIME_DIV frames
-  local current_anim_frame = math.floor((frame % 24) / TIME_DIV)
-
-  prebuffer[frame] = prebuffer[frame] or {}
-  prebuffer[frame][draw_count] = SunAura:getPureDrawable(current_anim_frame,
-    pos_h,
-    pos_v - self.sprite_size[2],
-    facing, 1, shift)
-end

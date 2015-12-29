@@ -35,7 +35,7 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.start_pos = {1, 1}
   self.pos = {1, 1} -- Top left corner of sprite
   self.vel = {0, 0}
-  self.friction = 0.94 -- horizontal velocity is multiplied by this each frame
+  self.friction = 0.96 -- horizontal velocity is multiplied by this each frame
   self.friction_on = false
   self.vel_multiple = 1.0
   self.recovery = 0 -- number of frames of recovery for some special moves
@@ -91,16 +91,23 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
 
   -- Copy the below stuff after the new initialization variables for each new character
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
+  if init_player == 1 then 
+    self.facing = 1
+    self.shift = 0
+    self.shift_amount = 0
+  elseif init_player == 2 then
+    self.facing = -1
+    self.shift = 1
+    self.shift_amount = self.sprite_size[1]
+  end
   self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)
   self.start_pos[2] = stage.floor - self.sprite_size[2]
-  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
   self.gravity = self.default_gravity
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
-
+  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
 end
 
   function Fighter:jump_key_press()
@@ -175,8 +182,7 @@ end
     self.vel = {h_vel * self.facing, -v_vel}
     self:updateImage(1)
     self.current_hurtboxes = self.hurtboxes_jumping
-    local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
-    JumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
+    JumpDust:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] - 30, self.facing, self.shift * (self.shift_amount - self.sprite_wallspace))
   end
 
   function Fighter:kickback(h_vel, v_vel)
@@ -185,8 +191,10 @@ end
     self.vel = {h_vel * self.facing, -v_vel}
     self:updateImage(3)
     self.current_hurtboxes = self.hurtboxes_kickback
-    local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
-    KickbackDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 54, self.facing, shift)
+    KickbackDust:postLoadFX(self.center,
+      self.pos[2] + self.sprite_size[2] - KickbackDust.sprite_size[2],
+      self.facing, 0)
+
   end
 
   function Fighter:land()
@@ -232,7 +240,6 @@ end
 
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
   if type_table.Mugshot and not type_table.Projectile then
-    Mugshot:loadFX()
     self.hitflag.Mugshot = true
   end
 
@@ -262,7 +269,10 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
     if self.life > 0 then self.life = math.max(self.life - 6, 0) end
   end
 
-  if frame - round_end_frame == 30 and self.hitflag.Mugshot then writeSound(mugshot_sfx) end
+  if frame - round_end_frame == 30 and self.hitflag.Mugshot then
+    Mugshot:postLoadFX(400 + camera_xy[1], 200 + camera_xy[2], 1, 0, 60)
+    Mugshot:playSound()
+  end
   if frame - round_end_frame == 60 then
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
@@ -284,16 +294,15 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
     self.current_hitboxes = self.hitboxes_neutral
 
     if self.hitflag.Fire then
-      local shift = 0
-      if self.facing == -1 then shift = self:getSprite_Width() end
-      OnFire:loadFX(self.pos[1], self.pos[2], self.facing, shift)
+      OnFire:postRepeatFX(self.pos[1], self.pos[2], self.facing, self.shift_amount)
     end
 
     if self.hitflag.Wallsplat and self.hit_wall then
       self.vel[1] = -self.vel[1] * 0.4
       self.hit_wall = false
-      Wallsplat:loadFX(self.pos[1], self.pos[2])
-      writeSound(explosion_sfx)
+      Wallsplat:postLoadFX(self.pos[1], self.pos[2],
+        self.facing * 3, self.shift * (self.sprite_size[1] - Wallsplat.sprite_size[1]))
+      Wallsplat:playSound()
     end
   end
 end
@@ -352,8 +361,12 @@ function Fighter:fixFacing() -- change character facing if over center of oppone
   if self:getNeutral() and not self.in_air then
     if self.facing == 1 and self.center > self.foe.center then
       self.facing = -1
+      self.shift = 1
+      self.shift_amount = self:getSprite_Width()
     elseif self.facing == -1 and self.center < self.foe.center then
       self.facing = 1
+      self.shift = 0
+      self.shift_amount = 0
     end
   end
 end
@@ -417,17 +430,16 @@ function Fighter:updateBoxes()
 end
 
 function Fighter:updatePos()
+  if self.mugshotted > 0 then
+    self.vel_multiple = 0.7
+    self.mugshotted = self.mugshotted - 1
+    Dizzy:postRepeatFX(self.center - Dizzy.sprite_center, self.pos[2], self.facing, self.shift * Dizzy.sprite_size[1])
+    if self.mugshotted == 0 then self.vel_multiple = 1.0 end
+  end
+
   if self.frozen == 0 then
     if self.ko then self:gotKOed() end
     if self.won then self:victoryPose() end
-
-    -- check if mugshotted. If so, set slowdown and reduce counter
-    if self.mugshotted > 0 then
-      self.vel_multiple = 0.7
-      self.mugshotted = self.mugshotted - 1
-      Dizzy:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2])
-      if self.mugshotted == 0 then self.vel_multiple = 1.0 end
-    end
 
     -- reduce recovery time
     if self.recovery > 0 then
@@ -501,10 +513,8 @@ function Fighter:updateSuper()
   if self.super_on and not (self.ko or self.won) then -- drain super
     self.super = self.super - self.super_drainspeed
     -- after-images
-    local shadow = AfterImage(self.image, self.image_size, self.sprite_size)
-    local shift = 0
-    if self.facing == -1 then shift = self:getSprite_Width() end
-    shadow:loadFX(self.pos[1], self.pos[2], self.sprite, self.facing, shift)
+    local shadow = AfterImage(self.image, self.image_size, self.sprite_size, 1)
+    shadow:loadFX(self.pos[1], self.pos[2], self.sprite, self.facing, self.shift_amount)
   end
 
   if self.super <= 0 then -- turn off Frog Factor
@@ -560,7 +570,15 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   self.default_gravity = 0.36
   self.double_jump = false
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
+  if init_player == 1 then 
+    self.facing = 1
+    self.shift = 0
+    self.shift_amount = 0
+  elseif init_player == 2 then
+    self.facing = -1
+    self.shift = 1
+    self.shift_amount = self:getSprite_Width()
+  end
   self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)
   self.start_pos[2] = stage.floor - self.sprite_size[2]
 
@@ -612,12 +630,10 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   self.hyperkicking = false
   -- sound effects
   self.jump_sfx = "Konrad/KonradJump.ogg"
-  self.doublejump_sfx = "Konrad/KonradDoubleJump.ogg"
   self.attack_sfx = "Konrad/KonradAttack.ogg"
   self.got_hit_sfx = "Konrad/KonradKO.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
   self.ground_special_sfx = "Konrad/KonradHyperJump.ogg"
-  self.air_special_sfx = "Konrad/KonradHyperKick.ogg"
 
 end
 
@@ -651,7 +667,7 @@ end
     self.pos[2] + self.sprite_size[2] < stage.floor - 50 then
       self.super = self.super - 16
       self.waiting_state = ""
-      writeSound(self.air_special_sfx)
+      HyperKickFlames:playSound()
       self.vel = {14 * self.facing, 19}
       self.attacking = true  
       self.hyperkicking = true
@@ -699,15 +715,17 @@ end
         self.waiting_state = ""
         self:jump(0, 14, self.default_gravity)
         writeSound(self.jump_sfx)
-        local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
-        JumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
+        JumpDust:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] - 30, self.facing, self.shift * (self.shift_amount - self.sprite_wallspace))
       end
       if self.waiting == 0 and self.waiting_state == "DoubleJump" then
         self.waiting_state = ""
         self:jump(4.8, 4.8, self.default_gravity)
-        writeSound(self.doublejump_sfx)
-        local shift = (self.facing - 1) * -0.5 -- 1 -> 0; -1 -> 1
-        DoubleJumpDust:loadFX(self.pos[1] + self.sprite_size[1] / 2 , self.pos[2] + self.sprite_size[2] - 40, self.facing, shift)
+        DoubleJumpDust:playSound()
+        DoubleJumpDust:postLoadFX(self.pos[1] + 30,
+          self.pos[2] + self.sprite_size[2] - KickbackDust.sprite_size[2],
+          self.facing, self.shift * (self.sprite_size[1] - 60))
+
+
       end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
         self.waiting_state = ""
@@ -729,9 +747,7 @@ end
 
   function Konrad:extraStuff()
     if self.hyperkicking and not self.ko then
-      local shift = 0
-      if self.facing == -1 then shift = self:getSprite_Width() end
-      HyperKickFlames:loadFX(self.pos[1], self.pos[2], self.facing, shift)
+      HyperKickFlames:postRepeatFX(self.pos[1], self.pos[2], self.facing, self.shift_amount)
     end
   end
 
@@ -755,9 +771,17 @@ function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_sco
   self.sprite_size = {150, 200}
   self.default_gravity = 0.42
   self.sprite_wallspace = 25 -- how many pixels to reduce when checking against stage wall
-  if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
+  if init_player == 1 then 
+    self.facing = 1
+    self.shift = 0
+    self.shift_amount = 0
+  elseif init_player == 2 then
+    self.facing = -1
+    self.shift = 1
+    self.shift_amount = self:getSprite_Width()
+  end
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
+
   self.dandy = false
   self.pilebunk_ok = false
   self.pilebunking = false
@@ -767,7 +791,7 @@ function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_sco
 
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
-  
+  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
   -- sound effects
   self.jump_sfx = "Jean/JeanJump.ogg"
   self.attack_sfx = "Jean/JeanAttack.ogg"
@@ -775,7 +799,6 @@ function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_sco
   self.hit_sound_sfx = "Potatoes.ogg"
   self.dandy_sfx = "Jean/JeanDandy.ogg"
   self.pilebunker_sfx = "Jean/JeanBunker.ogg"
-  self.ground_special_sfx = "WireSea.ogg"
   self.air_special_sfx = "Jean/JeanAirSpecial.ogg"
 
   self.hurtboxes_standing = {
@@ -907,16 +930,16 @@ end
     if self.super_on and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 8
       self.waiting_state = ""
-      writeSound(self.ground_special_sfx)
-      WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
+      WireSea:playSound()
+      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, 1, 0)
       self:land()
       p1:setFrozen(10)
       p2:setFrozen(10)
     elseif self.super >= 16 and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 16
       self.waiting_state = ""
-      writeSound(self.ground_special_sfx)
-      WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
+      WireSea:playSound()
+      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, 1, 0)
       self:land()
       p1:setFrozen(10)
       p2:setFrozen(10)
@@ -1084,25 +1107,31 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.jump_sfx = "Sun/SunJump.ogg"
   self.got_hit_sfx = "Sun/SolKO.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
-  self.ground_special_sfx = "WireSea.ogg"
   self.air_special_sfx = "dummy.ogg"
   self.hotflame_sfx = "Sun/SolHotflame.ogg"
   self.hotflamefx_sfx = "Sun/Hotflame.ogg"
   self.hotterflamefx_sfx = "Sun/Hotterflame.ogg"
   self.radio_sfx = "Sun/SolDragonInstall.ogg"
 
-
   -- Copy the below stuff after the new initialization variables for each new character
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  if init_player == 1 then self.facing = 1 elseif init_player == 2 then self.facing = -1 end
+  if init_player == 1 then 
+    self.facing = 1
+    self.shift = 0
+    self.shift_amount = 0
+  elseif init_player == 2 then
+    self.facing = -1
+    self.shift = 1
+    self.shift_amount = self:getSprite_Width()
+  end
   self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)
   self.start_pos[2] = stage.floor - self.sprite_size[2]
-  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
   self.gravity = self.default_gravity
   self.current_hurtboxes = self.hurtboxes_standing
   self.current_hitboxes = self.hitboxes_attacking
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
+  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
 
   self.hotflametime = {0, 0, 0, 0, 0}
   self.hotterflametime = 0
@@ -1136,13 +1165,13 @@ function Sun:land()
 end
 
 function Sun:attack_key_press()
-    -- attack if in air and not riotkick/attack either: >50 above floor, or landing and >30 above.
+    -- attack if in air and not riotkick/attack and either: >50 above floor, or landing and >30 above.
   if self.in_air and self:getNeutral() and
     (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
     (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
       self.waiting = 3
       self.waiting_state = "Attack"
-  -- if on ground, kickback
+  
   elseif not self.in_air and self:getNeutral() then
     self.waiting = 3
     self.waiting_state = "Kickback"
@@ -1159,17 +1188,17 @@ function Sun:ground_special()
     self.current_hitboxes = self.hitboxes_neutral
     self.hotflaming_pos[1] = self.pos[1]
     self.hotflaming_pos[2] = self.pos[2]
-    writeSound(self.hotflame_sfx)
+    writeSound(self.hotflame_sfx) -- GUNFLAME
 
     if not self.super_on then
       self.super = self.super - 8
       self.hotflametime = {30, 0, 0, 0, 0}
-      --writeSound(self.hotflamefx_sfx)
+      Hotflame:playSound()
       self.recovery = 45
     elseif self.super_on and self.life > 25 then
       self.life = self.life - 20
       self.hotterflametime = 40
-      --writeSound(self.hotterflamefx_sfx)
+      Hotterflame:playSound()
       self.recovery = 15
     end
   end
@@ -1183,8 +1212,8 @@ function Sun:ground_special()
     end
     self.recovery = 0
     self.waiting_state = ""
-    writeSound(self.ground_special_sfx)
-    WireSea:loadFX(self.pos[1] + self.sprite_size[1] / 2, self.pos[2] + self.sprite_size[2] / 2)
+    WireSea:playSound()
+    WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, 1, 0)
     self:land()
     p1:setFrozen(10)
     p2:setFrozen(10)
@@ -1230,19 +1259,15 @@ function Sun:extraStuff()
     if self.hotflametime[i] > 0 then
       self.attacking = true
       local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] + 45 * (i - 1)) * self.facing
-      local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] -- top corner set to floor
+      local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] - Hotflame.sprite_size[2]
       
-      local shift_factor = 0
-      if self.facing == -1 then shift_factor = 1 end
-      local shift_amount = shift_factor * self.sprite_size[1]
-      
-      Hotflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
+      Hotflame:postRepeatFX(h_pos, v_pos, self.facing, self.shift_amount)
 
       if self.frozen == 0 and not self.foe.hitflag.Projectile then 
         self.hotflametime[i] = self.hotflametime[i] - 1
         if self.hotflametime[i] == 15 then
           self.hotflametime[i + 1] = 30
-          writeSound(self.hotflamefx_sfx)
+          Hotflame:playSound()
         end
 
         self.hitboxes_hotflame[#self.hitboxes_hotflame + 1] = {
@@ -1260,13 +1285,9 @@ function Sun:extraStuff()
 
     self.attacking = true
     local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] - self.sprite_wallspace) * self.facing 
-    local v_pos = self.hotflaming_pos[2] + self.sprite_size[2]
+    local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] - Hotterflame.sprite_size[2]
 
-    local shift_factor = 0
-    if self.facing == -1 then shift_factor = 1 end
-    local shift_amount = shift_factor * self.sprite_size[1]
-
-    Hotterflame:loadFX(h_pos, v_pos, self.facing, shift_amount)
+    Hotterflame:postLoadFX(h_pos, v_pos, self.facing, self.shift_amount)
 
     if self.frozen == 0 and not self.foe.hitflag.Projectile then
       self.hotterflametime = self.hotterflametime - 1
@@ -1375,10 +1396,9 @@ function Sun:updateSuper()
   end
 
   if self.super_on then
-    local shift = 0
-    if self.facing == -1 then shift = self:getSprite_Width() end
-    SunAura:loadFX(self.pos[1], self.pos[2] + self.sprite_size[2], self.facing, shift)
-
+    SunAura:preRepeatFX(self.pos[1],
+      self.pos[2] + self.sprite_size[2] - SunAura.sprite_size[2],
+      self.facing, self.shift_amount)
     if not (self.ko or self.won) then
       self.super = self.super - self.super_drainspeed
       self.life = math.max(self.life - 0.73, 0)
