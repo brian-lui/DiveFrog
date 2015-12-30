@@ -43,9 +43,9 @@ function check_got_hit(getting_hit, attacker)
   return gothit
 end
 
-function writeSound(SFX)
-  local writeframe = frame
-  soundbuffer[writeframe] = SFX
+function writeSound(SFX, delay_time)
+  local delay = delay_time or 0
+  soundbuffer[frame + delay] = SFX
 end
 
 

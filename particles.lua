@@ -10,19 +10,21 @@ function Particle:initialize(image, image_size, sprite_size, time_per_frame, sou
   self.image = image
   self.image_size = {image:getDimensions()}
   self.sprite_size = sprite_size
-  self.sprite_center = sprite_size[1] / 2
+  self.width = sprite_size[1]
+  self.height = sprite_size[2]
+  self.center = sprite_size[1] / 2
   self.hitbox = hitbox_table
   self.sound = sound
   self.total_frames = image_size[1] / sprite_size[1]
   self.time_per_frame = time_per_frame
   self.total_time = time_per_frame * self.total_frames
-  if h_center then self.h_adjust = self.sprite_size[1] / 2 else self.h_adjust = 0 end
-  if v_center then self.v_adjust = self.sprite_size[2] / 2 else self.v_adjust = 0 end
+  if h_center then self.h_adjust = self.width / 2 else self.h_adjust = 0 end
+  if v_center then self.v_adjust = self.height / 2 else self.v_adjust = 0 end
 end
 
 function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift, RGBTable)
-  local quad = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
-    self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
+  local quad = love.graphics.newQuad(image_index * self.width, 0,
+    self.width, self.height, self.image_size[1], self.image_size[2])
   return {self.image, 
     quad, 
     pos_h - self.h_adjust,
@@ -38,33 +40,49 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift
 end
 
 -- called each frame while condition is valid
-function Particle:preRepeatFX(pos_h, pos_v, facing, shift) 
+function Particle:preRepeatFX(pos_h, pos_v, facing, shift, delay_time) 
   draw_count = draw_count + 1
-  local current_anim = math.floor(frame % (self.total_time) / self.time_per_frame)
-  prebuffer[frame] = prebuffer[frame] or {}
-  prebuffer[frame][draw_count] = self:getDrawable(current_anim,
+  local delay = delay_time or 0
+  local current_anim = math.floor((frame + delay) % (self.total_time) / self.time_per_frame)
+  prebuffer[frame + delay] = prebuffer[frame + delay] or {}
+  prebuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
     pos_h,
     pos_v,
     facing, math.abs(facing), shift)
 end
 
  -- called each frame while condition is valid
-function Particle:postRepeatFX(pos_h, pos_v, facing, shift)
+function Particle:postRepeatFX(pos_h, pos_v, facing, shift, delay_time)
   draw_count = draw_count + 1
-  local current_anim = math.floor(frame % (self.total_time) / self.time_per_frame)
-  postbuffer[frame] = postbuffer[frsame] or {}
-  postbuffer[frame][draw_count] = self:getDrawable(current_anim,
+  local delay = delay_time or 0
+  local current_anim = math.floor((frame + delay) % (self.total_time) / self.time_per_frame)
+  postbuffer[frame + delay] = postbuffer[frame + delay] or {}
+  postbuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
     pos_h,
     pos_v,
     facing, math.abs(facing), shift)
 end
 
 -- called once, loads entire anim
-function Particle:postLoadFX(pos_h, pos_v, facing, shift, time_to_display)
+function Particle:preLoadFX(pos_h, pos_v, facing, shift, delay_time)
   draw_count = draw_count + 1
-  local duration = time_to_display or self.total_time - 1
-  for i = frame, (frame + duration) do
-    local current_anim = math.floor((i - frame) / self.time_per_frame)
+  local delay = delay_time or 0
+  for i = (frame + delay), (frame + delay + self.total_time) do
+    local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
+    prebuffer[i] = prebuffer[i] or {}
+    prebuffer[i][draw_count] = self:getDrawable(current_anim,
+      pos_h,
+      pos_v,
+      facing, math.abs(facing), shift)
+  end
+end
+
+-- called once, loads entire anim
+function Particle:postLoadFX(pos_h, pos_v, facing, shift, delay_time)
+  draw_count = draw_count + 1
+  local delay = delay_time or 0
+  for i = (frame + delay), (frame + delay + self.total_time) do
+    local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
     postbuffer[i] = postbuffer[i] or {}
     postbuffer[i][draw_count] = self:getDrawable(current_anim,
       pos_h,
@@ -73,8 +91,8 @@ function Particle:postLoadFX(pos_h, pos_v, facing, shift, time_to_display)
   end
 end
 
-function Particle:playSound()
-  playSFX(self.sound)
+function Particle:playSound(delay_time)
+  writeSound(self.sound, delay_time)
 end
 
 --[[---------------------------------------------------------------------------
@@ -110,9 +128,16 @@ JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'),
 KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), 
   {162, 42}, {54, 42}, 4)
 WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'),
-  {610, 122}, {122, 122}, 3, "WireSea.ogg", true, true)
-Wallsplat = Particle:new(love.graphics.newImage('images/Wallsplat.png'),
-  {3072, 128}, {128, 128}, 3, "Explosion.ogg")
+  {1600, 220}, {200, 220}, 2, "WireSea.ogg", true, true)
+--Wallsplat = Particle:new(love.graphics.newImage('images/Wallsplat.png'),
+--  {3072, 128}, {128, 128}, 3, "Explosion.ogg")
+Explosion1 = Particle:new(love.graphics.newImage('images/Explosion1.png'),
+  {800, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
+Explosion2 = Particle:new(love.graphics.newImage('images/Explosion2.png'),
+  {880, 80}, {80, 80}, 3, "dummy.ogg", true, true)
+Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'),
+  {880, 80}, {80, 80}, 3, "dummy.ogg", true, true)
+
 
 ----------------------------------- KONRAD ------------------------------------
 HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'),
@@ -127,20 +152,3 @@ Hotflame = Particle:new(love.graphics.newImage('images/Sun/HotflameFX.png'),
   {120, 195}, {60, 195}, 4, "Sun/Hotflame.ogg")
 Hotterflame = Particle:new(love.graphics.newImage('images/Sun/HotterflameFX.png'),
   {300, 252}, {150, 252}, 4, "Sun/Hotterflame.ogg")
-
-------------------------------- MUSTACHIOED JEAN ------------------------------
-Explosion = Particle:new(love.graphics.newImage('images/Explosion.png'), {768, 64}, {64, 64}, 2)
-
-function Explosion:loadFX(pos_h, pos_v, vel_h, vel_v, friction, gravity)
-  draw_count = draw_count + 1
-
-  local TIME_DIV = 2 -- advance the animation every TIME_DIV frames
-  for i = frame, (frame + 23) do
-    local index = math.floor((i - frame) / TIME_DIV) -- get the animation frame
-    local h_displacement = (vel_h / (friction - 1)) * math.exp((friction - 1) * index / TIME_DIV) - vel_h / (friction - 1)
-
-    -- write the animation frames to postbuffer
-    postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = Explosion:getDrawable(index, pos_h + h_displacement - self.sprite_size[1] / 2, pos_v + (vel_v * index) - self.sprite_size[2] / 2, 2, 1, 0)
-  end
-end

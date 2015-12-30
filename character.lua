@@ -181,7 +181,7 @@ end
     self.vel = {h_vel * self.facing, -v_vel}
     self:updateImage(1)
     self.current_hurtboxes = self.hurtboxes_jumping
-    JumpDust:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] - 30, self.facing, self.shift * (self.shift_amount - self.sprite_wallspace))
+    JumpDust:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] - 30, self.facing, self.shift * JumpDust.width)
   end
 
   function Fighter:kickback(h_vel, v_vel)
@@ -191,9 +191,8 @@ end
     self:updateImage(3)
     self.current_hurtboxes = self.hurtboxes_kickback
     KickbackDust:postLoadFX(self.center,
-      self.pos[2] + self.sprite_size[2] - KickbackDust.sprite_size[2],
-      self.facing, 0)
-
+      self.pos[2] + self.sprite_size[2] - KickbackDust.height,
+      self.facing, self.shift * KickbackDust.width)
   end
 
   function Fighter:land()
@@ -269,7 +268,7 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
   end
 
   if frame - round_end_frame == 30 and self.hitflag.Mugshot then
-    Mugshot:postLoadFX(400 + camera_xy[1], 200 + camera_xy[2], 1, 0, 60)
+    Mugshot:postLoadFX(400 + camera_xy[1], 200 + camera_xy[2], 1, 0)
     Mugshot:playSound()
   end
   if frame - round_end_frame == 60 then
@@ -299,9 +298,15 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
     if self.hitflag.Wallsplat and self.hit_wall then
       self.vel[1] = -self.vel[1] * 0.4
       self.hit_wall = false
-      Wallsplat:postLoadFX(self.pos[1], self.pos[2],
-        self.facing * 3, self.shift * (self.sprite_size[1] - Wallsplat.sprite_size[1]))
-      Wallsplat:playSound()
+      local v = {50, 70, 30, 40, 80, 25, 50, 70, 30, 40, 80, 25}
+      local x = {4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3}
+
+      for i = 1, 12 do
+        Explosion1:postLoadFX(self.pos[1], self.pos[2] + v[i],
+          self.facing * x[i], self.shift * 50, i * 5 - 5)
+      end
+   
+    Explosion1:playSound()
     end
   end
 end
@@ -355,7 +360,7 @@ function Fighter:fixFacing() -- change character facing if over center of oppone
     if self.facing == 1 and self.center > self.foe.center then
       self.facing = -1
       self.shift = 1
-      self.shift_amount = self:getSprite_Width()
+      self.shift_amount = self.sprite_size[1]
     elseif self.facing == -1 and self.center < self.foe.center then
       self.facing = 1
       self.shift = 0
@@ -421,7 +426,7 @@ function Fighter:updatePos()
   if self.mugshotted > 0 then
     self.vel_multiple = 0.7
     self.mugshotted = self.mugshotted - 1
-    Dizzy:postRepeatFX(self.center - Dizzy.sprite_center, self.pos[2], self.facing, self.shift * Dizzy.sprite_size[1])
+    Dizzy:postRepeatFX(self.center - Dizzy.center, self.pos[2], self.facing, self.shift * Dizzy.width)
     if self.mugshotted == 0 then self.vel_multiple = 1.0 end
   end
 
@@ -699,14 +704,14 @@ end
         self.waiting_state = ""
         self:jump(0, 14, self.default_gravity)
         writeSound(self.jump_sfx)
-        JumpDust:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] - 30, self.facing, self.shift * (self.shift_amount - self.sprite_wallspace))
+        JumpDust:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] - 30, self.facing, self.shift * JumpDust.width)
       end
       if self.waiting == 0 and self.waiting_state == "DoubleJump" then
         self.waiting_state = ""
         self:jump(4.8, 4.8, self.default_gravity)
         DoubleJumpDust:playSound()
         DoubleJumpDust:postLoadFX(self.pos[1] + 30,
-          self.pos[2] + self.sprite_size[2] - KickbackDust.sprite_size[2],
+          self.pos[2] + self.sprite_size[2] - DoubleJumpDust.height,
           self.facing, self.shift * (self.sprite_size[1] - 60))
       end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
@@ -729,7 +734,7 @@ end
 
   function Konrad:extraStuff()
     if self.hyperkicking and not self.ko then
-      HyperKickFlames:postRepeatFX(self.pos[1], self.pos[2], self.facing, self.shift_amount)
+      HyperKickFlames:postRepeatFX(self.pos[1], self.pos[2], self.facing, self.shift * HyperKickFlames.width)
     end
   end
 
@@ -881,8 +886,13 @@ end
     self.dandy = false
     self.pilebunking = true -- to prevent dandy step or pilebunker while pilebunking
     self.attacking = true -- needed to activate hitboxes
+    Explosion1:postLoadFX(self.pos[1] + 150, self.pos[2] + 50, self.facing * 2, self.shift * -50)
+    Explosion2:preLoadFX(self.pos[1] + 200, self.pos[2] + 70, self.facing * 2, self.shift * -100, 5)
+    Explosion3:postLoadFX(self.pos[1] + 250, self.pos[2] + 30, self.facing * 2, self.shift * -150, 10)
+    Explosion1:preLoadFX(self.pos[1] + 190, self.pos[2] + 40, self.facing * 2, self.shift * -90, 13)
+    Explosion2:postLoadFX(self.pos[1] + 220, self.pos[2] + 80, self.facing * 2, self.shift * -120, 15)
+    Explosion3:preLoadFX(self.pos[1] + 230, self.pos[2] + 25, self.facing * 2, self.shift * -130, 17)
 
-    Explosion:loadFX(self.pos[1] + self.sprite_wallspace + 100 * self.facing, self.pos[2] + 86, h_vel * self.facing, 0, 0.9, 0)
     self.vel[1] = h_vel * self.facing
     self:updateImage(6)
     self.current_hurtboxes = self.hurtboxes_pilebunker
@@ -908,7 +918,7 @@ end
       self.super = self.super - 8
       self.waiting_state = ""
       WireSea:playSound()
-      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, 1, 0)
+      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width)
       self:land()
       p1:setFrozen(10)
       p2:setFrozen(10)
@@ -916,7 +926,7 @@ end
       self.super = self.super - 16
       self.waiting_state = ""
       WireSea:playSound()
-      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, 1, 0)
+      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width)
       self:land()
       p1:setFrozen(10)
       p2:setFrozen(10)
@@ -1183,7 +1193,7 @@ function Sun:ground_special()
     self.recovery = 0
     self.waiting_state = ""
     WireSea:playSound()
-    WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, 1, 0)
+      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width)
     self:land()
     p1:setFrozen(10)
     p2:setFrozen(10)
