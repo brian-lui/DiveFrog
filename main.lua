@@ -24,15 +24,12 @@ local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
 local hpbar = love.graphics.newImage('images/HPBar.png')
 local superbar = love.graphics.newImage('images/SuperBarBase.png')
 local supermeter = love.graphics.newImage('images/SuperMeter.png')
-local frogfactorold = love.graphics.newImage('images/FrogFactorOld.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
 local greenlight = love.graphics.newImage('images/GreenLight.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
 -- load image constants
 IMG = {greenlight_width = greenlight:getWidth(),
-  frogfactorold_width = frogfactorold:getWidth(),
-  frogfactorold_height = frogfactorold:getHeight(),
   supermeter_width = supermeter:getWidth(),
   supermeter_height = supermeter:getHeight() / 8,
   superbar_width = superbar:getWidth()
@@ -236,7 +233,7 @@ function drawOverlays()
     end
   																					test.o3 = love.timer.getTime()
     -- player icons
-    love.graphics.draw(side.icon, window.center + (op.move * 390), 10, 0, 1, 1, op.offset * side:getIcon_Width())
+    love.graphics.draw(side.icon, window.center + (op.move * 390), 10, 0, op.flip, 1, 0)
   																					test.o4 = love.timer.getTime()
     -- super bars
     love.graphics.push("all")
@@ -256,17 +253,13 @@ function drawOverlays()
 	    elseif side.super >= 64 then
 	    	supermeterColor = {159 + side.super, 159 + side.super, 0, 255}
 	    end
-
       love.graphics.setColor(supermeterColor)
       love.graphics.draw(supermeter, supermeterQuad, window.center+(op.move * 373),
       	window.height - 33, 0, op.flip, 1, 0)
   																					test.o6 = love.timer.getTime()
     else -- if super full, draw frog factor
-      local drawable = love.graphics.newQuad(index * sprite width, 0, )
-
-      --[[
       local index = math.floor((frame % FrogFactor.total_time) / FrogFactor.time_per_frame)
-      local frogfactorQuad = love.graphics.newQuad(
+      local Quad = love.graphics.newQuad(
         index * FrogFactor.width,
         0,
         FrogFactor.width * (side.super / 96),
@@ -275,17 +268,12 @@ function drawOverlays()
         FrogFactor.image_size[2]
         )
       love.graphics.setColor(255, 255, 255, 255)
-      love.graphics.draw(frogfactor, frogfactorQuad, window.center + (op.move * 390),
-        window.height, 0, 1, -- -1 later
-        1, op.offset * FrogFactor.width -- need to change this later too
+      love.graphics.draw(
+      	FrogFactor.image, Quad,
+      	window.center + (op.move * 390),
+        window.height - FrogFactor.height - 10,
+        0, op.flip, 1, 0
         )
-      ]]
-
-      local frogfactoroldQuad = love.graphics.newQuad(0, 0, IMG.frogfactorold_width * (side.super / 96),
-        IMG.frogfactorold_height, IMG.frogfactorold_width, IMG.frogfactorold_height)
-      love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
-      love.graphics.draw(frogfactorold, frogfactoroldQuad, window.center + (op.move * 390),
-       	window.height - 60, 0, 1, 1, (op.offset * 140))
     end
     love.graphics.pop()
       																			test.o7 = love.timer.getTime()
@@ -619,6 +607,7 @@ function love.keypressed(key, isrepeat)
     end
   end
 
+  if key == '`' then p1.super = 90 p2.super = 90 end
   if key == '1' then debug.boxes = not debug.boxes end
   if key == '2' then debug.sprites = not debug.sprites end
   if key == '3' then debug.midpoints = not debug.midpoints end

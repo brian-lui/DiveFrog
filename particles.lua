@@ -122,7 +122,7 @@ end
   
 ------------------------------ COMMON PARTICLES -------------------------------
 FrogFactor = Particle:new(love.graphics.newImage('images/FrogFactor.png'), -- called directly from main.lua
-  {2352, 260}, {336, 260}, 4)
+  {1176, 130}, {168, 130}, 4)
 Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
   {600, 140}, {600, 140}, 60, "Mugshot.ogg", true, true)
 Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'),

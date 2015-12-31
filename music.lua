@@ -1,5 +1,5 @@
-currentBGM = nil
-currentBGM2 = nil
+currentBGM = love.audio.newSource("sounds/dummy.ogg")
+currentBGM2 = love.audio.newSource("sounds/dummy.ogg")
 
 function setBGM(filename)
   if currentBGM then currentBGM:stop() end
