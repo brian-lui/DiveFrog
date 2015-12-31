@@ -4,10 +4,18 @@ local json = require ("dkjson")
 local class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
 local window = require 'window'  -- current view of stage
-local buttons = require 'controls'  -- mapping of keyboard controls
-local music = require 'music' -- background music
-local character = require 'character' -- base character class
-local particles = require 'particles' -- graphics effects
+local music = require 'music'
+local character = require 'character'
+local particles = require 'particles'
+
+-- load controls
+local buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
+if love.filesystem.exists("controls.txt") then
+  local controls_string = love.filesystem.read("controls.txt")
+  buttons = json.decode(controls_string)
+else
+  love.filesystem.write("controls.txt", json.encode(buttons))  
+end
 
 -- load images
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
@@ -16,15 +24,15 @@ local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
 local hpbar = love.graphics.newImage('images/HPBar.png')
 local superbar = love.graphics.newImage('images/SuperBarBase.png')
 local supermeter = love.graphics.newImage('images/SuperMeter.png')
-local frogfactor = love.graphics.newImage('images/FrogFactor.png')
+local frogfactorold = love.graphics.newImage('images/FrogFactorOld.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
 local greenlight = love.graphics.newImage('images/GreenLight.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
 -- load image constants
 IMG = {greenlight_width = greenlight:getWidth(),
-  frogfactor_width = frogfactor:getWidth(),
-  frogfactor_height = frogfactor:getHeight(),
+  frogfactorold_width = frogfactorold:getWidth(),
+  frogfactorold_height = frogfactorold:getHeight(),
   supermeter_width = supermeter:getWidth(),
   supermeter_height = supermeter:getHeight() / 8,
   superbar_width = superbar:getWidth()
@@ -41,7 +49,6 @@ local gameoverFont = love.graphics.newFont('/fonts/GoodDog.otf', 40)
 super_sfx = "SuperFull.ogg"
 charselect_sfx = "CharSelectSFX.ogg"
 charselected_sfx = "CharSelectedSFX.ogg"
---explosion_sfx = "Explosion.ogg"
 
 -- build screen
 love.window.setMode(window.width, window.height, { borderless = true })
@@ -255,10 +262,29 @@ function drawOverlays()
       	window.height - 33, 0, op.flip, 1, 0)
   																					test.o6 = love.timer.getTime()
     else -- if super full, draw frog factor
-      local frogfactorQuad = love.graphics.newQuad(0, 0, IMG.frogfactor_width * (side.super / 96),
-        IMG.frogfactor_height, IMG.frogfactor_width, IMG.frogfactor_height)
-      love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
+      local drawable = love.graphics.newQuad(index * sprite width, 0, )
+
+      --[[
+      local index = math.floor((frame % FrogFactor.total_time) / FrogFactor.time_per_frame)
+      local frogfactorQuad = love.graphics.newQuad(
+        index * FrogFactor.width,
+        0,
+        FrogFactor.width * (side.super / 96),
+        FrogFactor.height,
+        FrogFactor.image_size[1],
+        FrogFactor.image_size[2]
+        )
+      love.graphics.setColor(255, 255, 255, 255)
       love.graphics.draw(frogfactor, frogfactorQuad, window.center + (op.move * 390),
+        window.height, 0, 1, -- -1 later
+        1, op.offset * FrogFactor.width -- need to change this later too
+        )
+      ]]
+
+      local frogfactoroldQuad = love.graphics.newQuad(0, 0, IMG.frogfactorold_width * (side.super / 96),
+        IMG.frogfactorold_height, IMG.frogfactorold_width, IMG.frogfactorold_height)
+      love.graphics.setColor(255 - (frame % 20), 255 - (frame % 20), 255 - (frame % 20))
+      love.graphics.draw(frogfactorold, frogfactoroldQuad, window.center + (op.move * 390),
        	window.height - 60, 0, 1, 1, (op.offset * 140))
     end
     love.graphics.pop()
@@ -560,7 +586,7 @@ function charSelect()
 end
 
 function love.keypressed(key, isrepeat)
-  if key == buttons.quit then love.event.quit() end
+  if key == "escape" then love.event.quit() end
 
   if game.current_screen == "title" then
     if key ==  buttons.start then
@@ -657,6 +683,6 @@ function love.keypressed(key, isrepeat)
   	end
   	local output_globals = json.encode(globaltable)
   	local filename = os.date("%Y.%m.%d.%H%M") .. " globals.txt"
-  	success = love.filesystem.write(filename, output_globals)
+  	love.filesystem.write(filename, output_globals)
   end
 end
