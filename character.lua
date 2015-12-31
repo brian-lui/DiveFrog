@@ -1404,30 +1404,7 @@ end
                                       M. FROGSON
 -----------------------------------------------------------------------------]]   
 
---[[
-A combination of M.Bison (dictator), and M.Jackson (singer)
 
-Wears hat like this: http://images2.fanpop.com/image/photos/9200000/Moonwalker-moonwalk-9210708-300-400.jpg
-Apart from headgear, wears red M. Bison uniform
-Face is white
-
-M. Frogson has two stances. The first stance he jumps high and kicks at a steep angle. The second stance he jumps low and kicks at a shallow angle.
-
-Kickback is replaced by Moonwalk. M. Frogson slides backwards. Each Moonwalk toggles between the stances.
-When Moonwalk is executed, it plays 4 notes from the Billie Jean bassline: https://www.youtube.com/watch?v=7xkce8W4YlE
-It alternates between notes 1-4 of the first 8 notes, and notes 5-8.
-
-Air special: M. Bison's devil's reverse.
-Ground special: No idea yet.
-
-
-Vocals needed:
-
-Divekick (two vocals, one for each stance)
-Devil's reverse (similar to what M. Bison says? I don't know what he says)
-Vocal for when M. Frogson gets KOed
-Vocal for ground special? I don't know yet
-]]
 
 --[[---------------------------------------------------------------------------
                                       BEDFROG
