@@ -45,9 +45,12 @@ end
 
 function writeSound(SFX, delay_time)
   local delay = delay_time or 0
-  soundbuffer[frame + delay] = SFX
+  local write_frame = frame + delay
+  while soundbuffer[write_frame] do
+    write_frame = write_frame + 1
+  end
+  soundbuffer[write_frame] = SFX
 end
-
 
 function drawDebugSprites()
   love.graphics.line(p1.center, 0, p1.center, stage.height)
