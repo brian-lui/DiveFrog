@@ -40,31 +40,33 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift
 end
 
 -- called each frame while condition is valid
-function Particle:preRepeatFX(pos_h, pos_v, facing, shift, delay_time) 
+function Particle:preRepeatFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean) 
   draw_count = draw_count + 1
   local delay = delay_time or 0
-  local current_anim = math.floor((frame + delay) % (self.total_time) / self.time_per_frame)
+  local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
   prebuffer[frame + delay] = prebuffer[frame + delay] or {}
   prebuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
     pos_h,
     pos_v,
     facing, math.abs(facing), shift)
+  if sound_boolean then self:playSound(delay_time) end
 end
 
  -- called each frame while condition is valid
-function Particle:postRepeatFX(pos_h, pos_v, facing, shift, delay_time)
+function Particle:postRepeatFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean)
   draw_count = draw_count + 1
   local delay = delay_time or 0
-  local current_anim = math.floor((frame + delay) % (self.total_time) / self.time_per_frame)
+  local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
   postbuffer[frame + delay] = postbuffer[frame + delay] or {}
   postbuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
     pos_h,
     pos_v,
     facing, math.abs(facing), shift)
+  if sound_boolean then self:playSound(delay_time) end
 end
 
 -- called once, loads entire anim
-function Particle:preLoadFX(pos_h, pos_v, facing, shift, delay_time)
+function Particle:preLoadFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   for i = (frame + delay), (frame + delay + self.total_time) do
@@ -75,10 +77,11 @@ function Particle:preLoadFX(pos_h, pos_v, facing, shift, delay_time)
       pos_v,
       facing, math.abs(facing), shift)
   end
+  if sound_boolean then self:playSound(delay_time) end
 end
 
 -- called once, loads entire anim
-function Particle:postLoadFX(pos_h, pos_v, facing, shift, delay_time)
+function Particle:postLoadFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   for i = (frame + delay), (frame + delay + self.total_time) do
@@ -89,6 +92,7 @@ function Particle:postLoadFX(pos_h, pos_v, facing, shift, delay_time)
       pos_v,
       facing, math.abs(facing), shift)
   end
+  if sound_boolean then self:playSound(delay_time) end
 end
 
 function Particle:playSound(delay_time)
@@ -117,6 +121,8 @@ function AfterImage:loadFX(pos_h, pos_v, quad, facing, shift)
 end
   
 ------------------------------ COMMON PARTICLES -------------------------------
+FrogFactor = Particle:new(love.graphics.newImage('images/FrogFactor.png'), -- called directly from main.lua
+  {2352, 260}, {336, 260}, 4)
 Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
   {600, 140}, {600, 140}, 60, "Mugshot.ogg", true, true)
 Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'),
@@ -129,14 +135,12 @@ KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'),
   {162, 42}, {54, 42}, 4)
 WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'),
   {1600, 220}, {200, 220}, 2, "WireSea.ogg", true, true)
---Wallsplat = Particle:new(love.graphics.newImage('images/Wallsplat.png'),
---  {3072, 128}, {128, 128}, 3, "Explosion.ogg")
 Explosion1 = Particle:new(love.graphics.newImage('images/Explosion1.png'),
   {800, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
 Explosion2 = Particle:new(love.graphics.newImage('images/Explosion2.png'),
-  {880, 80}, {80, 80}, 3, "dummy.ogg", true, true)
+  {880, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
 Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'),
-  {880, 80}, {80, 80}, 3, "dummy.ogg", true, true)
+  {880, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
 
 
 ----------------------------------- KONRAD ------------------------------------

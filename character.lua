@@ -1,7 +1,6 @@
 local class = require 'middleclass'
 local stage = require 'stage' -- for checking floor/walls
 local window = require 'window'
-local buttons = require 'controls' -- mapping of keyboard controls
 local music = require 'music' -- background music
 require 'utilities'
 require 'particles'
@@ -239,6 +238,7 @@ end
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
   if type_table.Mugshot and not type_table.Projectile then
     self.hitflag.Mugshot = true
+    Mugshot:postLoadFX(400 + camera_xy[1], 200 + camera_xy[2], 1, 0, 20, true)
   end
 
   if type_table.Wallsplat then
@@ -267,10 +267,6 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
     if self.life > 0 then self.life = math.max(self.life - 6, 0) end
   end
 
-  if frame - round_end_frame == 30 and self.hitflag.Mugshot then
-    Mugshot:postLoadFX(400 + camera_xy[1], 200 + camera_xy[2], 1, 0)
-    Mugshot:playSound()
-  end
   if frame - round_end_frame == 60 then
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
@@ -303,10 +299,8 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
 
       for i = 1, 12 do
         Explosion1:postLoadFX(self.pos[1], self.pos[2] + v[i],
-          self.facing * x[i], self.shift * 50, i * 5 - 5)
+          self.facing * x[i], self.shift * 50, i * 4 - 4, true)
       end
-   
-    Explosion1:playSound()
     end
   end
 end
@@ -316,6 +310,7 @@ function Fighter:hitOpponent() -- execute this one time, when you hit the oppone
   self.won = true
   self.attacking = false -- stops calling hitOpponent, since the hitbox check is now false
   currentBGM:pause()
+  if currentBGM2:isPlaying() then currentBGM2:pause() end
 end
 
 function Fighter:victoryPose() -- keep calling this if self.won is true
@@ -325,7 +320,7 @@ function Fighter:victoryPose() -- keep calling this if self.won is true
   end
 
   if frame - round_end_frame == 60 then
-    currentBGM:play()
+    if currentBGM2:isPaused() then currentBGM2:play() else currentBGM:play() end
   end
 
   if frame - round_end_frame > 60 then
@@ -709,10 +704,9 @@ end
       if self.waiting == 0 and self.waiting_state == "DoubleJump" then
         self.waiting_state = ""
         self:jump(4.8, 4.8, self.default_gravity)
-        DoubleJumpDust:playSound()
         DoubleJumpDust:postLoadFX(self.pos[1] + 30,
           self.pos[2] + self.sprite_size[2] - DoubleJumpDust.height,
-          self.facing, self.shift * (self.sprite_size[1] - 60))
+          self.facing, self.shift * (self.sprite_size[1] - 60), 0, true)
       end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
         self.waiting_state = ""
@@ -886,12 +880,12 @@ end
     self.dandy = false
     self.pilebunking = true -- to prevent dandy step or pilebunker while pilebunking
     self.attacking = true -- needed to activate hitboxes
-    Explosion1:postLoadFX(self.pos[1] + 150, self.pos[2] + 50, self.facing * 2, self.shift * -50)
-    Explosion2:preLoadFX(self.pos[1] + 200, self.pos[2] + 70, self.facing * 2, self.shift * -100, 5)
-    Explosion3:postLoadFX(self.pos[1] + 250, self.pos[2] + 30, self.facing * 2, self.shift * -150, 10)
-    Explosion1:preLoadFX(self.pos[1] + 190, self.pos[2] + 40, self.facing * 2, self.shift * -90, 13)
-    Explosion2:postLoadFX(self.pos[1] + 220, self.pos[2] + 80, self.facing * 2, self.shift * -120, 15)
-    Explosion3:preLoadFX(self.pos[1] + 230, self.pos[2] + 25, self.facing * 2, self.shift * -130, 17)
+    Explosion1:postLoadFX(self.pos[1] + 150, self.pos[2] + 50, self.facing * 2, self.shift * -50, 0, true)
+    Explosion2:preLoadFX(self.pos[1] + 200, self.pos[2] + 70, self.facing * 2, self.shift * -100, 5, true)
+    Explosion3:postLoadFX(self.pos[1] + 250, self.pos[2] + 30, self.facing * 2, self.shift * -150, 10, true)
+    Explosion1:preLoadFX(self.pos[1] + 190, self.pos[2] + 40, self.facing * 2, self.shift * -90, 13, true)
+    Explosion2:postLoadFX(self.pos[1] + 220, self.pos[2] + 80, self.facing * 2, self.shift * -120, 15, true)
+    Explosion3:preLoadFX(self.pos[1] + 230, self.pos[2] + 25, self.facing * 2, self.shift * -130, 17, true)
 
     self.vel[1] = h_vel * self.facing
     self:updateImage(6)
@@ -917,16 +911,14 @@ end
     if self.super_on and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 8
       self.waiting_state = ""
-      WireSea:playSound()
-      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width)
+      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width, 0, true)
       self:land()
       p1:setFrozen(10)
       p2:setFrozen(10)
     elseif self.super >= 16 and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 16
       self.waiting_state = ""
-      WireSea:playSound()
-      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width)
+      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width, 0, true)
       self:land()
       p1:setFrozen(10)
       p2:setFrozen(10)
@@ -1012,7 +1004,10 @@ end
 -----------------------------------------------------------------------------]]   
 Sun = class('Sun', Fighter)
 function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
-  if self.super_on then setBGM(game.BGM) end
+  if self.super_on then -- if super was still on during previous round
+    stopBGM2()
+    resumeBGM()
+  end
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
 
   self.win_quote = "Robert de Niro called."
@@ -1173,12 +1168,12 @@ function Sun:ground_special()
     if not self.super_on then
       self.super = self.super - 8
       self.hotflametime = {30, 0, 0, 0, 0}
-      Hotflame:playSound()
+      Hotflame:playSound() -- flamey sounds
       self.recovery = 45
     elseif self.super_on and self.life > 25 then
       self.life = self.life - 20
       self.hotterflametime = 40
-      Hotterflame:playSound()
+      Hotterflame:playSound() -- big flamey sound
       self.recovery = 15
     end
   end
@@ -1192,8 +1187,7 @@ function Sun:ground_special()
     end
     self.recovery = 0
     self.waiting_state = ""
-    WireSea:playSound()
-      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width)
+      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width, 0, true)
     self:land()
     p1:setFrozen(10)
     p2:setFrozen(10)
@@ -1352,6 +1346,7 @@ end
 function Sun:hitOpponent()
   self.hitboxes = self.hitboxes_neutral
   Fighter.hitOpponent(self)
+
 end
 
 function Sun:victoryPose()
@@ -1373,7 +1368,8 @@ function Sun:updateSuper()
     game.superfreeze_player = self
     p1:setFrozen(100)
     p2:setFrozen(100)
-    setBGM(self.aura_BGM)
+    pauseBGM()
+    setBGM2(self.aura_BGM)
     writeSound(self.radio_sfx)
     game.background_color = {255, 128, 128, 255}
   end
@@ -1384,7 +1380,7 @@ function Sun:updateSuper()
       self.facing, self.shift_amount)
     if not (self.ko or self.won) then
       self.super = self.super - self.super_drainspeed
-      self.life = math.max(self.life - 0.73, 0)
+      self.life = math.max(self.life - 0.75, 0)
       if self.life == 0 then
         round_end_frame = frame
         round_ended = true
@@ -1398,7 +1394,8 @@ function Sun:updateSuper()
     self.super = 0
     self.super_on = false
     self.vel_multiple = 1.0
-    setBGM(game.BGM)
+    stopBGM2()
+    resumeBGM()
     game.background_color = {255, 128, 128, 255}
   end  
 end
