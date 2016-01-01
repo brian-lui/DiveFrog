@@ -53,12 +53,30 @@ function writeSound(SFX, delay_time)
 end
 
 function drawDebugSprites()
-  love.graphics.line(p1.center, 0, p1.center, stage.height)
-  love.graphics.line(p1.center, 190, p1.center + 30 * p1.facing, 190)
-  love.graphics.line(p2.center, 0, p2.center, stage.height)
-  love.graphics.line(p2.center, 200, p2.center + 30 * p2.facing, 200)
-  love.graphics.rectangle("line", p1.pos[1], p1.pos[2], p1.sprite_size[1], p1.sprite_size[2])
-  love.graphics.rectangle("line", p2.pos[1], p2.pos[2], p2.sprite_size[1], p2.sprite_size[2])
+  for side, op in pairs(PLAYERS) do
+    love.graphics.line(side.center, 0, side.center, stage.height)
+    love.graphics.line(side.center, 200, side.center + op.flip * 30, 200)
+    love.graphics.rectangle("line", side.pos[1], side.pos[2], side.sprite_size[1], side.sprite_size[2])
+  end
+
+  -- delete prebuffer[frame] = nil if using this. Draws unflipped, unshifted position.
+  if prebuffer[frame] then 
+    for index, _ in pairs(prebuffer[frame]) do
+      local a, b, l, u = unpack(prebuffer[frame][index])
+      love.graphics.line(l + 50, u, l - 50, u)
+      love.graphics.line(l, u + 50, l, u - 50)
+    end
+  end
+  -- delete postbuffer[frame] = nil if using this. Draws unflipped, unshifted position.
+  if postbuffer[frame] then
+    for index, _ in pairs(postbuffer[frame]) do
+      local a, b, l, u = unpack(postbuffer[frame][index])
+      love.graphics.line(l + 50, u, l - 50, u)
+      love.graphics.line(l, u + 50, l, u - 50)
+    end
+  end
+
+
 end      
 
 function drawMidPoints()

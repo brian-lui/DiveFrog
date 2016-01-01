@@ -132,10 +132,10 @@ function drawSprites()
   ----------------------------------------------]]--
   if prebuffer[frame] then
     love.graphics.push("all")
-    for particle_index, particle_value in pairs(prebuffer[frame]) do
-    	prebuffer[frame][particle_index][12] = prebuffer[frame][particle_index][12] or {255, 255, 255, 255}
-      love.graphics.setColor(prebuffer[frame][particle_index][12]) -- 12 is RGB table
-      love.graphics.draw(unpack(prebuffer[frame][particle_index]))
+    for index, _ in pairs(prebuffer[frame]) do
+    	prebuffer[frame][index][12] = prebuffer[frame][index][12] or {255, 255, 255, 255}
+      love.graphics.setColor(prebuffer[frame][index][12]) -- 12 is RGB table
+      love.graphics.draw(unpack(prebuffer[frame][index]))
     end
     love.graphics.pop()
   end
@@ -178,8 +178,8 @@ function drawSprites()
                   OVER-SPRITE LAYER      
   ----------------------------------------------]]--
   if postbuffer[frame] then
-    for particle_index, particle_value in pairs(postbuffer[frame]) do
-      love.graphics.draw(unpack(postbuffer[frame][particle_index]))
+    for index, _ in pairs(postbuffer[frame]) do
+      love.graphics.draw(unpack(postbuffer[frame][index]))
     end
   end
   postbuffer[frame] = nil
