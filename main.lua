@@ -1,6 +1,6 @@
 require 'utilities' -- helper functions
 require 'camera'
-local json = require ("dkjson")
+local json = require 'dkjson'
 local class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
 local window = require 'window'  -- current view of stage
@@ -17,7 +17,10 @@ else
   love.filesystem.write("controls.txt", json.encode(buttons))  
 end
 
+
 -- load images
+local settingsscreen = love.graphics.newImage('images/Settings.jpg')
+local replaysscreen = love.graphics.newImage('images/Replays.jpg')
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
 local titlescreen = love.graphics.newImage('images/Title.jpg')  
 local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
@@ -351,9 +354,8 @@ function love.draw()
 
     if debug.camera then print(unpack(camera_xy)) end
     if debug.keybuffer then print(unpack(keybuffer[frame])) end
-  end
-
-  if game.current_screen == "charselect" then
+  
+  elseif game.current_screen == "charselect" then
     love.graphics.draw(charselectscreen, 0, 0, 0) -- background
     love.graphics.draw(portraits, portraitsQuad, 473, 130) -- character portrait
     love.graphics.push("all")
@@ -377,9 +379,8 @@ function love.draw()
       if frame % 45 < 7 then love.graphics.setColor(164, 255, 164) end
       love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
     love.graphics.pop()
-  end
 
-  if game.current_screen == "match_end" then
+  elseif game.current_screen == "match_end" then
     love.graphics.draw(bkmatchend, 0, 0) -- background
 
     love.graphics.push("all")
@@ -401,9 +402,22 @@ function love.draw()
         love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
       love.graphics.pop()
     end
-  end
 
-  if game.current_screen == "title" then love.graphics.draw(titlescreen, 0, 0, 0) end
+  elseif game.current_screen == "title" then
+  	love.graphics.draw(titlescreen, 0, 0, 0)
+  	love.graphics.push("all")
+  		love.graphics.setLineWidth(2)
+  		love.graphics.setColor(0, 255, 0, 255)
+  		love.graphics.rectangle("line", 312, 391 + 20 * title.option, 70, 15)
+  	love.graphics.pop()
+
+ 	elseif game.current_screen == "settings" then
+ 		love.graphics.draw(settingsscreen, 0, 0, 0)
+
+ 	elseif game.current_screen == "replays" then
+		love.graphics.draw(replaysscreen, 0, 0, 0) 		
+  
+  end
 
   local cur_time = love.timer.getTime() -- time after drawing all the stuff
 
@@ -521,6 +535,10 @@ end
 
 function newRound()
 
+	local keybuffer_string = json.encode(keybuffer)
+	local filename = os.date("%d%m.%H%M") .. "Round" .. game.current_round .. ".txt"
+	love.filesystem.write(filename, keybuffer_string)
+
   p1:initialize(1, p2, p1.super, p1.hitflag.Mugshot, p1.score)
   p2:initialize(2, p1, p2.super, p2.hitflag.Mugshot, p2.score)
 
@@ -567,16 +585,41 @@ function charSelect()
   game.current_screen = "charselect"
 end
 
-function love.keypressed(key, isrepeat)
+function settings()
+	game.current_screen = "settings" 
+	-- TBD
+end
+
+function replays()
+	game.current_screen = "replays"
+	-- TBD
+end
+
+title = {
+	menu = {"2 Player", "Settings", "Replays"},
+	action = {charSelect, settings, replays},
+	option = 1
+}
+
+
+function love.keypressed(key)
   if key == "escape" then love.event.quit() end
 
   if game.current_screen == "title" then
-    if key ==  buttons.start then
-      charSelect()
+  	if key == buttons.p1attack then
+  		playSFX(charselected_sfx)
+  		title.action[title.option]()
+  	end
+    if key == buttons.p1jump then
+    	playSFX(charselect_sfx)
+      if title.option == #title.menu then	title.option = 1 else	title.option = title.option + 1 end
     end
-  end
+    if key ==  buttons.start then
+    	playSFX(charselected_sfx)
+    	title.action[title.option]()
+    end
 
-  if game.current_screen == "charselect" then
+  elseif game.current_screen == "charselect" then
     if key == buttons.p1attack or key == buttons.p2attack then
       playSFX(charselected_sfx)
       startGame()
@@ -592,9 +635,20 @@ function love.keypressed(key, isrepeat)
       if p2_char == total_chars then p2_char = 1 else p2_char = p2_char + 1 end
       playSFX(charselect_sfx)
     end
-  end
 
-  if game.current_screen == "match_end" then
+  elseif game.current_screen == "settings" then
+  	if key == buttons.start then
+  		playSFX(charselected_sfx)
+  		game.current_screen = "title"
+  	end
+
+  elseif game.current_screen == "replays" then
+  	if key == buttons.start then
+  		playSFX(charselected_sfx)
+  		game.current_screen = "title"
+  	end
+
+  elseif game.current_screen == "match_end" then
     if key ==  buttons.start then
       love.load()
       charSelect()
