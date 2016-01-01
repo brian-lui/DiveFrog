@@ -119,10 +119,16 @@ function AfterImage:loadFX(pos_h, pos_v, quad, facing, shift)
     prebuffer[frame + s_frame][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, color}
   end
 end
-  
------------------------------- COMMON PARTICLES -------------------------------
-FrogFactor = Particle:new(love.graphics.newImage('images/FrogFactor.png'), -- called directly from main.lua
+
+---------------------------------- OVERLAYS -----------------------------------
+ 
+FrogFactor = Particle:new(love.graphics.newImage('images/FrogFactor.png'), 
   {1176, 130}, {168, 130}, 4)
+SuperBarBase = Particle:new(love.graphics.newImage('images/SuperBarBase.png'),
+  {196, 19}, {196, 19}, 1)
+SuperMeter = Particle:new(love.graphics.newImage('images/SuperMeter.png'),
+  {192, 120}, {192, 15}, 8)
+------------------------------ COMMON PARTICLES -------------------------------
 Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
   {600, 140}, {600, 140}, 60, "Mugshot.ogg", true, true)
 Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'),

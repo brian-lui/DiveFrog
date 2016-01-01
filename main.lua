@@ -22,18 +22,9 @@ local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
 local titlescreen = love.graphics.newImage('images/Title.jpg')  
 local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
 local hpbar = love.graphics.newImage('images/HPBar.png')
-local superbar = love.graphics.newImage('images/SuperBarBase.png')
-local supermeter = love.graphics.newImage('images/SuperMeter.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
 local greenlight = love.graphics.newImage('images/GreenLight.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
-
--- load image constants
-IMG = {greenlight_width = greenlight:getWidth(),
-  supermeter_width = supermeter:getWidth(),
-  supermeter_height = supermeter:getHeight() / 8,
-  superbar_width = superbar:getWidth()
-  }
 
 -- load fontss
 local titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 60)
@@ -216,6 +207,17 @@ function drawOverlays()
   																					test.o1 = love.timer.getTime()
     -- HP bars
     love.graphics.draw(hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
+  	-- ornament
+  	local pos = (frame % 180) * 8
+  	if side.life > pos then
+  		h_loc = window.center + (op.move * 53) + (op.move * pos)
+	    love.graphics.push("all")
+    		love.graphics.setColor(255, 255, 255, 128)
+    		love.graphics.setLineWidth(1)
+    		love.graphics.line(h_loc, 22, h_loc, 44)
+    	love.graphics.pop()
+    end
+    -- life depleted
     if side.life < 280 then
       love.graphics.push("all")
         love.graphics.setColor(220, 0, 0, 255)
@@ -227,8 +229,8 @@ function drawOverlays()
     -- win points
     for i = 1, game.best_to_x do
       if side.score >= i then
-        love.graphics.draw(greenlight, window.center + (op.move * 358) - op.move * (24 * i),
-        50, 0, 1, 1, op.offset * IMG.greenlight_width)
+        love.graphics.draw(greenlight, window.center + (op.move * 354) - op.move * (20 * i),
+        52, 0, 1, 1, op.offset * greenlight:getWidth())
       end
     end
   																					test.o3 = love.timer.getTime()
@@ -240,13 +242,14 @@ function drawOverlays()
     if not side.super_on then
       -- super bar base
       love.graphics.setColor(255, 255, 255, 144)
-      love.graphics.draw(superbar, window.center + (op.move * 375), window.height - 35,
-        0, 1, 1, op.offset * IMG.superbar_width)
+      love.graphics.draw(SuperBarBase.image, window.center + (op.move * 375), window.height - 35,
+				0, 1, 1, op.offset * SuperBarBase.width)
   																					test.o5 = love.timer.getTime()
-      -- super bar quad
-      local supermeterQuad = love.graphics.newQuad(0, math.floor(frame % 64 / 8), IMG.supermeter_width * (side.super / 96),
-      	IMG.supermeter_height, IMG.supermeter_width, IMG.supermeter_height)
-
+      -- super meter
+      local index = math.floor((frame % 64) / 8)
+      local Quad = love.graphics.newQuad(0, index * SuperMeter.height,
+      	SuperMeter.width * (side.super / 96),	SuperMeter.height,
+      	SuperMeter.image_size[1],	SuperMeter.image_size[2])
       local supermeterColor = {0, 32 + side.super * 2, 0, 255}
 	    if side.super >= 32 and side.super < 64 then
 	    	supermeterColor = {80 + side.super, 80 + side.super, 160 + side.super, 255}
@@ -254,26 +257,17 @@ function drawOverlays()
 	    	supermeterColor = {159 + side.super, 159 + side.super, 0, 255}
 	    end
       love.graphics.setColor(supermeterColor)
-      love.graphics.draw(supermeter, supermeterQuad, window.center+(op.move * 373),
+      love.graphics.draw(SuperMeter.image, Quad, window.center + (op.move * 373),
       	window.height - 33, 0, op.flip, 1, 0)
   																					test.o6 = love.timer.getTime()
     else -- if super full, draw frog factor
       local index = math.floor((frame % FrogFactor.total_time) / FrogFactor.time_per_frame)
-      local Quad = love.graphics.newQuad(
-        index * FrogFactor.width,
-        0,
-        FrogFactor.width * (side.super / 96),
-        FrogFactor.height,
-        FrogFactor.image_size[1],
-        FrogFactor.image_size[2]
-        )
+      local Quad = love.graphics.newQuad(index * FrogFactor.width, 0,
+        FrogFactor.width * (side.super / 96), FrogFactor.height,
+        FrogFactor.image_size[1], FrogFactor.image_size[2])
       love.graphics.setColor(255, 255, 255, 255)
-      love.graphics.draw(
-      	FrogFactor.image, Quad,
-      	window.center + (op.move * 390),
-        window.height - FrogFactor.height - 10,
-        0, op.flip, 1, 0
-        )
+      love.graphics.draw(FrogFactor.image, Quad, window.center + (op.move * 390),
+        window.height - FrogFactor.height - 10, 0, op.flip, 1, 0)
     end
     love.graphics.pop()
       																			test.o7 = love.timer.getTime()
