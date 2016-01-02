@@ -87,7 +87,10 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.ground_special_sfx = "dummy.ogg"
   self.air_special_sfx = "dummy.ogg"
 
-  -- Copy the below stuff after the new initialization variables for each new character
+end
+
+function Fighter:init2(init_player, init_foe, init_super, init_dizzy, init_score)
+  -- Run this at the end of each character's init
   self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
   if init_player == 1 then 
     self.facing = 1
@@ -556,23 +559,6 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   self.sprite_wallspace = 50 -- how many pixels to reduce when checking against stage wall
   self.default_gravity = 0.36
   self.double_jump = false
-  self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  if init_player == 1 then 
-    self.facing = 1
-    self.shift = 0
-    self.shift_amount = 0
-  elseif init_player == 2 then
-    self.facing = -1
-    self.shift = 1
-    self.shift_amount = self:getSprite_Width()
-  end
-  self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)
-  self.start_pos[2] = stage.floor - self.sprite_size[2]
-
-  self.pos[1] = self.start_pos[1]
-  self.pos[2] = self.start_pos[2]
-  
-  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
   
   --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
   self.hurtboxes_standing = {
@@ -612,15 +598,16 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   self.hitboxes_attacking = {{L = 119, U = 166, R = 137, D = 183}}
   self.hitboxes_hyperkick = {{L = 119, U = 166, R = 137, D = 183, Flag1 = "Fire"}}
 
-  self.current_hurtboxes = self.hurtboxes_standing
-  self.current_hitboxes = self.hitboxes_attacking
   self.hyperkicking = false
+
   -- sound effects
   self.jump_sfx = "Konrad/KonradJump.ogg"
   self.attack_sfx = "Konrad/KonradAttack.ogg"
   self.got_hit_sfx = "Konrad/KonradKO.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
   self.ground_special_sfx = "Konrad/KonradHyperJump.ogg"
+
+  self:init2(init_player, init_foe, init_super, init_dizzy, init_score)
 end
 
   function Konrad:jump_key_press()
@@ -750,27 +737,10 @@ function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_sco
   self.sprite_size = {150, 200}
   self.default_gravity = 0.42
   self.sprite_wallspace = 25 -- how many pixels to reduce when checking against stage wall
-  if init_player == 1 then 
-    self.facing = 1
-    self.shift = 0
-    self.shift_amount = 0
-  elseif init_player == 2 then
-    self.facing = -1
-    self.shift = 1
-    self.shift_amount = self:getSprite_Width()
-  end
-  self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-
   self.dandy = false
   self.pilebunk_ok = false
   self.pilebunking = false
 
-  self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)  
-  self.start_pos[2] = stage.floor - self.sprite_size[2]
-
-  self.pos[1] = self.start_pos[1]
-  self.pos[2] = self.start_pos[2]
-  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
   -- sound effects
   self.jump_sfx = "Jean/JeanJump.ogg"
   self.attack_sfx = "Jean/JeanAttack.ogg"
@@ -832,8 +802,8 @@ function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_sco
 
   self.hitboxes_attacking = {{L = 130, U = 154, R = 147, D = 172}}
   self.hitboxes_pilebunker = {{L = 86, U = 85, R = 148, D = 92, Flag1 = "Wallsplat"}}
-  self.current_hurtboxes = self.hurtboxes_standing
-  self.current_hitboxes = self.hitboxes_attacking
+
+  self:init2(init_player, init_foe, init_super, init_dizzy, init_score)
 end
 
   function Jean:attack_key_press()
@@ -1089,32 +1059,14 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.hotflame_sfx = "Sun/SolHotflame.ogg"
   self.radio_sfx = "Sun/SolDragonInstall.ogg"
 
-  -- Copy the below stuff after the new initialization variables for each new character
-  self.sprite = love.graphics.newQuad(self.image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
-  if init_player == 1 then 
-    self.facing = 1
-    self.shift = 0
-    self.shift_amount = 0
-  elseif init_player == 2 then
-    self.facing = -1
-    self.shift = 1
-    self.shift_amount = self:getSprite_Width()
-  end
-  self.start_pos[1] = stage.center - (self.facing * window.width / 5) - (self.sprite_size[1] / 2)
-  self.start_pos[2] = stage.floor - self.sprite_size[2]
-  self.gravity = self.default_gravity
-  self.current_hurtboxes = self.hurtboxes_standing
-  self.current_hitboxes = self.hitboxes_attacking
-  self.pos[1] = self.start_pos[1]
-  self.pos[2] = self.start_pos[2]
-  self.center = self.pos[1] + 0.5 * self.sprite_size[1]
-
   self.hotflametime = {0, 0, 0, 0, 0}
   self.hotterflametime = 0
   self.hotflaming_pos = {0, 0}
   self.riotbackdash = false
   self.riotkick = false
   self.kicking = false -- self.attacking is overloaded by hotflame
+
+  self:init2(init_player, init_foe, init_super, init_dizzy, init_score)
 end
 
 function Sun:getHotflame()
