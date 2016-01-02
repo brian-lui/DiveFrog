@@ -151,8 +151,8 @@ function drawSprites()
   local p1shift = 0
   local p2shift = 0
     -- shift sprites if facing left
-  if p2.facing == -1 then p2shift = p2:getSprite_Width() end
-  if p1.facing == -1 then p1shift = p1:getSprite_Width() end
+  if p2.facing == -1 then p2shift = p2.sprite_size[1] end
+  if p1.facing == -1 then p1shift = p1.sprite_size[1] end
   
   local p1_color = {255, 255, 255, 255}
   local p2_color = {255, 255, 255, 255}

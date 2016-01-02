@@ -86,7 +86,6 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.hit_sound_sfx = "dummy.ogg"
   self.ground_special_sfx = "dummy.ogg"
   self.air_special_sfx = "dummy.ogg"
-
 end
 
 function Fighter:init2(init_player, init_foe, init_super, init_dizzy, init_score)
@@ -111,132 +110,130 @@ function Fighter:init2(init_player, init_foe, init_super, init_dizzy, init_score
   self.center = self.pos[1] + 0.5 * self.sprite_size[1]
 end
 
-  function Fighter:jump_key_press()
-    if not self.in_air and self:getNeutral() then
+function Fighter:jump_key_press()
+  if not self.in_air and self:getNeutral() then
+    self.waiting = 3
+    self.waiting_state = "Jump"
+  end
+  -- check special move
+  local both_keys_down = false
+  for bufferframe = 0, 2 do
+    if self.player == 1 then
+      local p1_frame_attack = keybuffer[frame - bufferframe][2]
+      local p1_prev_frame_attack = keybuffer[frame - bufferframe - 1][2]
+      if p1_frame_attack and not p1_prev_frame_attack then both_keys_down = true end
+    elseif self.player == 2 then
+      local p2_frame_attack = keybuffer[frame - bufferframe][4]
+      local p2_prev_frame_attack = keybuffer[frame - bufferframe - 1][4]
+      if p2_frame_attack and not p2_prev_frame_attack then both_keys_down = true end
+    end
+  end
+  if both_keys_down and self.in_air then
+    self:air_special()
+  elseif both_keys_down and not self.in_air then
+    self:ground_special()
+  end
+end
+
+function Fighter:attack_key_press()
+  -- check special move
+  local both_keys_down = false
+
+  for bufferframe = 0, 2 do
+    if self.player == 1 then
+      local p1_frame_jump = keybuffer[frame - bufferframe][1]
+      local p1_prev_frame_jump = keybuffer[frame - bufferframe - 1][1]
+      if p1_frame_jump and not p1_prev_frame_jump then both_keys_down = true end
+    elseif self.player == 2 then
+      local p2_frame_jump = keybuffer[frame - bufferframe][3]
+      local p2_prev_frame_jump = keybuffer[frame - bufferframe - 1][3]
+      if p2_frame_jump and not p2_prev_frame_jump then both_keys_down = true end
+    end      
+  end
+
+  if both_keys_down and self.in_air then
+    self:air_special()
+  elseif both_keys_down and not self.in_air then
+    self:ground_special()
+  end
+
+  --[[ Default attack action. Replace with character-specific attack/kickback actions
+  
+  -- attack if in air and not already attacking and going up and more than 50 pixels above the ground.
+  if self.in_air and not self.attacking and self.recovery == 0 and 
+    (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
+    (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
       self.waiting = 3
-      self.waiting_state = "Jump"
-    end
-    -- check special move
-    local both_keys_down = false
-    for bufferframe = 0, 2 do
-      if self.player == 1 then
-        local p1_frame_attack = keybuffer[frame - bufferframe][2]
-        local p1_prev_frame_attack = keybuffer[frame - bufferframe - 1][2]
-        if p1_frame_attack and not p1_prev_frame_attack then both_keys_down = true end
-      elseif self.player == 2 then
-        local p2_frame_attack = keybuffer[frame - bufferframe][4]
-        local p2_prev_frame_attack = keybuffer[frame - bufferframe - 1][4]
-        if p2_frame_attack and not p2_prev_frame_attack then both_keys_down = true end
-      end
-    end
-    if both_keys_down and self.in_air then
-      self:air_special()
-    elseif both_keys_down and not self.in_air then
-      self:ground_special()
-    end
+      self.waiting_state = "Attack"
+      
+  -- If on ground, kickback
+  elseif not self.in_air and self.recovery == 0 then
+    self.waiting = 3
+    self.waiting_state = "Kickback"
   end
+  --]]
+end
 
-  function Fighter:attack_key_press()
-    -- check special move
-    local both_keys_down = false
+function Fighter:jump(h_vel, v_vel)
+  self.in_air = true
+  self.gravity = self.default_gravity
+  self.vel = {h_vel * self.facing, -v_vel}
+  self:updateImage(1)
+  self.current_hurtboxes = self.hurtboxes_jumping
+  JumpDust:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] - 30, self.facing, self.shift * JumpDust.width)
+end
 
-    for bufferframe = 0, 2 do
-      if self.player == 1 then
-        local p1_frame_jump = keybuffer[frame - bufferframe][1]
-        local p1_prev_frame_jump = keybuffer[frame - bufferframe - 1][1]
-        if p1_frame_jump and not p1_prev_frame_jump then both_keys_down = true end
-      elseif self.player == 2 then
-        local p2_frame_jump = keybuffer[frame - bufferframe][3]
-        local p2_prev_frame_jump = keybuffer[frame - bufferframe - 1][3]
-        if p2_frame_jump and not p2_prev_frame_jump then both_keys_down = true end
-      end      
-    end
+function Fighter:kickback(h_vel, v_vel)
+  self.in_air = true
+  self.gravity = self.default_gravity
+  self.vel = {h_vel * self.facing, -v_vel}
+  self:updateImage(3)
+  self.current_hurtboxes = self.hurtboxes_kickback
+  KickbackDust:postLoadFX(self.center,
+    self.pos[2] + self.sprite_size[2] - KickbackDust.height,
+    self.facing, self.shift * KickbackDust.width)
+end
 
-    if both_keys_down and self.in_air then
-      self:air_special()
-    elseif both_keys_down and not self.in_air then
-      self:ground_special()
-    end
-
-    --[[ Default attack action. Replace with character-specific attack/kickback actions
-    
-    -- attack if in air and not already attacking and going up and more than 50 pixels above the ground.
-    if self.in_air and not self.attacking and self.recovery == 0 and 
-      (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
-      (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
-        self.waiting = 3
-        self.waiting_state = "Attack"
-        
-    -- If on ground, kickback
-    elseif not self.in_air and self.recovery == 0 then
-      self.waiting = 3
-      self.waiting_state = "Kickback"
-    end
-    --]]
+function Fighter:land()
+  self.in_air = false
+  self.attacking = false
+  self.hit_wall = false
+  if not self.ko then
+    self.vel = {0, 0}
+    self:updateImage(0)
+    self.current_hurtboxes = self.hurtboxes_standing
+    self.current_hitboxes = self.hitboxes_neutral
   end
+end
 
-  -- all these methods should only be called internally
-
-  function Fighter:jump(h_vel, v_vel)
-    self.in_air = true
-    self.gravity = self.default_gravity
-    self.vel = {h_vel * self.facing, -v_vel}
-    self:updateImage(1)
-    self.current_hurtboxes = self.hurtboxes_jumping
-    JumpDust:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] - 30, self.facing, self.shift * JumpDust.width)
+function Fighter:attack(h_vel, v_vel)
+  self.vel = {h_vel * self.facing, v_vel}
+  self.attacking = true
+  self:updateImage(4)
+  self.gravity = 0
+  self.current_hurtboxes = self.hurtboxes_attacking
+  self.current_hitboxes = self.hitboxes_attacking
+  if self.super < 96 and not self.super_on then 
+    self.super = math.min(self.super + 8, 96)
+    if self.super == 96 then writeSound(super_sfx) end
   end
+end
 
-  function Fighter:kickback(h_vel, v_vel)
-    self.in_air = true
-    self.gravity = self.default_gravity
-    self.vel = {h_vel * self.facing, -v_vel}
-    self:updateImage(3)
-    self.current_hurtboxes = self.hurtboxes_kickback
-    KickbackDust:postLoadFX(self.center,
-      self.pos[2] + self.sprite_size[2] - KickbackDust.height,
-      self.facing, self.shift * KickbackDust.width)
+function Fighter:air_special()
+  if self.super >= 16 and not self.super_on then
+    self.super = self.super - 16
+    self.waiting_state = ""
+    writeSound(self.air_special_sfx)
   end
+end
 
-  function Fighter:land()
-    self.in_air = false
-    self.attacking = false
-    self.hit_wall = false
-    if not self.ko then
-      self.vel = {0, 0}
-      self:updateImage(0)
-      self.current_hurtboxes = self.hurtboxes_standing
-      self.current_hitboxes = self.hitboxes_neutral
-    end
+function Fighter:ground_special()
+  if self.super >= 16 and not self.super_on then
+    self.super = self.super - 16
+    self.waiting_state = ""
+    writeSound(self.ground_special_sfx)
   end
-
-  function Fighter:attack(h_vel, v_vel)
-    self.vel = {h_vel * self.facing, v_vel}
-    self.attacking = true
-    self:updateImage(4)
-    self.gravity = 0
-    self.current_hurtboxes = self.hurtboxes_attacking
-    self.current_hitboxes = self.hitboxes_attacking
-    if self.super < 96 and not self.super_on then 
-      self.super = math.min(self.super + 8, 96)
-      if self.super == 96 then writeSound(super_sfx) end
-    end
-  end
-
-  function Fighter:air_special()
-    if self.super >= 16 and not self.super_on then
-      self.super = self.super - 16
-      self.waiting_state = ""
-      writeSound(self.air_special_sfx)
-    end
-  end
-
-  function Fighter:ground_special()
-    if self.super >= 16 and not self.super_on then
-      self.super = self.super - 16
-      self.waiting_state = ""
-      writeSound(self.ground_special_sfx)
-    end
-  end
+end
 
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
   if type_table.Mugshot and not type_table.Projectile then
@@ -341,14 +338,14 @@ end
 function Fighter:getNeutral()
   return not self.ko and not self.attacking and self.recovery == 0
 end
-function Fighter:getSprite_Width() return self.sprite_size[1] end
 function Fighter:getCenter() return self.pos[1] + 0.5 * self.sprite_size[1] end
-function Fighter:getIcon_Width() return self.icon:getWidth() end
 function Fighter:addScore() self.score = self.score + 1 end
 function Fighter:setFrozen(frames) self.frozen = frames end
 
 function Fighter:updateImage(image_index)
-  self.sprite = love.graphics.newQuad(image_index * self.sprite_size[1], 0, self.sprite_size[1], self.sprite_size[2], self.image_size[1], self.image_size[2])
+  self.sprite = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
+    self.sprite_size[1], self.sprite_size[2],
+    self.image_size[1], self.image_size[2])
 end
 
 function Fighter:fixFacing() -- change character facing if over center of opponent
@@ -1074,7 +1071,6 @@ function Sun:getHotflame()
   for i = 1, 4 do
     if self.hotflametime[i] ~= 0 then flame_on_screen = true end
   end
-  -- check for if self.hotterflame too
   return flame_on_screen
 end
 
@@ -1272,7 +1268,6 @@ function Sun:extraStuff()
       self.attacking = true
     end
   end
-
   if self.riotkick then
     self:updateImage(7)
     self.current_hurtboxes = self.hurtboxes_riotkick
@@ -1285,7 +1280,6 @@ function Sun:extraStuff()
       self.vel[2] = 0
     end
   end
-
 end
 
 function Sun:gotHit(type_table)
@@ -1298,7 +1292,6 @@ end
 function Sun:hitOpponent()
   self.hitboxes = self.hitboxes_neutral
   Fighter.hitOpponent(self)
-
 end
 
 function Sun:victoryPose()
