@@ -448,7 +448,7 @@ function love.update(dt)
       camera:setPosition(h_position - 0.5 * window.center, game.superfreeze_player.pos[2])
     end
 
-    if not round_ended and not (p1.frozen > 0 and p2.frozen > 0) then
+    if not round_ended and not (p1.frozenFrames > 0 and p2.frozenFrames > 0) then
       round_timer = round_timer - 1
     end
 
@@ -461,10 +461,10 @@ function love.update(dt)
 
     -- read keystate from keybuffer and call the associated functions
     if not round_ended then
-      if keybuffer[frame][1] and p1.frozen == 0 and not keybuffer[frame-1][1] then p1:jump_key_press() end
-      if keybuffer[frame][2] and p1.frozen == 0 and not keybuffer[frame-1][2] then p1:attack_key_press() end
-      if keybuffer[frame][3] and p2.frozen == 0 and not keybuffer[frame-1][3] then p2:jump_key_press() end
-      if keybuffer[frame][4] and p2.frozen == 0 and not keybuffer[frame-1][4] then p2:attack_key_press() end
+      if keybuffer[frame][1] and p1.frozenFrames == 0 and not keybuffer[frame-1][1] then p1:jump_key_press() end
+      if keybuffer[frame][2] and p1.frozenFrames == 0 and not keybuffer[frame-1][2] then p1:attack_key_press() end
+      if keybuffer[frame][3] and p2.frozenFrames == 0 and not keybuffer[frame-1][3] then p2:jump_key_press() end
+      if keybuffer[frame][4] and p2.frozenFrames == 0 and not keybuffer[frame-1][4] then p2:attack_key_press() end
     end
 
     -- update character positions
