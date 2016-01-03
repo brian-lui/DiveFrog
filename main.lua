@@ -62,6 +62,7 @@ function love.load()
     superfreeze_player = nil,
     BGM = nil,
   	background_color = nil,
+  	isScreenShaking = false,
   	identical_players = false}
   setBGM("Intro.ogg")
   min_dt = 1/60 -- frames per second
@@ -440,8 +441,17 @@ function love.update(dt)
 
       camera_xy = {clamp(h_midpoint - window.center, 0, stage.width - window.width),
         screen_bottom - (stage.floor - highest_sprite) / 8 }
-    
-      camera:setPosition(unpack(camera_xy))
+
+			-- for screen shake    	
+    	local h_displacement = 0
+    	local v_displacement = 0
+
+    	if game.isScreenShaking then
+    		h_displacement = (frame % 7 * 6 + frame % 13 * 3 + frame % 23 * 2 - 60) / 2
+    		v_displacement = (frame % 5 * 8 + frame % 11 * 3 + frame % 17 * 2 - 30) / 2
+    	end
+      camera:setPosition(camera_xy[1] + h_displacement, camera_xy[2] - v_displacement)
+
     else
       game.superfreeze_time = game.superfreeze_time - 1
       local h_position = game.superfreeze_player:getCenter()
@@ -549,6 +559,7 @@ function newRound()
   round_end_frame = 100000 -- arbitrary number, larger than total round time
   game.current_round = game.current_round + 1
   game.background_color = nil
+  game.isScreenShaking = false
   keybuffer = {false, false, false, false}
   soundbuffer = {} -- pre-load sound effects into future frames
 

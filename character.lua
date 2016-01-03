@@ -239,6 +239,7 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
   if type_table.Mugshot and not type_table.Projectile then
     self.hitflag.Mugshot = true
     Mugshot:postLoadFX(400 + camera_xy[1], 200 + camera_xy[2], 1, 0, 20, true)
+    game.isScreenShaking = true
   end
 
   if type_table.Wallsplat then
@@ -268,39 +269,47 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
   end
 
   if frame - round_end_frame == 60 then
+    game.isScreenShaking = false
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
     writeSound(self.got_hit_sfx) 
 
     if self.hitflag.Wallsplat then
-      self.vel[1] = self.facing * -30
-      self.vel[2] = -5
-      self.pos[2] = self.pos[2] - 30
-      self.gravity = 0.2
+      self.vel[1] = self.facing * -40
+      self.vel[2] = 0
+      self.pos[2] = self.pos[2] - 1
+      self.gravity = 0
       self.isInAir = true
     end
   end
 
   if frame - round_end_frame > 60 then
-    self.isFrictionOn = true
-    self:updateImage(5)
-    self.current_hurtboxes = self.hurtboxes_ko
-    self.current_hitboxes = self.hitboxes_neutral
-
     if self.hitflag.Fire then
       OnFire:postRepeatFX(self.pos[1], self.pos[2], self.facing, self.shift_amount)
     end
-
-    if self.hitflag.Wallsplat and self.hasHitWall then
-      self.vel[1] = -self.vel[1] * 0.4
-      self.hasHitWall = false
-      local v = {50, 70, 30, 40, 80, 25, 50, 70, 30, 40, 80, 25}
-      local x = {4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3}
-
-      for i = 1, 12 do
-        Explosion1:postLoadFX(self.pos[1], self.pos[2] + v[i],
-          self.facing * x[i], self.shift * 50, i * 4 - 4, true)
+    if self.hitflag.Wallsplat then
+      if self.hasHitWall then
+        self.vel[1] = -self.vel[1]
+        self.vel[2] = -20
+        self.isInAir = true
+        self.hasHitWall = false
+        self.gravity = 1
+        self.isFrictionOn = true
+        self:updateImage(5)
+        self.current_hurtboxes = self.hurtboxes_ko
+        self.current_hitboxes = self.hitboxes_neutral
+        game.isScreenShaking = true
       end
+      if frame % 4 == 0 then
+        local i = math.floor((frame % (12 * 4)) / 4) + 1
+        Explosion1:postLoadFX(self.pos[1] + i * 10, self.pos[2] + i * 10,
+          self.facing * 4, self.shift * 50, 0, true)
+      end
+    else
+      self.isFrictionOn = true
+      self:updateImage(5)
+      self.current_hurtboxes = self.hurtboxes_ko
+      self.current_hitboxes = self.hitboxes_neutral
     end
   end
 end
