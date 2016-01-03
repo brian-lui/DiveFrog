@@ -1115,7 +1115,7 @@ function Sun:ground_special()
 
     if not self.isSupering then
       self.super = self.super - 8
-      self.hotflametime = {30, 0, 0, 0, 0}
+      self.hotflametime = {50, 0, 0, 0, 0} -- "low quality" way to implement (50 - 30) frame delay
       Hotflame:playSound() -- flamey sounds
       self.recovery = 45
     elseif self.isSupering and self.life > 25 then
@@ -1186,22 +1186,24 @@ function Sun:extraStuff()
       local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] + 45 * (i - 1)) * self.facing
       local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] - Hotflame.sprite_size[2]
       
-      Hotflame:postRepeatFX(h_pos, v_pos, self.facing, self.shift_amount)
-
       if self.frozenFrames == 0 and not self.foe.hitflag.Projectile then 
         self.hotflametime[i] = self.hotflametime[i] - 1
         if self.hotflametime[i] == 15 then
           self.hotflametime[i + 1] = 30
           Hotflame:playSound()
         end
-
-        self.hitboxes_hotflame[#self.hitboxes_hotflame + 1] = {
-          L = self.sprite_size[1] + (45 * (i - 1)),
-          U = self.sprite_size[2] - 120, 
-          R = self.sprite_size[1] + (45 * (i - 1)) + 45 , 
-          D = self.sprite_size[2],
-          Flag1 = "Fire",
-          Flag2 = "Projectile"} 
+        if self.hotflametime[i] <= 30 then -- low quality way to implement startup
+          self.hitboxes_hotflame[#self.hitboxes_hotflame + 1] = {
+            L = self.sprite_size[1] + (45 * (i - 1)) + 20,
+            U = self.sprite_size[2] - 110, 
+            R = self.sprite_size[1] + (45 * (i - 1)) + 30 , 
+            D = self.sprite_size[2],
+            Flag1 = "Fire",
+            Flag2 = "Projectile"} 
+        end
+      end
+      if self.hotflametime[i] <= 35 then -- low quality way to implmement startup
+        Hotflame:postRepeatFX(h_pos, v_pos, self.facing, self.shift_amount)
       end
     end
   end
@@ -1217,7 +1219,7 @@ function Sun:extraStuff()
       self.hotterflametime = self.hotterflametime - 1
       self.hitboxes_hotflame[1] = {
         L = self.sprite_size[1] - self.sprite_wallspace,
-        U = self.sprite_size[2] - 165,
+        U = self.sprite_size[2] - 120,
         R = self.sprite_size[1] - self.sprite_wallspace + 126,
         D = self.sprite_size[2],
         Flag1 = "Fire",
