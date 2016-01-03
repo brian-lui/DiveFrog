@@ -16,6 +16,7 @@ if love.filesystem.exists("controls.txt") then
 else
   love.filesystem.write("controls.txt", json.encode(buttons))  
 end
+love.filesystem.createDirectory("saves")
 
 
 -- load images
@@ -324,7 +325,6 @@ function love.draw()
   																					test.t2 = love.timer.getTime()
     canvas_overlays:renderTo(drawOverlays)
   																					test.t3 = love.timer.getTime()
-    --if game.superfreeze_time > 0 then camera:scale(0.5, 0.5) end
     camera:scale(1 / camera_scale_factor, 1 / camera_scale_factor)
 
     camera:set(0.5, 1)
@@ -342,7 +342,6 @@ function love.draw()
     if debug.midpoints then drawMidPoints() end
     camera:unset()      
   																					test.t6 = love.timer.getTime()
-    --if game.superfreeze_time > 0 then camera:scale(2, 2) end
     camera:scale(camera_scale_factor, camera_scale_factor)
 
     if debug.camera then print(unpack(camera_xy)) end
@@ -555,7 +554,8 @@ end
 function newRound()
 
 	local keybuffer_string = json.encode(keybuffer)
-	local filename = os.date("%d%m.%H%M") .. "Round" .. game.current_round .. ".txt"
+	local filename = "saves/" .. os.date("%m%d%H%M") .. p1_char .. "v" ..
+		p2_char .. "R" .. game.current_round .. ".txt" -- need to modify this later if 10+ chars
 	love.filesystem.write(filename, keybuffer_string)
 
   p1:initialize(1, p2, p1.super, p1.hitflag.Mugshot, p1.score)
@@ -609,12 +609,38 @@ end
 
 function settings()
 	game.current_screen = "settings" 
-	-- TBD
+	--[[
+	show current P1 / P2 keys at top (load from controls.txt)
+	Display: "Select with [P1 attack] key"
+	Options: Reassign Keys. Back to main menu
+	Reassign keys: popup with:
+		Press P1 Attack Key
+		Press P1 Jump Key -- check if same as prev keys
+		Press P2 Attack Key -- "
+		Press P2 Jump Key -- "
+		Write to controls.txt, refresh display at top
+		Move cursor to 'Back to main menu'
+	]]
 end
 
 function replays()
 	game.current_screen = "replays"
-	-- TBD
+	--[[
+	Scan folder for all valid folders
+	Output list of all files to a table -- https://love2d.org/wiki/love.filesystem.getDirectoryItems
+	Sort table by filename -- table.sort(table)
+	Show all files with 'round 0' as the end part
+	Each segment is from 'round 0' until (1 - next 'round 0')
+
+	Operations: select files, or back to main menu
+	Select file: play file, delete file
+		Play file --
+			9th char in string is P1, 11th is P2
+			Disable user input
+			Allow enter key to popup "return to main menu?" (can continue playing in background for simplicity)
+			For i = 1 to #-1: decode .txt into keybuffer
+		Delete file -- https://love2d.org/wiki/love.filesystem.remove
+	]]
 end
 
 title = {
