@@ -155,26 +155,26 @@ function drawSprites()
   if p2.facing == -1 then p2shift = p2.sprite_size[1] end
   if p1.facing == -1 then p1shift = p1.sprite_size[1] end
   
-  local p1_color = {255, 255, 255, 255}
-  local p2_color = {255, 255, 255, 255}
+  local p1_temp_color = {255, 255, 255, 255}
+  local p2_temp_color = {255, 255, 255, 255}
 
   if p1.color then
-    for i = 1, 4 do	p1_color[i] = p1.color[i]	end
+    for i = 1, 4 do	p1_temp_color[i] = p1.color[i]	end
    end
   if p2.color then
-  	for i = 1, 4 do	p2_color[i] = p2.color[i]	end
+  	for i = 1, 4 do	p2_temp_color[i] = p2.color[i]	end
   end
 
   if game.identical_players then
-  	p2_color[1] = p2_color[1] * 0.7
-  	p2_color[2] = p2_color[2] * 0.85
-  	p2_color[3] = p2_color[3] * 0.7 
+  	p2_temp_color[1] = p2_temp_color[1] * 0.7
+  	p2_temp_color[2] = p2_temp_color[2] * 0.85
+  	p2_temp_color[3] = p2_temp_color[3] * 0.7 
    end
 
 	love.graphics.push("all")
-	  love.graphics.setColor(p1_color)
+	  love.graphics.setColor(p1_temp_color)
 	  love.graphics.draw(p1.image, p1.sprite, p1.pos[1], p1.pos[2], 0, p1.facing, 1, p1shift, 0)
-		love.graphics.setColor(p2_color)
+		love.graphics.setColor(p2_temp_color)
 		love.graphics.draw(p2.image, p2.sprite, p2.pos[1], p2.pos[2], 0, p2.facing, 1, p2shift, 0)
 	love.graphics.pop()
 
@@ -561,7 +561,10 @@ function newRound()
   game.background_color = nil
   game.isScreenShaking = false
   keybuffer = {false, false, false, false}
-  soundbuffer = {} -- pre-load sound effects into future frames
+  prebuffer = {}
+  postbuffer = {}
+  soundbuffer = {}
+	
 
   if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
     setBGMspeed(2 ^ (4/12))
@@ -590,7 +593,6 @@ function charSelect()
     {"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"},
     {"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"}
     }
-  total_chars = #available_chars
   p1_char = 1
   p2_char = 2
   game.current_screen = "charselect"
@@ -623,7 +625,7 @@ function love.keypressed(key)
   	end
     if key == buttons.p1jump then
     	playSFX(charselect_sfx)
-      if title.option == #title.menu then	title.option = 1 else	title.option = title.option + 1 end
+    	title.option = title.option % #title.menu + 1
     end
     if key ==  buttons.start then
     	playSFX(charselected_sfx)
@@ -637,13 +639,13 @@ function love.keypressed(key)
     end
 
     if key == buttons.p1jump then
-      if p1_char == total_chars then p1_char = 1 else p1_char = p1_char + 1 end
+    	p1_char = p1_char % #available_chars + 1
       portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, portraits:getDimensions())
       playSFX(charselect_sfx)
     end
 
     if key == buttons.p2jump then
-      if p2_char == total_chars then p2_char = 1 else p2_char = p2_char + 1 end
+    	p2_char = p2_char % #available_chars + 1
       playSFX(charselect_sfx)
     end
 
