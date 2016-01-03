@@ -25,7 +25,7 @@ end
 
 function check_got_hit(getting_hit, attacker)
   local gothit = false
-  if attacker.attacking then
+  if attacker.isAttacking then
     local hurt = getting_hit.hurtboxes
     local hit = attacker.hitboxes
     for i = 1, #hurt do

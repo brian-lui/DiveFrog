@@ -242,7 +242,7 @@ function drawOverlays()
   																					test.o4 = love.timer.getTime()
     -- super bars
     love.graphics.push("all")
-    if not side.super_on then
+    if not side.isSupering then
       -- super bar base
       love.graphics.setColor(255, 255, 255, 144)
       love.graphics.draw(SuperBarBase.image, window.center + (op.move * 375), window.height - 35,
@@ -306,8 +306,8 @@ function drawOverlays()
       love.graphics.push("all")
         love.graphics.setFont(titleFont)
         love.graphics.setColor(255, 255, 255)
-        if p1.won then love.graphics.printf(p1.fighter_name .. " wins.", 0, 200, window.width, "center")
-        elseif p2.won then love.graphics.printf(p2.fighter_name .. " wins.", 0, 200, window.width, "center")
+        if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins.", 0, 200, window.width, "center")
+        elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins.", 0, 200, window.width, "center")
         else love.graphics.printf("Double K.O.", 0, 200, window.width, "center")
         end
       love.graphics.pop()
@@ -514,7 +514,7 @@ function love.update(dt)
     -- after round ended and displayed round end stuff, start new round
     if frame - round_end_frame == 144 then
       for p, _ in pairs(PLAYERS) do
-        if p.won then p:addScore() end
+        if p.hasWon then p:addScore() end
         if p.score == game.best_to_x then game.match_winner = p end
       end
       

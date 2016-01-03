@@ -17,34 +17,34 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   dummypic = love.graphics.newImage('images/dummy.png')
   self.player = init_player 
   self.foe = init_foe
-  self.frozen = 90 -- only update sprite if this is 0. Used for e.g. super freeze
+  self.frozenFrames = 90 
   self.score = init_score
-  self.in_air = false
+  self.isInAir = false
   self.life = 280 -- 280 pixels in the life bar
-  self.ko = false
-  self.won = false
-  self.attacking = false
+  self.isKO = false
+  self.hasWon = false
+  self.isAttacking = false
   self.color = nil
-  self.mugshotted = 0 -- frames the character is mugshotted for
-  self.hit_type = {} -- type of hit, passed through to gotHit(). E.g. for wall splat
+  self.mugshotFrames = 0
+  self.hit_type = {} -- passed through to gotHit()
   self.super = init_super -- max 96
-  self.super_on = false 
+  self.isSupering = false 
   self.super_drainspeed = 0.3 -- per frame 
   self.start_pos = {1, 1}
   self.pos = {1, 1} -- Top left corner of sprite
   self.vel = {0, 0}
   self.friction = 0.96 -- horizontal velocity is multiplied by this each frame
-  self.friction_on = false
+  self.isFrictionOn = false
   self.vel_multiple = 1.0
   self.recovery = 0 -- number of frames of recovery for some special moves
-  self.hit_wall = false -- Used for wallsplat and some special moves
+  self.hasHitWall = false -- Used for wallsplat and some special moves
   self.hurtboxes = {{L = 0, U = 0, R = 0, D = 0}}
   self.hitboxes = {{L = 0, U = 0, R = 0, D = 0}}
   self.waiting = 0 -- number of frames to wait. used for pre-jump frames etc.
   self.waiting_state = "" -- buffer the action that will be executed if special isn't pressed
   self.hitflag = {Mugshot = init_dizzy} -- for KO animations
   if self.hitflag.Mugshot then
-    self.mugshotted = 240 -- add 90 frames to this, because of round start fade-in
+    self.mugshotFrames = 240 -- add 90 frames to this, because of round start fade-in
     self.super = math.max(self.super - 24, 0)
     self.hitflag.Mugshot = false
   end
@@ -111,7 +111,7 @@ function Fighter:init2(init_player, init_foe, init_super, init_dizzy, init_score
 end
 
 function Fighter:jump_key_press()
-  if not self.in_air and self:getNeutral() then
+  if not self.isInAir and self:getNeutral() then
     self.waiting = 3
     self.waiting_state = "Jump"
   end
@@ -128,9 +128,9 @@ function Fighter:jump_key_press()
       if p2_frame_attack and not p2_prev_frame_attack then both_keys_down = true end
     end
   end
-  if both_keys_down and self.in_air then
+  if both_keys_down and self.isInAir then
     self:air_special()
-  elseif both_keys_down and not self.in_air then
+  elseif both_keys_down and not self.isInAir then
     self:ground_special()
   end
 end
@@ -151,23 +151,23 @@ function Fighter:attack_key_press()
     end      
   end
 
-  if both_keys_down and self.in_air then
+  if both_keys_down and self.isInAir then
     self:air_special()
-  elseif both_keys_down and not self.in_air then
+  elseif both_keys_down and not self.isInAir then
     self:ground_special()
   end
 
   --[[ Default attack action. Replace with character-specific attack/kickback actions
   
   -- attack if in air and not already attacking and going up and more than 50 pixels above the ground.
-  if self.in_air and not self.attacking and self.recovery == 0 and 
+  if self.isInAir and not selfhitflag and self.recovery == 0 and 
     (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
     (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
       self.waiting = 3
       self.waiting_state = "Attack"
       
   -- If on ground, kickback
-  elseif not self.in_air and self.recovery == 0 then
+  elseif not self.isInAir and self.recovery == 0 then
     self.waiting = 3
     self.waiting_state = "Kickback"
   end
@@ -175,7 +175,7 @@ function Fighter:attack_key_press()
 end
 
 function Fighter:jump(h_vel, v_vel)
-  self.in_air = true
+  self.isInAir = true
   self.gravity = self.default_gravity
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(1)
@@ -184,7 +184,7 @@ function Fighter:jump(h_vel, v_vel)
 end
 
 function Fighter:kickback(h_vel, v_vel)
-  self.in_air = true
+  self.isInAir = true
   self.gravity = self.default_gravity
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(3)
@@ -195,10 +195,10 @@ function Fighter:kickback(h_vel, v_vel)
 end
 
 function Fighter:land()
-  self.in_air = false
-  self.attacking = false
-  self.hit_wall = false
-  if not self.ko then
+  self.isInAir = false
+  self.isAttacking = false
+  self.hasHitWall = false
+  if not self.isKO then
     self.vel = {0, 0}
     self:updateImage(0)
     self.current_hurtboxes = self.hurtboxes_standing
@@ -208,19 +208,19 @@ end
 
 function Fighter:attack(h_vel, v_vel)
   self.vel = {h_vel * self.facing, v_vel}
-  self.attacking = true
+  self.isAttacking = true
   self:updateImage(4)
   self.gravity = 0
   self.current_hurtboxes = self.hurtboxes_attacking
   self.current_hitboxes = self.hitboxes_attacking
-  if self.super < 96 and not self.super_on then 
+  if self.super < 96 and not self.isSupering then 
     self.super = math.min(self.super + 8, 96)
     if self.super == 96 then writeSound(super_sfx) end
   end
 end
 
 function Fighter:air_special()
-  if self.super >= 16 and not self.super_on then
+  if self.super >= 16 and not self.isSupering then
     self.super = self.super - 16
     self.waiting_state = ""
     writeSound(self.air_special_sfx)
@@ -228,7 +228,7 @@ function Fighter:air_special()
 end
 
 function Fighter:ground_special()
-  if self.super >= 16 and not self.super_on then
+  if self.super >= 16 and not self.isSupering then
     self.super = self.super - 16
     self.waiting_state = ""
     writeSound(self.ground_special_sfx)
@@ -255,12 +255,12 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
   end
 
   self.vel_multiple = 1.0
-  self.ko = true 
-  self.attacking = false -- stops calling gotHit, since the hitbox check is now false
+  self.isKO = true 
+  self.isAttacking = false -- stops calling gotHit, since the hitbox check is now false
   writeSound(self.hit_sound_sfx)
 end
 
-function Fighter:gotKOed() -- keep calling this until self.ko is false
+function Fighter:gotKOed() -- keep calling this until self.isKO is false
   if frame - round_end_frame < 60 then    
     self.vel = {0, 0}
     self.gravity = 0
@@ -277,12 +277,12 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
       self.vel[2] = -5
       self.pos[2] = self.pos[2] - 30
       self.gravity = 0.2
-      self.in_air = true
+      self.isInAir = true
     end
   end
 
   if frame - round_end_frame > 60 then
-    self.friction_on = true
+    self.isFrictionOn = true
     self:updateImage(5)
     self.current_hurtboxes = self.hurtboxes_ko
     self.current_hitboxes = self.hitboxes_neutral
@@ -291,9 +291,9 @@ function Fighter:gotKOed() -- keep calling this until self.ko is false
       OnFire:postRepeatFX(self.pos[1], self.pos[2], self.facing, self.shift_amount)
     end
 
-    if self.hitflag.Wallsplat and self.hit_wall then
+    if self.hitflag.Wallsplat and self.hasHitWall then
       self.vel[1] = -self.vel[1] * 0.4
-      self.hit_wall = false
+      self.hasHitWall = false
       local v = {50, 70, 30, 40, 80, 25, 50, 70, 30, 40, 80, 25}
       local x = {4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3}
 
@@ -307,13 +307,13 @@ end
 
 function Fighter:hitOpponent() -- execute this one time, when you hit the opponent
   self.vel_multiple = 1.0
-  self.won = true
-  self.attacking = false -- stops calling hitOpponent, since the hitbox check is now false
+  self.hasWon = true
+  self.isAttacking = false -- stops calling hitOpponent, since the hitbox check is now false
   currentBGM:pause()
   if currentBGM2:isPlaying() then currentBGM2:pause() end
 end
 
-function Fighter:victoryPose() -- keep calling this if self.won is true
+function Fighter:victoryPose() -- keep calling this if self.hasWon is true
   if frame - round_end_frame < 60 then
     self.vel = {0, 0}
     self.gravity = 0
@@ -325,8 +325,8 @@ function Fighter:victoryPose() -- keep calling this if self.won is true
 
   if frame - round_end_frame > 60 then
     self.gravity = 1
-    self.attacking = false
-    if self.in_air then
+    self.isAttacking = false
+    if self.isInAir then
       self:updateImage(2)
     else
       self:updateImage(0)
@@ -336,11 +336,11 @@ function Fighter:victoryPose() -- keep calling this if self.won is true
 end
 
 function Fighter:getNeutral()
-  return not self.ko and not self.attacking and self.recovery == 0
+  return not self.isKO and not self.isAttacking and self.recovery == 0
 end
 function Fighter:getCenter() return self.pos[1] + 0.5 * self.sprite_size[1] end
 function Fighter:addScore() self.score = self.score + 1 end
-function Fighter:setFrozen(frames) self.frozen = frames end
+function Fighter:setFrozen(frames) self.frozenFrames = frames end
 
 function Fighter:updateImage(image_index)
   self.sprite = love.graphics.newQuad(image_index * self.sprite_size[1], 0,
@@ -351,7 +351,7 @@ end
 function Fighter:fixFacing() -- change character facing if over center of opponent
   self.center = self:getCenter()
   self.foe.center = self.foe:getCenter()
-  if self:getNeutral() and not self.in_air then
+  if self:getNeutral() and not self.isInAir then
     if self.facing == 1 and self.center > self.foe.center then
       self.facing = -1
       self.shift = 1
@@ -393,7 +393,7 @@ function Fighter:updateBoxes()
     end
   end
 
-  if self.attacking and self.facing == 1 then
+  if self.isAttacking and self.facing == 1 then
     for i = 1, #self.current_hitboxes do
       temp_hitbox[i].L = self.current_hitboxes[i].L + self.pos[1]
       temp_hitbox[i].U = self.current_hitboxes[i].U + self.pos[2]
@@ -402,7 +402,7 @@ function Fighter:updateBoxes()
       temp_hitbox[i].Flag1 = self.current_hitboxes[i].Flag1
       temp_hitbox[i].Flag2 = self.current_hitboxes[i].Flag2
     end
-  elseif self.attacking and self.facing == -1 then
+  elseif self.isAttacking and self.facing == -1 then
     for i = 1, #self.current_hitboxes do
       temp_hitbox[i].L = self.pos[1] - self.current_hitboxes[i].R + self.sprite_size[1]
       temp_hitbox[i].U = self.current_hitboxes[i].U + self.pos[2]
@@ -418,24 +418,24 @@ function Fighter:updateBoxes()
 end
 
 function Fighter:updatePos()
-  if self.mugshotted > 0 then
+  if self.mugshotFrames > 0 then
     self.vel_multiple = 0.7
-    self.mugshotted = self.mugshotted - 1
+    self.mugshotFrames = self.mugshotFrames - 1
     Dizzy:postRepeatFX(self.center - Dizzy.center, self.pos[2], self.facing, self.shift * Dizzy.width)
-    if self.mugshotted == 0 then self.vel_multiple = 1.0 end
+    if self.mugshotFrames == 0 then self.vel_multiple = 1.0 end
   end
 
-  if self.frozen == 0 then
-    if self.ko then self:gotKOed() end
-    if self.won then self:victoryPose() end
+  if self.frozenFrames == 0 then
+    if self.isKO then self:gotKOed() end
+    if self.hasWon then self:victoryPose() end
 
     -- reduce recovery time
     if self.recovery > 0 then
       self.recovery = math.max(0, self.recovery - 1)
-      if self.recovery == 0 and self.in_air then
+      if self.recovery == 0 and self.isInAir then
         self.current_hurtboxes = self.hurtboxes_falling
         self:updateImage(2)
-      elseif self.recovery == 0 and not self.in_air then
+      elseif self.recovery == 0 and not self.isInAir then
         self:land()
       end
     end
@@ -444,11 +444,11 @@ function Fighter:updatePos()
     self.pos[1] = self.pos[1] + (self.vel[1] * self.vel_multiple)
     self.pos[2] = self.pos[2] + (self.vel[2] * self.vel_multiple)
 
-    if self.in_air then self.vel[2] = self.vel[2] + (self.gravity * self.vel_multiple) end
+    if self.isInAir then self.vel[2] = self.vel[2] + (self.gravity * self.vel_multiple) end
 
-    if math.abs(self.vel[1]) > 0.1 and self.friction_on then
+    if math.abs(self.vel[1]) > 0.1 and self.isFrictionOn then
       self.vel[1] = self.vel[1] * self.friction
-    elseif self.vel[1] <= 0.1 and self.friction_on then
+    elseif self.vel[1] <= 0.1 and self.isFrictionOn then
       self.vel[1] = 0
     end  
      
@@ -461,18 +461,18 @@ function Fighter:updatePos()
     -- check if character is at left or right edges of playing field
     if self.pos[1] < leftEdge() - self.sprite_wallspace then
       self.pos[1] = leftEdge() - self.sprite_wallspace
-      self.hit_wall = true
+      self.hasHitWall = true
     end
     if self.pos[1] + self.sprite_size[1] > rightEdge() + self.sprite_wallspace then
       self.pos[1] = rightEdge() - self.sprite_size[1] + self.sprite_wallspace
-      self.hit_wall = true
+      self.hasHitWall = true
     end
 
     self:fixFacing()
     self:updateBoxes()
 
     -- update image if falling
-    if self.in_air and self.vel[2] > 0 and not self.attacking and not self.ko then
+    if self.isInAir and self.vel[2] > 0 and not self.isAttacking and not self.isKO then
       self.current_hurtboxes = self.hurtboxes_falling
       self:updateImage(2)
     end 
@@ -481,8 +481,8 @@ function Fighter:updatePos()
     self:stateCheck() -- check for button presses and change actions
     self:extraStuff() -- any character-specific routines
     return self.pos
-  elseif self.frozen > 0 then
-    self.frozen = self.frozen - 1
+  elseif self.frozenFrames > 0 then
+    self.frozenFrames = self.frozenFrames - 1
   end
 end
 
@@ -490,7 +490,7 @@ function Fighter:updateSuper()
   if self.super >= 96 then
     self.super = 95.999
     writeSound(super_sfx)
-    self.super_on = true
+    self.isSupering = true
     self.vel_multiple = self.vel_multiple_super
     game.superfreeze_time = 60
     game.superfreeze_player = self
@@ -498,7 +498,7 @@ function Fighter:updateSuper()
     p2:setFrozen(60)
   end
 
-  if self.super_on and not (self.ko or self.won) then
+  if self.isSupering and not (self.isKO or self.hasWon) then
     self.super = self.super - self.super_drainspeed
     -- after-images
     local shadow = AfterImage(self.image, self.image_size, self.sprite_size, 1)
@@ -506,7 +506,7 @@ function Fighter:updateSuper()
   end
 
   if self.super <= 0 then -- turn off Frog Factor
-    self.super_on = false
+    self.isSupering = false
     self.vel_multiple = 1.0
   end  
 end
@@ -608,7 +608,7 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
 end
 
   function Konrad:jump_key_press()
-    if self.in_air and not self.attacking and not self.double_jump then
+    if self.isInAir and not self.isAttacking and not self.double_jump then
       self.waiting = 3
       self.waiting_state = "DoubleJump"
       self.double_jump = true
@@ -618,13 +618,13 @@ end
 
   function Konrad:attack_key_press()
     -- attack if in air and not already attacking and either: >50 above floor, or landing and >30 above.
-    if self.in_air and not self.attacking and 
+    if self.isInAir and not self.isAttacking and 
       (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
       (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
         self.waiting = 3
         self.waiting_state = "Attack"
     -- if on ground, kickback
-    elseif not self.in_air then
+    elseif not self.isInAir then
       self.waiting = 3
       self.waiting_state = "Kickback"
     end
@@ -632,13 +632,13 @@ end
   end
 
   function Konrad:air_special()
-    if self.super >= 16 and not self.attacking and not self.super_on and
+    if self.super >= 16 and not self.isAttacking and not self.isSupering and
     self.pos[2] + self.sprite_size[2] < stage.floor - 50 then
       self.super = self.super - 16
       self.waiting_state = ""
       HyperKickFlames:playSound()
       self.vel = {14 * self.facing, 19}
-      self.attacking = true  
+      self.isAttacking = true  
       self.hyperkicking = true
       self:updateImage(4)
       self.gravity = 0
@@ -648,7 +648,7 @@ end
   end
 
   function Konrad:ground_special()
-    if self.super >= 16 and not self.super_on then
+    if self.super >= 16 and not self.isSupering then
       self.super = self.super - 16
       self.waiting_state = ""
       writeSound(self.ground_special_sfx)
@@ -657,7 +657,7 @@ end
   end
 
   function Konrad:jump(h_vel, v_vel, gravity)
-    self.in_air = true
+    self.isInAir = true
     self.gravity = gravity
     self.vel = {h_vel * self.facing, -v_vel}
     self:updateImage(1)
@@ -665,11 +665,11 @@ end
   end
 
   function Konrad:land() -- called when character lands on floor
-    self.in_air = false
-    self.attacking = false
+    self.isInAir = false
+    self.isAttacking = false
     self.double_jump = false
     self.hyperkicking = false
-    if not self.ko then
+    if not self.isKO then
       self.vel = {0, 0}
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
@@ -711,7 +711,7 @@ end
   end
 
   function Konrad:extraStuff()
-    if self.hyperkicking and not self.ko then
+    if self.hyperkicking and not self.isKO then
       HyperKickFlames:postRepeatFX(self.pos[1], self.pos[2], self.facing, self.shift * HyperKickFlames.width)
     end
   end
@@ -805,17 +805,17 @@ end
 
   function Jean:attack_key_press()
     -- attack if in air and not already attacking.
-    if self.in_air and not self.attacking and not self.dandy and not self.pilebunking and
+    if self.isInAir and not self.isAttacking and not self.dandy and not self.pilebunking and
       (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
       (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
         self.waiting = 3
         self.waiting_state = "Attack"
     -- dandy step replaces kickback, only do if in neutral state
-    elseif not self.in_air and not self.dandy and not self.pilebunking then
+    elseif not self.isInAir and not self.dandy and not self.pilebunking then
       self.waiting = 3
       self.waiting_state = "Dandy"
     -- pilebunk only if allowed conditions met
-    elseif not self.in_air and self.dandy and self.pilebunk_ok then
+    elseif not self.isInAir and self.dandy and self.pilebunk_ok then
       self.waiting = 3
       self.waiting_state = "Pilebunker"
     end  
@@ -824,12 +824,12 @@ end
 
   function Jean:attack(h_vel, v_vel)
     self.vel = {h_vel * self.facing, v_vel}
-    self.attacking = true
+    self.isAttacking = true
     self:updateImage(4)
     self.gravity = 0
     self.current_hurtboxes = self.hurtboxes_attacking
     self.current_hitboxes = self.hitboxes_attacking
-    if not self.super_on then self.super = math.min(self.super + 8, 96) end
+    if not self.isSupering then self.super = math.min(self.super + 8, 96) end
   end
 
 
@@ -838,15 +838,15 @@ end
     self.vel[1] = h_vel * self.facing
     self:updateImage(3)
     self.current_hurtboxes = self.hurtboxes_dandy
-    self.friction_on = false
-    if not self.super_on then self.super = math.min(self.super + 4, 96) end
+    self.isFrictionOn = false
+    if not self.isSupering then self.super = math.min(self.super + 4, 96) end
   end
 
   function Jean:pilebunk(h_vel)
     self.pilebunk_ok = false
     self.dandy = false
     self.pilebunking = true -- to prevent dandy step or pilebunker while pilebunking
-    self.attacking = true -- needed to activate hitboxes
+    self.isAttacking = true -- needed to activate hitboxes
     Explosion1:postLoadFX(self.pos[1] + 150, self.pos[2] + 50, self.facing * 2, self.shift * -50, 0, true)
     Explosion2:preLoadFX(self.pos[1] + 200, self.pos[2] + 70, self.facing * 2, self.shift * -100, 5, true)
     Explosion3:postLoadFX(self.pos[1] + 250, self.pos[2] + 30, self.facing * 2, self.shift * -150, 10, true)
@@ -858,15 +858,15 @@ end
     self:updateImage(6)
     self.current_hurtboxes = self.hurtboxes_pilebunker
     self.current_hitboxes = self.hitboxes_pilebunker
-    if not self.super_on then self.super = math.min(self.super + 10, 96) end
+    if not self.isSupering then self.super = math.min(self.super + 10, 96) end
   end
 
   function Jean:air_special()
-    if self.super_on then
+    if self.isSupering then
       self.waiting_state = ""
       writeSound(self.air_special_sfx)
       self:jump(0, -36)
-    elseif self.super >= 8 and not self.attacking then
+    elseif self.super >= 8 and not self.isAttacking then
       self.super = self.super - 8
       self.waiting_state = ""
       writeSound(self.air_special_sfx)
@@ -875,7 +875,7 @@ end
   end    
 
   function Jean:ground_special()
-    if self.super_on and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
+    if self.isSupering and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 8
       self.waiting_state = ""
       WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width, 0, true)
@@ -930,7 +930,7 @@ end
     if self.dandy and math.abs(self.vel[1]) < 0.02 then
       self.dandy = false
       self.pilebunk_ok = false
-      self.friction_on = false
+      self.isFrictionOn = false
       self.vel[1] = 0
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
@@ -938,17 +938,17 @@ end
 
     -- stop pilebunking, and change to recovery frames
     if self.pilebunking and math.abs(self.vel[1]) >= 0.001 and math.abs(self.vel[1]) < 1.2 then
-      self.attacking = false
+      self.isAttacking = false
       self:updateImage(7)
       self.current_hurtboxes = self.hurtboxes_pilebunkerB
       self.current_hitboxes = self.hitboxes_neutral
     end
 
     -- change from recovery to neutral
-    if self.pilebunking and math.abs(self.vel[1]) < 0.001 and not self.won then
+    if self.pilebunking and math.abs(self.vel[1]) < 0.001 and not self.hasWon then
       self.pilebunking = false
       self.dandy = false
-      self.friction_on = false
+      self.isFrictionOn = false
       self.vel[1] = 0
       self:updateImage(0)
       self.current_hurtboxes = self.hurtboxes_standing
@@ -959,11 +959,11 @@ function Jean:gotHit(type)
   Fighter.gotHit(self, type)
   self.pilebunking = false
   self.dandy = false
-  self.friction_on = true
+  self.isFrictionOn = true
 end
 
 function Jean:getNeutral() -- don't check for facing if in dandy/pilebunker
-  return not self.ko and not self.attacking and not self.dandy and not self.pilebunking
+  return not self.isKO and not self.isAttacking and not self.dandy and not self.pilebunking
 end
 
 --[[---------------------------------------------------------------------------
@@ -971,7 +971,7 @@ end
 -----------------------------------------------------------------------------]]   
 Sun = class('Sun', Fighter)
 function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
-  if self.super_on then -- if super was still on during previous round
+  if self.isSupering then -- if super was still on during previous round
     stopBGM2()
     resumeBGM()
   end
@@ -1061,7 +1061,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.hotflaming_pos = {0, 0}
   self.riotbackdash = false
   self.riotkick = false
-  self.kicking = false -- self.attacking is overloaded by hotflame
+  self.kicking = false -- self.isAttacking is overloaded by hotflame
 
   self:init2(init_player, init_foe, init_super, init_dizzy, init_score)
 end
@@ -1075,7 +1075,7 @@ function Sun:getHotflame()
 end
 
 function Sun:getNeutral()
-  return not self.ko and not self.riotbackdash and not self.riotkick and not self.kicking and self.recovery == 0
+  return not self.isKO and not self.riotbackdash and not self.riotkick and not self.kicking and self.recovery == 0
 end
 
 function Sun:attack(h_vel, v_vel)
@@ -1090,12 +1090,12 @@ end
 
 function Sun:attack_key_press()
     -- attack if in air and not riotkick/attack and either: >50 above floor, or landing and >30 above.
-  if self.in_air and self:getNeutral() and
+  if self.isInAir and self:getNeutral() and
     (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
     (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
       self.waiting = 3
       self.waiting_state = "Attack"
-  elseif not self.in_air and self:getNeutral() then
+  elseif not self.isInAir and self:getNeutral() then
     self.waiting = 3
     self.waiting_state = "Kickback"
   end
@@ -1113,12 +1113,12 @@ function Sun:ground_special()
     self.hotflaming_pos[2] = self.pos[2]
     writeSound(self.hotflame_sfx) -- GUNFLAME
 
-    if not self.super_on then
+    if not self.isSupering then
       self.super = self.super - 8
       self.hotflametime = {30, 0, 0, 0, 0}
       Hotflame:playSound() -- flamey sounds
       self.recovery = 45
-    elseif self.super_on and self.life > 25 then
+    elseif self.isSupering and self.life > 25 then
       self.life = self.life - 20
       self.hotterflametime = 40
       Hotterflame:playSound() -- big flamey sound
@@ -1128,9 +1128,9 @@ function Sun:ground_special()
 
   -- Wire Sea
   if self.super >= 16 and self.recovery > 15 and self.recovery < 40 then
-    if self.super_on and self.life > 25 then
+    if self.isSupering and self.life > 25 then
       self.life = self.life - 20
-    elseif not self.super_on then
+    elseif not self.isSupering then
       self.super = self.super - 16
     end
     self.recovery = 0
@@ -1146,7 +1146,7 @@ function Sun:air_special()
   local v_distance = stage.floor - (self.pos[2] + self.sprite_size[2])
 
   if self.super >= 8 and self:getNeutral() and v_distance > 100 then
-    if not self.super_on then self.super = self.super - 8 end
+    if not self.isSupering then self.super = self.super - 8 end
     self.waiting_state = ""
     --writeSound(self.air_special_sfx)
     self.gravity = 0
@@ -1182,13 +1182,13 @@ function Sun:extraStuff()
   -------------------------------------------------------------------------]]--        
   for i = 1, 4 do
     if self.hotflametime[i] > 0 then
-      self.attacking = true
+      self.isAttacking = true
       local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] + 45 * (i - 1)) * self.facing
       local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] - Hotflame.sprite_size[2]
       
       Hotflame:postRepeatFX(h_pos, v_pos, self.facing, self.shift_amount)
 
-      if self.frozen == 0 and not self.foe.hitflag.Projectile then 
+      if self.frozenFrames == 0 and not self.foe.hitflag.Projectile then 
         self.hotflametime[i] = self.hotflametime[i] - 1
         if self.hotflametime[i] == 15 then
           self.hotflametime[i + 1] = 30
@@ -1207,13 +1207,13 @@ function Sun:extraStuff()
   end
 
   if self.hotterflametime > 0 then
-    self.attacking = true
+    self.isAttacking = true
     local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] - self.sprite_wallspace) * self.facing 
     local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] - Hotterflame.sprite_size[2]
 
     Hotterflame:postLoadFX(h_pos, v_pos, self.facing, self.shift_amount)
 
-    if self.frozen == 0 and not self.foe.hitflag.Projectile then
+    if self.frozenFrames == 0 and not self.foe.hitflag.Projectile then
       self.hotterflametime = self.hotterflametime - 1
       self.hitboxes_hotflame[1] = {
         L = self.sprite_size[1] - self.sprite_wallspace,
@@ -1230,7 +1230,7 @@ function Sun:extraStuff()
     temp_hotflame[i] = {L = 0, U = 0, R = 0, D = 0}
   end
 
-  if self.attacking and not self.won and not self.foe.won and self.facing == 1 then
+  if self.isAttacking and not self.hasWon and not self.foe.hasWon and self.facing == 1 then
     for i = 1, #self.hitboxes_hotflame do
       temp_hotflame[i].L = self.hitboxes_hotflame[i].L + self.hotflaming_pos[1]
       temp_hotflame[i].U = self.hitboxes_hotflame[i].U + self.hotflaming_pos[2]
@@ -1239,7 +1239,7 @@ function Sun:extraStuff()
       temp_hotflame[i].Flag1 = self.hitboxes_hotflame[i].Flag1
       temp_hotflame[i].Flag2 = self.hitboxes_hotflame[i].Flag2
     end
-  elseif self.attacking and not self.won and not self.foe.won and self.facing == -1 then
+  elseif self.isAttacking and not self.hasWon and not self.foe.hasWon and self.facing == -1 then
     for i = 1, #self.hitboxes_hotflame do
       temp_hotflame[i].L = self.hotflaming_pos[1] - self.hitboxes_hotflame[i].R + self.sprite_size[1]
       temp_hotflame[i].U = self.hitboxes_hotflame[i].U + self.hotflaming_pos[2]
@@ -1259,22 +1259,22 @@ function Sun:extraStuff()
   --------------------------------RIOT KICK -----------------------------------
   if self.riotbackdash then
     local v_distance = stage.floor - (self.pos[2] + self.sprite_size[2])
-    if v_distance < 10 and self.hit_wall then
+    if v_distance < 10 and self.hasHitWall then
       self.vel[1] = 12 * self.facing
       self.vel[2] = 0
-      self.hit_wall = false
+      self.hasHitWall = false
       self.riotbackdash = false
       self.riotkick = true
-      self.attacking = true
+      self.isAttacking = true
     end
   end
   if self.riotkick then
     self:updateImage(7)
     self.current_hurtboxes = self.hurtboxes_riotkick
     self.current_hitboxes = self.hitboxes_riotkick
-    if self.hit_wall then
+    if self.hasHitWall then
       self.riotkick = false
-      self.attacking = false
+      self.isAttacking = false
       self.gravity = self.default_gravity
       self.vel[1] = 0
       self.vel[2] = 0
@@ -1307,7 +1307,7 @@ function Sun:updateSuper()
   if self.super >= 96 then
     self.super = 95.999
     writeSound(super_sfx)
-    self.super_on = true
+    self.isSupering = true
     self.vel_multiple = self.vel_multiple_super
     game.superfreeze_time = 60
     game.superfreeze_player = self
@@ -1319,11 +1319,11 @@ function Sun:updateSuper()
     game.background_color = {255, 128, 128, 255}
   end
 
-  if self.super_on then
+  if self.isSupering then
     SunAura:preRepeatFX(self.pos[1],
       self.pos[2] + self.sprite_size[2] - SunAura.sprite_size[2],
       self.facing, self.shift_amount)
-    if not (self.ko or self.won) then
+    if not (self.isKO or self.hasWon) then
       self.super = self.super - self.super_drainspeed
       self.life = math.max(self.life - 0.75, 0)
       if self.life == 0 then
@@ -1337,7 +1337,7 @@ function Sun:updateSuper()
 
   if self.super < 0 then -- turn off Frog Factor
     self.super = 0
-    self.super_on = false
+    self.isSupering = false
     self.vel_multiple = 1.0
     stopBGM2()
     resumeBGM()
