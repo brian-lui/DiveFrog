@@ -110,24 +110,21 @@ function drawSprites()
       love.graphics.setColor(100 + (180 - round_timer) / 2, 0, 0, 200)
       love.graphics.setLineWidth(12)
       love.graphics.line(stage.center, 0, stage.center, stage.height)
-    if round_timer > 0 then
-    	love.graphics.setLineWidth(1)
-    	local alpha = (180 - round_timer) / 2 + 90
-    	local lines = {
-    		left_1 = {pos = stage.center - 2 * round_timer, color = {255, 0, 0, alpha}},
-    		right_1 = {pos = stage.center + 2 * round_timer, color = {255, 0, 0, alpha}},
-    		left_2 = {pos = stage.center - 4 * round_timer, color = {220, 220, 0, alpha}},
-    		right_2 = {pos = stage.center + 4 * round_timer, color = {220, 220, 0, alpha}},
-    		left_3 = {pos = stage.center - 6 * round_timer, color = {220, 220, 220, aslpha}},
-    		right_3 = {pos = stage.center + 6 * round_timer, color = {220, 220, 220, alpha}},
-    		left_4 = {pos = stage.center - 12 * round_timer, color = {255, 255, 255, alpha}},
-    		right_4 = {pos = stage.center + 12 * round_timer, color = {255, 255, 255, alpha}}
-    		}
-    	for _, line in pairs(lines) do
-    		love.graphics.setColor(line.color)
-    		love.graphics.line(line.pos, 0, line.pos, stage.height)
-    	end
-    end
+	    if round_timer > 0 then
+	    	love.graphics.setLineWidth(1)
+	    	local alpha = (180 - round_timer) / 2 + 90
+	    	local lines = {
+	    		{shift = 2 * round_timer, color = {255, 0, 0, alpha}},
+	    		{shift = 4 * round_timer, color = {220, 220, 0, alpha}},
+	    		{shift = 6 * round_timer, color = {220, 220, 220, alpha}},
+	    		{shift = 12 * round_timer, color = {255, 255, 255, alpha}}
+	    		}
+	    	for _, line in pairs(lines) do
+	    		love.graphics.setColor(line.color)
+	    		love.graphics.line(stage.center - line.shift, 0, stage.center - line.shift, stage.height)
+	    		love.graphics.line(stage.center + line.shift, 0, stage.center + line.shift, stage.height)
+	    	end
+	    end
     love.graphics.pop()
   end
 
@@ -155,7 +152,7 @@ function drawSprites()
 		  love.graphics.ellipse("fill", side:getCenter(), stage.floor - 5, 50, 20)
 
 		  -- Sprites
-		  local shift = op.offset * side.sprite_size[1]
+		  local shift = side.shift * side.sprite_size[1]
 		  local temp_color = {255, 255, 255, 255}
 		  if side.color then
 		  	for i = 1, 4 do temp_color[i] = side.color[i] end
