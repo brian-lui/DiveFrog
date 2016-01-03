@@ -144,39 +144,32 @@ function drawSprites()
     love.graphics.pop()
   end
   prebuffer[frame] = nil
-
+  
   --[[----------------------------------------------
                         SPRITES      
   ----------------------------------------------]]--      
-    -- need to shift the sprites back if we flipped the image
-  local p1shift = 0
-  local p2shift = 0
-    -- shift sprites if facing left
-  if p2.facing == -1 then p2shift = p2.sprite_size[1] end
-  if p1.facing == -1 then p1shift = p1.sprite_size[1] end
-  
-  local p1_temp_color = {255, 255, 255, 255}
-  local p2_temp_color = {255, 255, 255, 255}
+	for side, op in pairs(PLAYERS) do
+	  love.graphics.push("all")
+			-- Ground shadow for sprites
+		  love.graphics.setColor(0, 0, 0, 96)
+		  love.graphics.ellipse("fill", side:getCenter(), stage.floor - 5, 50, 20)
 
-  if p1.color then
-    for i = 1, 4 do	p1_temp_color[i] = p1.color[i]	end
-   end
-  if p2.color then
-  	for i = 1, 4 do	p2_temp_color[i] = p2.color[i]	end
-  end
-
-  if game.identical_players then
-  	p2_temp_color[1] = p2_temp_color[1] * 0.7
-  	p2_temp_color[2] = p2_temp_color[2] * 0.85
-  	p2_temp_color[3] = p2_temp_color[3] * 0.7 
-   end
-
-	love.graphics.push("all")
-	  love.graphics.setColor(p1_temp_color)
-	  love.graphics.draw(p1.image, p1.sprite, p1.pos[1], p1.pos[2], 0, p1.facing, 1, p1shift, 0)
-		love.graphics.setColor(p2_temp_color)
-		love.graphics.draw(p2.image, p2.sprite, p2.pos[1], p2.pos[2], 0, p2.facing, 1, p2shift, 0)
-	love.graphics.pop()
+		  -- Sprites
+		  local shift = op.offset * side.sprite_size[1]
+		  local temp_color = {255, 255, 255, 255}
+		  if side.color then
+		  	for i = 1, 4 do temp_color[i] = side.color[i] end
+		  end
+		  if game.identical_players and side == p2 then
+		  	temp_color[1] = temp_color[1] * 0.7
+		  	temp_color[2] = temp_color[2] * 0.85
+		  	temp_color[3] = temp_color[3] * 0.7
+		  end
+		  love.graphics.setColor(temp_color)
+		  love.graphics.draw(side.image, side.sprite,
+		  	side.pos[1], side.pos[2], 0, side.facing, 1, shift, 0)
+	  love.graphics.pop()
+	end
 
   --[[----------------------------------------------
                   OVER-SPRITE LAYER      
