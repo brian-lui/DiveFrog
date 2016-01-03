@@ -334,7 +334,8 @@ function love.draw()
   																					test.t2 = love.timer.getTime()
     canvas_overlays:renderTo(drawOverlays)
   																					test.t3 = love.timer.getTime()
-    if game.superfreeze_time > 0 then camera:scale(0.5, 0.5) end
+    --if game.superfreeze_time > 0 then camera:scale(0.5, 0.5) end
+    camera:scale(1 / camera_scale_factor, 1 / camera_scale_factor)
 
     camera:set(0.5, 1)
     love.graphics.draw(canvas_background)
@@ -351,7 +352,8 @@ function love.draw()
     if debug.midpoints then drawMidPoints() end
     camera:unset()      
   																					test.t6 = love.timer.getTime()
-    if game.superfreeze_time > 0 then camera:scale(2, 2) end
+    --if game.superfreeze_time > 0 then camera:scale(2, 2) end
+    camera:scale(camera_scale_factor, camera_scale_factor)
 
     if debug.camera then print(unpack(camera_xy)) end
     if debug.keybuffer then print(unpack(keybuffer[frame])) end
@@ -442,7 +444,7 @@ function love.update(dt)
       camera_xy = {clamp(h_midpoint - window.center, 0, stage.width - window.width),
         screen_bottom - (stage.floor - highest_sprite) / 8 }
 
-			-- for screen shake    	
+			-- screen shake    	
     	local h_displacement = 0
     	local v_displacement = 0
 
@@ -452,10 +454,27 @@ function love.update(dt)
     	end
       camera:setPosition(camera_xy[1] + h_displacement, camera_xy[2] - v_displacement)
 
+    -- tweening for scale and camera position
     else
+    	camera_xy_temp = camera_xy_temp or camera_xy
+
+      camera_scale_factor = camera_scale_factor * 1.015
+      if camera_scale_factor > 2 then camera_scale_factor = 2 end
+      
+      local h_position = game.superfreeze_player:getCenter() - 0.5 * window.center
+      local v_position = game.superfreeze_player.pos[2]
+      local h_tween = (h_position + 14 * camera_xy_temp[1]) / 15
+      if h_tween < 0 then h_tween = 0 end
+      local v_tween = (v_position + 14 * camera_xy_temp[2]) / 15
+      camera:setPosition(h_tween, v_tween)
+      camera_xy_temp[1] = h_tween
+      camera_xy_temp[2] = v_tween
+
       game.superfreeze_time = game.superfreeze_time - 1
-      local h_position = game.superfreeze_player:getCenter()
-      camera:setPosition(h_position - 0.5 * window.center, game.superfreeze_player.pos[2])
+      if game.superfreeze_time == 0 then
+      	camera_xy_temp = nil
+      	camera_scale_factor = 1
+      end
     end
 
     if not round_ended and not (p1.frozenFrames > 0 and p2.frozenFrames > 0) then
@@ -564,8 +583,8 @@ function newRound()
   prebuffer = {}
   postbuffer = {}
   soundbuffer = {}
-	
-
+	camera_xy_temp = nil
+	camera_scale_factor = 1
   if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
     setBGMspeed(2 ^ (4/12))
   end
