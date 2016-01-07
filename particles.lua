@@ -56,6 +56,20 @@ function Particle:getCorrectDrawable(image_index, pos_h, pos_v, scale_x, scale_y
     -- RGBTable not supported yet
 end
 
+-- called each frame while condition is valid
+function Particle:preRepeatFX(pos_h, pos_v, h_mid, v_mid, facing, delay_time, sound_boolean) 
+  draw_count = draw_count + 1
+  local delay = delay_time or 0
+  local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
+  prebuffer[frame + delay] = prebuffer[frame + delay] or {}
+  prebuffer[frame + delay][draw_count] = self:getCorrectDrawable(current_anim,
+    pos_h,
+    pos_v,
+    facing, math.abs(facing), h_mid, v_mid)
+  if sound_boolean then self:playSound(delay_time) end
+end
+
+-- called each frame while condition is valid
 function Particle:postRepeatFXCorrect(pos_h, pos_v, h_mid, v_mid, facing, delay_time, sound_boolean)
   draw_count = draw_count + 1
   local delay = delay_time or 0
@@ -68,6 +82,35 @@ function Particle:postRepeatFXCorrect(pos_h, pos_v, h_mid, v_mid, facing, delay_
   if sound_boolean then self:playSound(delay_time) end
 end
 
+-- called once, loads entire anim
+function Particle:preLoadFXCorrect(pos_h, pos_v, h_mid, v_mid, facing, delay_time, sound_boolean)
+  draw_count = draw_count + 1
+  local delay = delay_time or 0
+  for i = (frame + delay), (frame + delay + self.total_time) do
+    local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
+    prebuffer[i] = prebuffer[i] or {}
+    prebuffer[i][draw_count] = self:getCorrectDrawable(current_anim,
+      pos_h,
+      pos_v,
+      facing, math.abs(facing), h_mid, v_mid)
+  end
+  if sound_boolean then self:playSound(delay_time) end
+end
+
+-- called once, loads entire anim
+function Particle:postLoadFXCorrect(pos_h, pos_v, h_mid, v_mid, facing, delay_time, sound_boolean)
+  draw_count = draw_count + 1
+  local delay = delay_time or 0
+  for i = (frame + delay), (frame + delay + self.total_time) do
+    local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
+    postbuffer[i] = postbuffer[i] or {}
+    postbuffer[i][draw_count] = self:getCorrectDrawable(current_anim,
+      pos_h,
+      pos_v,
+      facing, math.abs(facing), h_mid, v_mid)
+  end
+  if sound_boolean then self:playSound(delay_time) end
+end
 
 -- called each frame while condition is valid
 function Particle:preRepeatFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean) 
@@ -152,22 +195,22 @@ end
 
 ---------------------------------- OVERLAYS -----------------------------------
  
-FrogFactor = Particle:new(love.graphics.newImage('images/FrogFactor.png'), 
+FrogFactor = Particle:new(love.graphics.newImage('images/FrogFactor.png'), -- OK
   {1176, 130}, {168, 130}, 4)
-SuperBarBase = Particle:new(love.graphics.newImage('images/SuperBarBase.png'),
+SuperBarBase = Particle:new(love.graphics.newImage('images/SuperBarBase.png'), -- OK
   {196, 19}, {196, 19}, 1)
-SuperMeter = Particle:new(love.graphics.newImage('images/SuperMeter.png'),
+SuperMeter = Particle:new(love.graphics.newImage('images/SuperMeter.png'), -- OK
   {192, 120}, {192, 15}, 8)
 ------------------------------ COMMON PARTICLES -------------------------------
 Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
   {600, 140}, {600, 140}, 60, "Mugshot.ogg", true, true)
-Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), -- Uses new method!
+Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), -- OK
   {70, 50}, {70, 50}, 1, true)
 OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'),
   {800, 200}, {200, 200}, 3)
-JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), 
+JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), -- OK
   {528, 60}, {132, 60}, 4, "dummy.ogg", true, true)
-KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), 
+KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), -- OK
   {162, 42}, {54, 42}, 4)
 WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'),
   {1600, 220}, {200, 220}, 2, "WireSea.ogg", true, true)

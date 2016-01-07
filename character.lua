@@ -184,7 +184,8 @@ function Fighter:jump(h_vel, v_vel)
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(1)
   self.current_hurtboxes = self.hurtboxes_jumping
-  JumpDust:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] - 30, self.facing, self.shift * JumpDust.width)
+  JumpDust:postLoadFXCorrect(self.center - JumpDust.center,
+   self.pos[2] + self.sprite_size[2] - JumpDust.height, self.h_mid, 0, self.facing)
 end
 
 function Fighter:kickback(h_vel, v_vel)
@@ -193,9 +194,8 @@ function Fighter:kickback(h_vel, v_vel)
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(3)
   self.current_hurtboxes = self.hurtboxes_kickback
-  KickbackDust:postLoadFX(self.center,
-    self.pos[2] + self.sprite_size[2] - KickbackDust.height,
-    self.facing, self.shift * KickbackDust.width)
+  KickbackDust:postLoadFXCorrect(self.center - KickbackDust.center,
+    self.pos[2] + self.sprite_size[2] - KickbackDust.height, self.h_mid, 0, self.facing)
 end
 
 function Fighter:land()
@@ -434,7 +434,7 @@ function Fighter:updatePos()
   if self.mugshotFrames > 0 then
     self.vel_multiple = 0.7
     self.mugshotFrames = self.mugshotFrames - 1
-    Dizzy:postRepeatFXCorrect(self.pos[1] + self.h_mid - Dizzy.center, self.pos[2], self.h_mid, 0, self.facing)
+    Dizzy:postRepeatFXCorrect(self.center - Dizzy.center, self.pos[2], self.h_mid, 0, self.facing)
 
     if self.mugshotFrames == 0 then self.vel_multiple = 1.0 end
   end
