@@ -90,7 +90,8 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.jump_sfx = "Sun/SunJump.ogg"
   self.got_hit_sfx = "Sun/SolKO.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
-  self.hotflame_sfx = "Sun/SolHotflame.ogg"
+  self.hotflame_sfx = "Sun/HotflameVocals.ogg"
+  self.hotterflame_sfx = "Sun/HotterflameVocals.ogg"
   self.radio_sfx = "Sun/SolDragonInstall.ogg"
 
   self.hotflametime = {0, 0, 0, 0, 0}
@@ -148,17 +149,18 @@ function Sun:ground_special()
     self.current_hitboxes = self.hitboxes_neutral
     self.hotflaming_pos[1] = self.pos[1]
     self.hotflaming_pos[2] = self.pos[2]
-    writeSound(self.hotflame_sfx) -- GUNFLAME
 
     if not self.isSupering then
       self.super = self.super - 8
       self.hotflametime = {50, 0, 0, 0, 0} -- "low quality" way to implement (50 - 30) frame delay
       Hotflame:playSound() -- flamey sounds
+      writeSound(self.hotflame_sfx)
       self.recovery = 45
     elseif self.isSupering and self.life > 25 then
       self.life = self.life - 20
       self.hotterflametime = 40
       Hotterflame:playSound() -- big flamey sound
+      writeSound(self.hotterflame_sfx)
       self.recovery = 15
     end
   end

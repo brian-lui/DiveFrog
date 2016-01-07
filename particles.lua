@@ -39,6 +39,36 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift
     -- RGBTable not supported yet
 end
 
+function Particle:getCorrectDrawable(image_index, pos_h, pos_v, scale_x, scale_y, sprite_h_mid, sprite_v_mid, RGBTable)
+  local quad = love.graphics.newQuad(image_index * self.width, 0,
+    self.width, self.height, self.image_size[1], self.image_size[2])
+  return {self.image, 
+    quad, 
+    pos_h + self.center,
+    pos_v + sprite_v_mid,
+    0, -- rotation
+    scale_x, -- scale_x: 1 is default, -1 for flip
+    scale_y, -- scale_y: 1 is default, 1 for flip
+    self.center, -- anchor_x
+    sprite_v_mid, -- anchor_y
+    0, -- shear_x: 0
+    0} -- shear_y: 0
+    -- RGBTable not supported yet
+end
+
+function Particle:postRepeatFXCorrect(pos_h, pos_v, h_mid, v_mid, facing, delay_time, sound_boolean)
+  draw_count = draw_count + 1
+  local delay = delay_time or 0
+  local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
+  postbuffer[frame + delay] = postbuffer[frame + delay] or {}
+  postbuffer[frame + delay][draw_count] = self:getCorrectDrawable(current_anim,
+    pos_h,
+    pos_v,
+    facing, math.abs(facing), h_mid, v_mid)
+  if sound_boolean then self:playSound(delay_time) end
+end
+
+
 -- called each frame while condition is valid
 function Particle:preRepeatFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean) 
   draw_count = draw_count + 1
@@ -131,7 +161,7 @@ SuperMeter = Particle:new(love.graphics.newImage('images/SuperMeter.png'),
 ------------------------------ COMMON PARTICLES -------------------------------
 Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
   {600, 140}, {600, 140}, 60, "Mugshot.ogg", true, true)
-Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'),
+Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), -- Uses new method!
   {70, 50}, {70, 50}, 1, true)
 OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'),
   {800, 200}, {200, 200}, 3)

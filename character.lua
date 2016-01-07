@@ -108,6 +108,10 @@ function Fighter:init2(init_player, init_foe, init_super, init_dizzy, init_score
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
   self.center = self.pos[1] + 0.5 * self.sprite_size[1]
+  self.width = self.sprite_size[1]
+  self.height = self.sprite_size[2]
+  self.h_mid = self.sprite_size[1] / 2
+  self.v_mid = self.sprite_size[2] / 2
 end
 
 function Fighter:jump_key_press()
@@ -430,7 +434,8 @@ function Fighter:updatePos()
   if self.mugshotFrames > 0 then
     self.vel_multiple = 0.7
     self.mugshotFrames = self.mugshotFrames - 1
-    Dizzy:postRepeatFX(self.center - Dizzy.center, self.pos[2], self.facing, self.shift * Dizzy.width)
+    Dizzy:postRepeatFXCorrect(self.pos[1] + self.h_mid - Dizzy.center, self.pos[2], self.h_mid, 0, self.facing)
+
     if self.mugshotFrames == 0 then self.vel_multiple = 1.0 end
   end
 

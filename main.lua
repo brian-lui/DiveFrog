@@ -156,7 +156,6 @@ function drawSprites()
 		  love.graphics.ellipse("fill", side:getCenter(), stage.floor - 5, 50, 20)
 
 		  -- Sprites
-		  local shift = side.shift * side.sprite_size[1]
 		  local temp_color = {255, 255, 255, 255}
 		  if side.color then
 		  	for i = 1, 4 do temp_color[i] = side.color[i] end
@@ -167,8 +166,9 @@ function drawSprites()
 		  	temp_color[3] = temp_color[3] * 0.7
 		  end
 		  love.graphics.setColor(temp_color)
-		  love.graphics.draw(side.image, side.sprite,
-		  	side.pos[1], side.pos[2], 0, side.facing, 1, shift, 0)
+      love.graphics.draw(side.image, side.sprite,
+        side.pos[1] + side.h_mid, side.pos[2] + side.v_mid, 0, side.facing, 1, side.h_mid, side.v_mid)
+
 	  love.graphics.pop()
 	end
 
