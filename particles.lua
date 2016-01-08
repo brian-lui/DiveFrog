@@ -2,6 +2,25 @@ local class = require 'middleclass'
 require 'utilities'
 draw_count = 0 -- each object gets a new index number, to prevent overwriting
 
+--[[Crazy Love2D! So confusing!
+
+How to use particles.lua? Here's an example of how to call it correctly:
+    Example:postRepeatFXCorrect(
+    self.center - Example.center + self.facing * 100,
+    self.pos[2],
+    self.h_mid,
+    0,
+    self.facing)
+
+The important terms for correct horizontal flipping are 
+  self.h_mid -- this sets the center of operations to its center? Actually, I don't know if this is even used.
+  (self.center - Example.center + self.facing * 100)
+  self.center -- place the sprite at the horizontal center line
+  - Example.center -- Example is the particle's center. This term makes it completely centered. Optional.
+  + self.facing * 100 -- This moves the particle relative to the sprite. Optional.
+]]
+
+
 --[[---------------------------------------------------------------------------
                               PARTICLE / FX CLASS
 -----------------------------------------------------------------------------]]   
