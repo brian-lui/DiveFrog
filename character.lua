@@ -434,8 +434,7 @@ function Fighter:updatePos()
   if self.mugshotFrames > 0 then
     self.vel_multiple = 0.7
     self.mugshotFrames = self.mugshotFrames - 1
-    Dizzy:postRepeatFXCorrect(self.center - Dizzy.center, self.pos[2], self.h_mid, 0, self.facing)
-
+    Dizzy:postRepeatFXCorrect2(self.center, self.pos[2], 200, 0, self.facing)
     if self.mugshotFrames == 0 then self.vel_multiple = 1.0 end
   end
 
