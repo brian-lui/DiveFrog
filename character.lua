@@ -184,7 +184,7 @@ function Fighter:jump(h_vel, v_vel)
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(1)
   self.current_hurtboxes = self.hurtboxes_jumping
-  JumpDust:postLoadFX(self.center,
+  JumpDust:singleLoad(self.center,
    self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
 end
 
@@ -194,7 +194,7 @@ function Fighter:kickback(h_vel, v_vel)
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(3)
   self.current_hurtboxes = self.hurtboxes_kickback
-  KickbackDust:postLoadFX(self.center,
+  KickbackDust:singleLoad(self.center,
     self.pos[2], 0, self.sprite_size[2] - KickbackDust.height, self.facing)
 end
 
@@ -242,7 +242,8 @@ end
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
   if type_table.Mugshot and not type_table.Projectile then
     self.hitflag.Mugshot = true
-    Mugshot:postLoadFX(camera_xy[1], camera_xy[2], 400, 200, 1, 20, true)
+    Mugshot:singleLoad(camera_xy[1], camera_xy[2], 400, 200, 1, 20)
+    Mugshot:playSound(20)
     game.isScreenShaking = true
   end
 
@@ -289,7 +290,7 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
 
   if frame - round_end_frame > 60 then
     if self.hitflag.Fire then
-      OnFire:postRepeatFX(self.center, self.pos[2], 0, 0, self.facing)
+      OnFire:repeatLoad(self.center, self.pos[2], 0, 0, self.facing)
     end
     if self.hitflag.Wallsplat then
       if self.hasHitWall then
@@ -306,21 +307,22 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
       end
       if frame % 4 == 0 then
         local i = math.floor((frame % (12 * 4)) / 4) + 1
-        Explosion1:postLoadFX(self.center,
+        Explosion1:singleLoad(self.center,
           self.pos[2],
           self.facing * (self.vel[1] + (i - 6) * 3),
           self.vel[2] + (i - 6) * 3,
-          self.facing * 4, 0, true)
-        Explosion2:postLoadFX(self.center,
+          self.facing * 4, 0)
+        Explosion2:singleLoad(self.center,
           self.pos[2],
           self.facing * (self.vel[1] / 2 + (i - 6) * 6),
           self.vel[2] + (i - 6) * 6,
-          self.facing * 3, 1, false)        
-        Explosion3:postLoadFX(self.center,
+          self.facing * 3, 1)
+        Explosion3:singleLoad(self.center,
           self.pos[2],
           self.facing * ((i - 6) * 10),
           self.vel[2] + (i - 6) * 10,
-          self.facing * 2, 2, false)        
+          self.facing * 2, 2)
+        Explosion2:playSound()
       end
     else
       self.isFrictionOn = true
@@ -443,7 +445,7 @@ function Fighter:updatePos()
   if self.mugshotFrames > 0 then
     self.vel_multiple = 0.7
     self.mugshotFrames = self.mugshotFrames - 1
-    Dizzy:postRepeatFX(self.center, self.pos[2], 0, 0, self.facing)
+    Dizzy:repeatLoad(self.center, self.pos[2], 0, 0, self.facing)
     if self.mugshotFrames == 0 then self.vel_multiple = 1.0 end
   end
 

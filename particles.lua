@@ -3,7 +3,7 @@ require 'utilities'
 draw_count = 0 -- each object gets a new index number, to prevent overwriting
 
 --[[Crazy Love2D! So confusing!
-    Example:postRepeatFX(
+    Example:repeatLoad(
     self.center, -- no need to change
     self.pos[2], -- no need to change
     -100, -- horizontal shift
@@ -31,7 +31,7 @@ function Particle:initialize(image, image_size, sprite_size, time_per_frame, sou
   self.color = color
 end
 
-function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBTable)
+function Particle:_getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBTable)
   local quad = love.graphics.newQuad(image_index * self.width, 0,
     self.width, self.height, self.image_size[1], self.image_size[2])
   return {self.image, 
@@ -48,65 +48,45 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBTa
     RGBTable or self.color}
 end
 
--- called each frame while condition is valid
-function Particle:preRepeatFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean, RGBTable)
-  draw_count = draw_count + 1
-  local delay = delay_time or 0
-  local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
-  prebuffer[frame + delay] = prebuffer[frame + delay] or {}
-  prebuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
-    sprite_center_h - self.center + (facing * h_shift),
-    sprite_v + v_shift,
-    facing, math.abs(facing), RGBTable)
-  if sound_boolean then self:playSound(delay_time) end
-end
-
--- called each frame while condition is valid
-function Particle:postRepeatFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean, RGBTable)
-  draw_count = draw_count + 1
-  local delay = delay_time or 0
-  local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
-  postbuffer[frame + delay] = postbuffer[frame + delay] or {}
-  postbuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
-    sprite_center_h - self.center + (facing * h_shift),
-    sprite_v + v_shift,
-    facing, math.abs(facing), RGBTable)
-  if sound_boolean then self:playSound(delay_time) end
-end
-
--- called once, loads entire anim
-function Particle:postLoadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean, RGBTable)
-  draw_count = draw_count + 1
-  local delay = delay_time or 0
-  for i = (frame + delay), (frame + delay + self.total_time) do
-    local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
-    postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = self:getDrawable(current_anim,
-      sprite_center_h - self.center + (facing * h_shift),
-      sprite_v + v_shift,
-      facing, math.abs(facing), RGBTable)
-  end
-  if sound_boolean then self:playSound(delay_time) end
-end
-
--- called once, loads entire anim
-function Particle:preLoadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean, RGBTable)
-  draw_count = draw_count + 1
-  local delay = delay_time or 0
-  for i = (frame + delay), (frame + delay + self.total_time) do
-    local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
-    prebuffer[i] = prebuffer[i] or {}
-    prebuffer[i][draw_count] = self:getDrawable(current_anim,
-      sprite_center_h - self.center + (facing * h_shift),
-      sprite_v + v_shift,
-      facing, math.abs(facing), RGBTable)
-  end
-  if sound_boolean then self:playSound(delay_time) end
-end
-
 function Particle:playSound(delay_time)
   writeSound(self.sound, delay_time)
 end
+
+-- called each frame while condition is valid
+function Particle:repeatLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, layer, RGBTable)
+  draw_count = draw_count + 1
+  local delay = delay_time or 0
+  local buffer = postbuffer
+  if layer == "pre" then buffer = prebuffer end
+
+  local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
+  buffer[frame + delay] = buffer[frame + delay] or {}
+  buffer[frame + delay][draw_count] = self:_getDrawable(current_anim,
+    sprite_center_h - self.center + (facing * h_shift),
+    sprite_v + v_shift,
+    facing, math.abs(facing), RGBTable)
+
+end
+
+-- called once, loads entire anim
+function Particle:singleLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, layer, RGBTable)
+  draw_count = draw_count + 1
+  local delay = delay_time or 0
+  local buffer = postbuffer
+  if layer == "pre" then buffer = prebuffer end
+
+  for i = (frame + delay), (frame + delay + self.total_time) do
+    local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
+    buffer[i] = buffer[i] or {}
+    buffer[i][draw_count] = self:_getDrawable(current_anim,
+      sprite_center_h - self.center + (facing * h_shift),
+      sprite_v + v_shift,
+      facing, math.abs(facing), RGBTable)
+  end
+end
+
+
+
 
 --[[---------------------------------------------------------------------------
                             AFTERIMAGES SUB-CLASS
@@ -125,7 +105,7 @@ function AfterImage:loadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing)
   for s_frame, color in pairs(shadow) do
     draw_count = draw_count + 1
     prebuffer[frame + s_frame] = prebuffer[frame + s_frame] or {}
-    prebuffer[frame + s_frame][draw_count] = self:getDrawable(0,
+    prebuffer[frame + s_frame][draw_count] = self:_getDrawable(0,
       sprite_center_h - self.center + (facing * h_shift),
       sprite_v + v_shift,
       facing, math.abs(facing), color)
@@ -149,7 +129,7 @@ Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), -- OK 2
 OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'), -- OK 2
   {800, 200}, {200, 200}, 3)
 JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), -- OK 2
-  {528, 60}, {132, 60}, 4, "dummy.ogg", {255, 255, 255, 128})
+  {528, 60}, {132, 60}, 4, "dummy.ogg", {255, 255, 255, 196})
 KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), -- OK 2
   {162, 42}, {54, 42}, 4, "dummy.ogg", {255, 255, 255, 196})
 WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'), -- OK 2
@@ -166,7 +146,7 @@ Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'), -- OK
 HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), -- OK 2
   {800, 200}, {200, 200}, 2, "Konrad/KonradHyperKick.ogg")
 DoubleJumpDust = Particle:new(love.graphics.newImage('images/Konrad/DoubleJumpDust.png'), -- OK 2
-  {162, 43}, {54, 43}, 4, "Konrad/KonradDoubleJump.ogg")
+  {162, 43}, {54, 43}, 4, "Konrad/KonradDoubleJump.ogg", {255, 255, 255, 196})
 
 -------------------------------- SUN BADFROG ----------------------------------
 SunAura = Particle:new(love.graphics.newImage('images/Sun/Aura.png'), -- OK 2

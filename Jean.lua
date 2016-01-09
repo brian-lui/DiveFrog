@@ -135,13 +135,15 @@ end
     self.pilebunking = true -- to prevent dandy step or pilebunker while pilebunking
     self.isAttacking = true -- needed to activate hitboxes
 
-    Explosion1:postLoadFX(self.center, self.pos[2], 60, 50, self.facing * 2, 0, true)
-    Explosion2:preLoadFX(self.center, self.pos[2], 50, 70, self.facing * 2, 5, true)
-    Explosion3:postLoadFX(self.center, self.pos[2], 100, 30, self.facing * 2, 10, true)
-    Explosion1:preLoadFX(self.center, self.pos[2], 40, 20, self.facing * 2, 13, true)
-    Explosion2:postLoadFX(self.center, self.pos[2], 70, 80, self.facing * 2, 15, true)
-    Explosion3:preLoadFX(self.center, self.pos[2], 90, 5, self.facing * 2, 17, true)
-
+    Explosion1:singleLoad(self.center, self.pos[2], 60, 50, self.facing * 2, 0)
+    Explosion2:singleLoad(self.center, self.pos[2], 50, 70, self.facing * 2, 5, "pre")
+    Explosion3:singleLoad(self.center, self.pos[2], 100, 30, self.facing * 2, 10)
+    Explosion1:singleLoad(self.center, self.pos[2], 40, 20, self.facing * 2, 13, "pre")
+    Explosion2:singleLoad(self.center, self.pos[2], 70, 80, self.facing * 2, 15)
+    Explosion3:singleLoad(self.center, self.pos[2], 90, 5, self.facing * 2, 17, "pre")
+    Explosion1:playSound(0)
+    Explosion2:playSound(5)
+    Explosion3:playSound(15)
 
     self.vel[1] = h_vel * self.facing
     self:updateImage(6)
@@ -167,17 +169,19 @@ end
     if self.isSupering and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 8
       self.waiting_state = ""
-      WireSea:postLoadFX(self.center, self.pos[2], 0, 0, self.facing, 0, true)
+      WireSea:singleLoad(self.center, self.pos[2], 0, 0, self.facing, 0)
+      WireSea:playSound()
       self:land()
-      p1:setFrozen(10)
-      p2:setFrozen(10)
+      self:setFrozen(10)
+      self.foe:setFrozen(10)
     elseif self.super >= 16 and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 16
       self.waiting_state = ""
-      WireSea:postLoadFX(self.center, self.pos[2], 0, 0, self.facing, 0, true)
+      WireSea:singleLoad(self.center, self.pos[2], 0, 0, self.facing, 0)
+      WireSea:playSound()
       self:land()
-      p1:setFrozen(10)
-      p2:setFrozen(10)
+      self:setFrozen(10)
+      self.foe:setFrozen(10)
     end
   end
 

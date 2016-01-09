@@ -148,12 +148,13 @@ end
         self.waiting_state = ""
         self:jump(0, 14, self.default_gravity)
         writeSound(self.jump_sfx)
-        JumpDust:postLoadFX(self.center, self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
+        JumpDust:singleLoad(self.center, self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
       end
       if self.waiting == 0 and self.waiting_state == "DoubleJump" then
         self.waiting_state = ""
         self:jump(4.8, 4.8, self.default_gravity)
-        DoubleJumpDust:postLoadFX(self.center, self.pos[2], -30, self.sprite_size[2] - DoubleJumpDust.height, self.facing, 0, true)
+        DoubleJumpDust:singleLoad(self.center, self.pos[2], -30, self.sprite_size[2] - DoubleJumpDust.height, self.facing)
+        DoubleJumpDust:playSound()
       end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
         self.waiting_state = ""
@@ -175,7 +176,7 @@ end
 
   function Konrad:extraStuff()
     if self.hyperkicking and not self.isKO then
-      HyperKickFlames:postRepeatFX(self.center, self.pos[2], 0, 0, self.facing)
+      HyperKickFlames:repeatLoad(self.center, self.pos[2], 0, 0, self.facing)
     end
   end
 

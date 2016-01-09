@@ -174,10 +174,11 @@ function Sun:ground_special()
     end
     self.recovery = 0
     self.waiting_state = ""
-    WireSea:postLoadFX(self.center, self.pos[2], 0, 0, self.facing, 0, true)
+    WireSea:singleLoad(self.center, self.pos[2], 0, 0, self.facing)
+    WireSea:playSound()
     self:land()
-    p1:setFrozen(10)
-    p2:setFrozen(10)
+    self:setFrozen(10)
+    self.foe:setFrozen(10)
   end
 end
 
@@ -241,7 +242,7 @@ function Sun:extraStuff()
       end
 
       if self.hotflametime[i] <= 35 then -- low quality way to implmement startup
-        Hotflame:postRepeatFX(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
+        Hotflame:repeatLoad(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
           self.hotflaming_pos[2],
           self.sprite_size[1] / 2 + Hotflame.sprite_size[1] / 2 + 45 * (i - 1),
           self.sprite_size[2] - Hotflame.sprite_size[2],
@@ -253,7 +254,7 @@ function Sun:extraStuff()
   if self.hotterflametime > 0 then
     self.isAttacking = true
 
-    Hotterflame:postLoadFX(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
+    Hotterflame:singleLoad(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
       self.hotflaming_pos[2],
       self.sprite_size[1] / 2,
       self.sprite_size[2] - Hotterflame.sprite_size[2],
@@ -366,7 +367,8 @@ function Sun:updateSuper()
   end
 
   if self.isSupering then
-    SunAura:preRepeatFX(self.center, self.pos[2], 0, self.sprite_size[2] - SunAura.sprite_size[2], self.facing)
+    SunAura:repeatLoad(self.center, self.pos[2], 0, self.sprite_size[2] - SunAura.sprite_size[2],
+      self.facing, 0, "pre", {255, 255, 255, 196})
 
     if not (self.isKO or self.hasWon) then
       self.super = self.super - self.super_drainspeed
