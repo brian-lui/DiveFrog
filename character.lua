@@ -184,8 +184,8 @@ function Fighter:jump(h_vel, v_vel)
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(1)
   self.current_hurtboxes = self.hurtboxes_jumping
-  JumpDust:postLoadFXCorrect(self.center - JumpDust.center,
-   self.pos[2] + self.sprite_size[2] - JumpDust.height, self.h_mid, 0, self.facing)
+  JumpDust:postLoadFXCorrect2(self.center,
+   self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
 end
 
 function Fighter:kickback(h_vel, v_vel)
@@ -194,8 +194,8 @@ function Fighter:kickback(h_vel, v_vel)
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(3)
   self.current_hurtboxes = self.hurtboxes_kickback
-  KickbackDust:postLoadFXCorrect(self.center - KickbackDust.center,
-    self.pos[2] + self.sprite_size[2] - KickbackDust.height, self.h_mid, 0, self.facing)
+  KickbackDust:postLoadFXCorrect2(self.center,
+    self.pos[2], 0, self.sprite_size[2] - KickbackDust.height, self.facing)
 end
 
 function Fighter:land()
@@ -289,7 +289,7 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
 
   if frame - round_end_frame > 60 then
     if self.hitflag.Fire then
-      OnFire:postRepeatFX(self.pos[1], self.pos[2], self.facing, self.shift_amount)
+      OnFire:postRepeatFXCorrect2(self.center, self.pos[2], 0, 0, self.facing)
     end
     if self.hitflag.Wallsplat then
       if self.hasHitWall then
@@ -434,7 +434,7 @@ function Fighter:updatePos()
   if self.mugshotFrames > 0 then
     self.vel_multiple = 0.7
     self.mugshotFrames = self.mugshotFrames - 1
-    Dizzy:postRepeatFXCorrect2(self.center, self.pos[2], 200, 0, self.facing)
+    Dizzy:postRepeatFXCorrect2(self.center, self.pos[2], 0, 0, self.facing)
     if self.mugshotFrames == 0 then self.vel_multiple = 1.0 end
   end
 

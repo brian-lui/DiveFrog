@@ -174,7 +174,7 @@ function Sun:ground_special()
     end
     self.recovery = 0
     self.waiting_state = ""
-      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width, 0, true)
+    WireSea:postLoadFXCorrect2(self.center, self.pos[2], 0, 0, self.facing, 0, true)
     self:land()
     p1:setFrozen(10)
     p2:setFrozen(10)
@@ -222,8 +222,6 @@ function Sun:extraStuff()
   for i = 1, 4 do
     if self.hotflametime[i] > 0 then
       self.isAttacking = true
-      local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] + 45 * (i - 1)) * self.facing
-      local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] - Hotflame.sprite_size[2]
       
       if self.frozenFrames == 0 and not self.foe.hitflag.Projectile then 
         self.hotflametime[i] = self.hotflametime[i] - 1
@@ -241,18 +239,25 @@ function Sun:extraStuff()
             Flag2 = "Projectile"} 
         end
       end
+
       if self.hotflametime[i] <= 35 then -- low quality way to implmement startup
-        Hotflame:postRepeatFX(h_pos, v_pos, self.facing, self.shift_amount)
+        Hotflame:postRepeatFXCorrect2(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
+          self.hotflaming_pos[2],
+          self.sprite_size[1] / 2 + Hotflame.sprite_size[1] / 2 + 45 * (i - 1),
+          self.sprite_size[2] - Hotflame.sprite_size[2],
+          self.facing)
       end
     end
   end
 
   if self.hotterflametime > 0 then
     self.isAttacking = true
-    local h_pos = self.hotflaming_pos[1] + (self.sprite_size[1] - self.sprite_wallspace) * self.facing 
-    local v_pos = self.hotflaming_pos[2] + self.sprite_size[2] - Hotterflame.sprite_size[2]
 
-    Hotterflame:postLoadFX(h_pos, v_pos, self.facing, self.shift_amount)
+    Hotterflame:postLoadFXCorrect2(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
+      self.hotflaming_pos[2],
+      self.sprite_size[1] / 2,
+      self.sprite_size[2] - Hotterflame.sprite_size[2],
+      self.facing)
 
     if self.frozenFrames == 0 and not self.foe.hitflag.Projectile then
       self.hotterflametime = self.hotterflametime - 1
@@ -361,9 +366,8 @@ function Sun:updateSuper()
   end
 
   if self.isSupering then
-    SunAura:preRepeatFX(self.pos[1],
-      self.pos[2] + self.sprite_size[2] - SunAura.sprite_size[2],
-      self.facing, self.shift_amount)
+    SunAura:preRepeatFXCorrect2(self.center, self.pos[2], 0, self.sprite_size[2] - SunAura.sprite_size[2], self.facing)
+
     if not (self.isKO or self.hasWon) then
       self.super = self.super - self.super_drainspeed
       self.life = math.max(self.life - 0.75, 0)

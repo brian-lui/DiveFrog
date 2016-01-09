@@ -165,14 +165,14 @@ end
     if self.isSupering and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 8
       self.waiting_state = ""
-      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width, 0, true)
+      WireSea:postLoadFXCorrect2(self.center, self.pos[2], 0, 0, self.facing, 0, true)
       self:land()
       p1:setFrozen(10)
       p2:setFrozen(10)
     elseif self.super >= 16 and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 16
       self.waiting_state = ""
-      WireSea:postLoadFX(self.center, self.pos[2] + self.sprite_size[2] / 2, self.facing, self.shift * WireSea.width, 0, true)
+      WireSea:postLoadFXCorrect2(self.center, self.pos[2], 0, 0, self.facing, 0, true)
       self:land()
       p1:setFrozen(10)
       p2:setFrozen(10)
