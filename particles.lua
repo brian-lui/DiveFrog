@@ -3,9 +3,8 @@ require 'utilities'
 draw_count = 0 -- each object gets a new index number, to prevent overwriting
 
 --[[Crazy Love2D! So confusing!
-
 How to use particles.lua?
-    Example:postRepeatFXCorrect2(
+    Example:postRepeatFX(
     self.center, -- no need to change
     self.pos[2], -- no need to change
     -100, -- horizontal shift
@@ -51,23 +50,6 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift
     -- RGBTable not supported yet
 end
 
-function Particle:getCorrectDrawable(image_index, pos_h, pos_v, scale_x, scale_y, sprite_h_mid, sprite_v_mid, RGBTable)
-  local quad = love.graphics.newQuad(image_index * self.width, 0,
-    self.width, self.height, self.image_size[1], self.image_size[2])
-  return {self.image, 
-    quad, 
-    pos_h + self.center,
-    pos_v + sprite_v_mid,
-    0, -- rotation
-    scale_x, -- scale_x: 1 is default, -1 for flip
-    scale_y, -- scale_y: 1 is default, 1 for flip
-    self.center, -- anchor_x
-    sprite_v_mid, -- anchor_y
-    0, -- shear_x: 0
-    0} -- shear_y: 0
-    -- RGBTable not supported yet
-end
-
 function Particle:getCorrectDrawable2(image_index, pos_h, pos_v, scale_x, scale_y, RGBTable)
   local quad = love.graphics.newQuad(image_index * self.width, 0,
     self.width, self.height, self.image_size[1], self.image_size[2])
@@ -85,7 +67,7 @@ function Particle:getCorrectDrawable2(image_index, pos_h, pos_v, scale_x, scale_
     -- RGBTable not supported yet
 end
 -- called each frame while condition is valid
-function Particle:preRepeatFXCorrect2(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
+function Particle:preRepeatFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
@@ -98,7 +80,7 @@ function Particle:preRepeatFXCorrect2(sprite_center_h, sprite_v, h_shift, v_shif
 end
 
 -- called each frame while condition is valid
-function Particle:postRepeatFXCorrect2(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
+function Particle:postRepeatFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
@@ -111,7 +93,7 @@ function Particle:postRepeatFXCorrect2(sprite_center_h, sprite_v, h_shift, v_shi
 end
 
 -- called once, loads entire anim
-function Particle:postLoadFXCorrect2(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
+function Particle:postLoadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   for i = (frame + delay), (frame + delay + self.total_time) do
@@ -126,7 +108,7 @@ function Particle:postLoadFXCorrect2(sprite_center_h, sprite_v, h_shift, v_shift
 end
 
 -- called once, loads entire anim
-function Particle:preLoadFXCorrect2(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
+function Particle:preLoadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   for i = (frame + delay), (frame + delay + self.total_time) do
@@ -136,63 +118,6 @@ function Particle:preLoadFXCorrect2(sprite_center_h, sprite_v, h_shift, v_shift,
       sprite_center_h - self.center + (facing * h_shift),
       sprite_v + v_shift,
       facing, math.abs(facing))
-  end
-  if sound_boolean then self:playSound(delay_time) end
-end
-
-
--- called each frame while condition is valid
-function Particle:preRepeatFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean) 
-  draw_count = draw_count + 1
-  local delay = delay_time or 0
-  local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
-  prebuffer[frame + delay] = prebuffer[frame + delay] or {}
-  prebuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
-    pos_h,
-    pos_v,
-    facing, math.abs(facing), shift)
-  if sound_boolean then self:playSound(delay_time) end
-end
-
- -- called each frame while condition is valid
-function Particle:postRepeatFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean)
-  draw_count = draw_count + 1
-  local delay = delay_time or 0
-  local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
-  postbuffer[frame + delay] = postbuffer[frame + delay] or {}
-  postbuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
-    pos_h,
-    pos_v,
-    facing, math.abs(facing), shift)
-  if sound_boolean then self:playSound(delay_time) end
-end
-
--- called once, loads entire anim
-function Particle:preLoadFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean)
-  draw_count = draw_count + 1
-  local delay = delay_time or 0
-  for i = (frame + delay), (frame + delay + self.total_time) do
-    local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
-    prebuffer[i] = prebuffer[i] or {}
-    prebuffer[i][draw_count] = self:getDrawable(current_anim,
-      pos_h,
-      pos_v,
-      facing, math.abs(facing), shift)
-  end
-  if sound_boolean then self:playSound(delay_time) end
-end
-
--- called once, loads entire anim
-function Particle:postLoadFX(pos_h, pos_v, facing, shift, delay_time, sound_boolean)
-  draw_count = draw_count + 1
-  local delay = delay_time or 0
-  for i = (frame + delay), (frame + delay + self.total_time) do
-    local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
-    postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = self:getDrawable(current_anim,
-      pos_h,
-      pos_v,
-      facing, math.abs(facing), shift)
   end
   if sound_boolean then self:playSound(delay_time) end
 end
@@ -243,11 +168,11 @@ KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), -
   {162, 42}, {54, 42}, 4)
 WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'), -- OK 2
   {1600, 220}, {200, 220}, 2, "WireSea.ogg", true, true)
-Explosion1 = Particle:new(love.graphics.newImage('images/Explosion1.png'),
+Explosion1 = Particle:new(love.graphics.newImage('images/Explosion1.png'), 
   {800, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
-Explosion2 = Particle:new(love.graphics.newImage('images/Explosion2.png'),
+Explosion2 = Particle:new(love.graphics.newImage('images/Explosion2.png'), -- OK 2
   {880, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
-Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'),
+Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'), -- OK 2
   {880, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
 
 
