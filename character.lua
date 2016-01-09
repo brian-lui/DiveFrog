@@ -374,18 +374,14 @@ function Fighter:updateImage(image_index)
     self.image_size[1], self.image_size[2])
 end
 
-function Fighter:fixFacing() -- change character facing if over center of opponent
+function Fighter:fixFacing() -- update centerpoint, change character facing
   self.center = self:getCenter()
   self.foe.center = self.foe:getCenter()
   if self:getNeutral() and not self.isInAir then
     if self.facing == 1 and self.center > self.foe.center then
       self.facing = -1
-      self.shift = 1
-      self.shift_amount = self.sprite_size[1]
     elseif self.facing == -1 and self.center < self.foe.center then
       self.facing = 1
-      self.shift = 0
-      self.shift_amount = 0
     end
   end
 end
@@ -528,7 +524,7 @@ function Fighter:updateSuper()
     self.super = self.super - self.super_drainspeed
     -- after-images
     local shadow = AfterImage(self.image, self.image_size, self.sprite_size, 1)
-    shadow:loadFX(self.pos[1], self.pos[2], self.sprite, self.facing, self.shift_amount)
+    shadow:loadFX(self.center, self.pos[2], 0, 0, self.facing)
   end
 
   if self.super <= 0 then -- turn off Frog Factor

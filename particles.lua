@@ -3,7 +3,6 @@ require 'utilities'
 draw_count = 0 -- each object gets a new index number, to prevent overwriting
 
 --[[Crazy Love2D! So confusing!
-How to use particles.lua?
     Example:postRepeatFX(
     self.center, -- no need to change
     self.pos[2], -- no need to change
@@ -118,7 +117,7 @@ function AfterImage:initialize(image, image_size, sprite_size, time_per_frame, s
   Particle.initialize(self, image, image_size, sprite_size, time_per_frame, sound)
 end
 
-function AfterImage:loadFX(pos_h, pos_v, quad, facing, shift)
+function AfterImage:loadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing)
   local shadow = {
     [8] = {255, 180, 0, 200},
     [16] = {255, 180, 0, 150}, 
@@ -127,8 +126,12 @@ function AfterImage:loadFX(pos_h, pos_v, quad, facing, shift)
   for s_frame, color in pairs(shadow) do
     draw_count = draw_count + 1
     prebuffer[frame + s_frame] = prebuffer[frame + s_frame] or {}
-    prebuffer[frame + s_frame][draw_count] = {self.image, quad, pos_h, pos_v, 0, facing, 1, shift, 0, 0, 0, color}
+    prebuffer[frame + s_frame][draw_count] = self:getDrawable(0,
+      sprite_center_h - self.center + (facing * h_shift),
+      sprite_v + v_shift,
+      facing, math.abs(facing), color)
   end
+
 end
 
 ---------------------------------- OVERLAYS -----------------------------------
