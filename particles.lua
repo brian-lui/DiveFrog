@@ -33,91 +33,75 @@ function Particle:initialize(image, image_size, sprite_size, time_per_frame, sou
   if v_center then self.v_adjust = self.height / 2 else self.v_adjust = 0 end
 end
 
-function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, shift, RGBTable)
-  local quad = love.graphics.newQuad(image_index * self.width, 0,
-    self.width, self.height, self.image_size[1], self.image_size[2])
-  return {self.image, 
-    quad, 
-    pos_h - self.h_adjust,
-    pos_v - self.v_adjust,
-    0, -- rotation
-    scale_x, -- scale_x: 1 is default, -1 for flip
-    scale_y, -- scale_y: 1 is default, 1 for flip
-    shift, -- offset_x
-    0, -- offset_y: 0
-    0, -- shear_x: 0
-    0} -- shear_y: 0
-    -- RGBTable not supported yet
-end
-
-function Particle:getCorrectDrawable2(image_index, pos_h, pos_v, scale_x, scale_y, RGBTable)
+function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBTable)
   local quad = love.graphics.newQuad(image_index * self.width, 0,
     self.width, self.height, self.image_size[1], self.image_size[2])
   return {self.image, 
     quad, 
     pos_h + self.center,
     pos_v,
-    0, -- rotation
+    0,
     scale_x, -- scale_x: 1 is default, -1 for flip
-    scale_y, -- scale_y: 1 is default, 1 for flip
+    scale_y,
     self.center, -- anchor_x
     sprite_v_mid, -- anchor_y
-    0, -- shear_x: 0
-    0} -- shear_y: 0
-    -- RGBTable not supported yet
+    0,
+    0,
+    RGBTable}
 end
+
 -- called each frame while condition is valid
-function Particle:preRepeatFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
+function Particle:preRepeatFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean, RGBTable)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
   prebuffer[frame + delay] = prebuffer[frame + delay] or {}
-  prebuffer[frame + delay][draw_count] = self:getCorrectDrawable2(current_anim,
+  prebuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
     sprite_center_h - self.center + (facing * h_shift),
     sprite_v + v_shift,
-    facing, math.abs(facing))
+    facing, math.abs(facing), RGBTable)
   if sound_boolean then self:playSound(delay_time) end
 end
 
 -- called each frame while condition is valid
-function Particle:postRepeatFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
+function Particle:postRepeatFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean, RGBTable)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
   postbuffer[frame + delay] = postbuffer[frame + delay] or {}
-  postbuffer[frame + delay][draw_count] = self:getCorrectDrawable2(current_anim,
+  postbuffer[frame + delay][draw_count] = self:getDrawable(current_anim,
     sprite_center_h - self.center + (facing * h_shift),
     sprite_v + v_shift,
-    facing, math.abs(facing))
+    facing, math.abs(facing), RGBTable)
   if sound_boolean then self:playSound(delay_time) end
 end
 
 -- called once, loads entire anim
-function Particle:postLoadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
+function Particle:postLoadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean, RGBTable)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   for i = (frame + delay), (frame + delay + self.total_time) do
     local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
     postbuffer[i] = postbuffer[i] or {}
-    postbuffer[i][draw_count] = self:getCorrectDrawable2(current_anim,
+    postbuffer[i][draw_count] = self:getDrawable(current_anim,
       sprite_center_h - self.center + (facing * h_shift),
       sprite_v + v_shift,
-      facing, math.abs(facing))
+      facing, math.abs(facing), RGBTable)
   end
   if sound_boolean then self:playSound(delay_time) end
 end
 
 -- called once, loads entire anim
-function Particle:preLoadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean)
+function Particle:preLoadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing, delay_time, sound_boolean, RGBTable)
   draw_count = draw_count + 1
   local delay = delay_time or 0
   for i = (frame + delay), (frame + delay + self.total_time) do
     local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
     prebuffer[i] = prebuffer[i] or {}
-    prebuffer[i][draw_count] = self:getCorrectDrawable2(current_anim,
+    prebuffer[i][draw_count] = self:getDrawable(current_anim,
       sprite_center_h - self.center + (facing * h_shift),
       sprite_v + v_shift,
-      facing, math.abs(facing))
+      facing, math.abs(facing), RGBTable)
   end
   if sound_boolean then self:playSound(delay_time) end
 end

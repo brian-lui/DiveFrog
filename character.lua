@@ -315,12 +315,12 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
           self.pos[2],
           self.facing * (self.vel[1] / 2 + (i - 6) * 6),
           self.vel[2] + (i - 6) * 6,
-          self.facing * 3, 1, true)        
+          self.facing * 3, 1, false)        
         Explosion3:postLoadFX(self.center,
           self.pos[2],
           self.facing * ((i - 6) * 10),
           self.vel[2] + (i - 6) * 10,
-          self.facing * 2, 2, true)        
+          self.facing * 2, 2, false)        
       end
     else
       self.isFrictionOn = true

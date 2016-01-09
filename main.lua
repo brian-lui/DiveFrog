@@ -137,11 +137,11 @@ function drawSprites()
   ----------------------------------------------]]--
   if prebuffer[frame] then
     love.graphics.push("all")
-    for index, _ in pairs(prebuffer[frame]) do
-    	prebuffer[frame][index][12] = prebuffer[frame][index][12] or {255, 255, 255, 255}
-      love.graphics.setColor(prebuffer[frame][index][12]) -- 12 is RGB table
-      love.graphics.draw(unpack(prebuffer[frame][index]))
-    end
+	    for index, _ in pairs(prebuffer[frame]) do
+	    	prebuffer[frame][index][12] = prebuffer[frame][index][12] or {255, 255, 255, 255}
+	      love.graphics.setColor(prebuffer[frame][index][12]) -- 12 is RGB table
+	      love.graphics.draw(unpack(prebuffer[frame][index]))
+	    end
     love.graphics.pop()
   end
   prebuffer[frame] = nil
@@ -176,9 +176,13 @@ function drawSprites()
                   OVER-SPRITE LAYER      
   ----------------------------------------------]]--
   if postbuffer[frame] then
-    for index, _ in pairs(postbuffer[frame]) do
-      love.graphics.draw(unpack(postbuffer[frame][index]))
-    end
+  	love.graphics.push("all")
+	    for index, _ in pairs(postbuffer[frame]) do
+	    	postbuffer[frame][index][12] = postbuffer[frame][index][12] or {255, 255, 255, 255}
+	    	love.graphics.setColor(postbuffer[frame][index][12]) -- 12 is RGB table
+	      love.graphics.draw(unpack(postbuffer[frame][index]))
+	    end
+    love.graphics.pop()
   end
   postbuffer[frame] = nil
 end

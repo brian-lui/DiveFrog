@@ -245,7 +245,7 @@ function Sun:extraStuff()
           self.hotflaming_pos[2],
           self.sprite_size[1] / 2 + Hotflame.sprite_size[1] / 2 + 45 * (i - 1),
           self.sprite_size[2] - Hotflame.sprite_size[2],
-          self.facing)
+          self.facing, 0, false, {0, 255, 0, 255})
       end
     end
   end
