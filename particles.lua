@@ -16,7 +16,7 @@ draw_count = 0 -- each object gets a new index number, to prevent overwriting
                               PARTICLE / FX CLASS
 -----------------------------------------------------------------------------]]   
 Particle = class('Particle')
-function Particle:initialize(image, image_size, sprite_size, time_per_frame, sound, h_center, v_center)
+function Particle:initialize(image, image_size, sprite_size, time_per_frame, sound, color)
   self.image = image
   self.image_size = {image:getDimensions()}
   self.sprite_size = sprite_size
@@ -28,8 +28,7 @@ function Particle:initialize(image, image_size, sprite_size, time_per_frame, sou
   self.total_frames = image_size[1] / sprite_size[1]
   self.time_per_frame = time_per_frame
   self.total_time = time_per_frame * self.total_frames
-  if h_center then self.h_adjust = self.width / 2 else self.h_adjust = 0 end
-  if v_center then self.v_adjust = self.height / 2 else self.v_adjust = 0 end
+  self.color = color
 end
 
 function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBTable)
@@ -46,7 +45,7 @@ function Particle:getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBTa
     sprite_v_mid, -- anchor_y
     0,
     0,
-    RGBTable}
+    RGBTable or self.color}
 end
 
 -- called each frame while condition is valid
@@ -144,23 +143,23 @@ SuperMeter = Particle:new(love.graphics.newImage('images/SuperMeter.png'), -- OK
   {192, 120}, {192, 15}, 8)
 ------------------------------ COMMON PARTICLES -------------------------------
 Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
-  {600, 140}, {600, 140}, 60, "Mugshot.ogg", true, true)
+  {600, 140}, {600, 140}, 60, "Mugshot.ogg")
 Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), -- OK 2
   {70, 50}, {70, 50}, 1, true)
 OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'), -- OK 2
   {800, 200}, {200, 200}, 3)
 JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), -- OK 2
-  {528, 60}, {132, 60}, 4, "dummy.ogg", true, true)
+  {528, 60}, {132, 60}, 4, "dummy.ogg", {255, 255, 255, 128})
 KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), -- OK 2
-  {162, 42}, {54, 42}, 4)
+  {162, 42}, {54, 42}, 4, "dummy.ogg", {255, 255, 255, 196})
 WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'), -- OK 2
-  {1600, 220}, {200, 220}, 2, "WireSea.ogg", true, true)
+  {1600, 220}, {200, 220}, 2, "WireSea.ogg")
 Explosion1 = Particle:new(love.graphics.newImage('images/Explosion1.png'), 
-  {800, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
+  {800, 80}, {80, 80}, 3, "Explosion.ogg")
 Explosion2 = Particle:new(love.graphics.newImage('images/Explosion2.png'), -- OK 2
-  {880, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
+  {880, 80}, {80, 80}, 3, "Explosion.ogg")
 Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'), -- OK 2
-  {880, 80}, {80, 80}, 3, "Explosion.ogg", true, true)
+  {880, 80}, {80, 80}, 3, "Explosion.ogg")
 
 
 ----------------------------------- KONRAD ------------------------------------
