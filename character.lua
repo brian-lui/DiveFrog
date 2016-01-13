@@ -572,3 +572,11 @@ Ground Special: Bedman's Deja Vu, he can kick from the same place as the last ki
 
 Idea for win quote: "Go home and be a family frog."
 ]]
+
+--[[FROGS HOWARD]]--
+
+--[[DOA ninja]]--
+
+--[[Someone from Soul Calibur]]--
+
+--[["Paul". like Paul from Tekken. The most boring character ever. has stubble and ridiculous hairstyle]]
