@@ -22,50 +22,55 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.default_gravity = 0.36
   self.jackson_stance = false
   
-  --[[Currently edited up to HERE
+
+
+  self.hurtboxes_standing = {
+    {L = 80, U = 39, R = 129, D = 85, Flag1 = "Mugshot"},
+    {L = 70, U = 90, R = 127, D = 138},
+    {L = 71, U = 139, R = 122, D = 158},
+    {L = 72, U = 159, R = 114, D = 192}}
+	self.hurtboxes_jumping = {
+    {L = 80, U = 39, R = 129, D = 85, Flag1 = "Mugshot"},
+    {L = 70, U = 90, R = 127, D = 138},
+    {L = 71, U = 139, R = 122, D = 158},
+    {L = 72, U = 159, R = 114, D = 192}}
+	self.hurtboxes_falling = {
+    {L = 80, U = 39, R = 129, D = 85, Flag1 = "Mugshot"},
+    {L = 70, U = 90, R = 127, D = 138},
+    {L = 71, U = 139, R = 122, D = 158},
+    {L = 72, U = 159, R = 114, D = 192}}
+	self.hurtboxes_moonwalk = {
+    {L = 85, U = 43, R = 127, D = 66, Flag1 = "Mugshot"},
+    {L = 101, U = 67, R = 120, D = 78, Flag1 = "Mugshot"},
+    {L = 86, U = 25, R = 117, D = 42},
+    {L = 62, U = 58, R = 86, D = 186},
+    {L = 87, U = 177, R = 97, D = 186},
+    {L = 37, U = 153, R = 167, D = 187}}
+
+    --[[Currently edited up to HERE
 	Moonwalk should have blue shadows behind it.
 	Make theme song more Michael Jacksony and/or with M. Bison bells
   --]]
 
-  --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
-  self.hurtboxes_standing = {
-    {L = 78, U = 28, R = 119, D = 50, Flag1 = "Mugshot"},
-    {L = 69, U = 51, R = 124, D = 79, Flag1 = "Mugshot"},
-    {L = 76, U = 85, R = 120, D = 101},
-    {L = 70, U = 105, R = 129, D = 142},
-    {L = 75, U = 143, R = 124, D = 172},
-    {L = 82, U = 173, R = 120, D = 190}}
-  self.hurtboxes_jumping  = {
-    {L = 78, U = 28, R = 119, D = 50, Flag1 = "Mugshot"},
-    {L = 69, U = 51, R = 124, D = 79, Flag1 = "Mugshot"},
-    {L = 76, U = 85, R = 120, D = 101},
-    {L = 70, U = 105, R = 129, D = 142},
-    {L = 75, U = 143, R = 124, D = 172},
-    {L = 82, U = 173, R = 120, D = 190}}
-  self.hurtboxes_falling = {
-    {L = 78, U = 28, R = 119, D = 50, Flag1 = "Mugshot"},
-    {L = 69, U = 51, R = 124, D = 79, Flag1 = "Mugshot"},
-    {L = 76, U = 85, R = 120, D = 101},
-    {L = 70, U = 105, R = 129, D = 142},
-    {L = 75, U = 143, R = 124, D = 172},
-    {L = 82, U = 173, R = 120, D = 190}}
-  self.hurtboxes_attacking  = {
+  self.hurtboxes_attacking_bison  = {
     {L = 67, U = 20, R = 109, D = 59, Flag1 = "Mugshot"},
     {L = 75, U = 60, R = 104, D = 103},
     {L = 68, U = 104, R = 91, D = 135},
     {L = 100, U = 105, R = 114, D = 136},
     {L = 111, U = 137, R = 128, D = 157},
     {L = 125, U = 158, R = 138, D = 183}}
-  self.hurtboxes_kickback  = {
-    {L = 82, U = 25, R = 123, D = 71, Flag1 = "Mugshot"},
-    {L = 71, U = 41, R = 128, D = 72, Flag1 = "Mugshot"},
-    {L = 70, U = 73, R = 119, D = 165},
-    {L = 72, U = 166, R = 111, D = 182}}
+  
+  self.hurtboxes_attacking_jackson  = {
+    {L = 67, U = 20, R = 109, D = 59, Flag1 = "Mugshot"},
+    {L = 75, U = 60, R = 104, D = 103},
+    {L = 68, U = 104, R = 91, D = 135},
+    {L = 100, U = 105, R = 114, D = 136},
+    {L = 111, U = 137, R = 128, D = 157},
+    {L = 125, U = 158, R = 138, D = 183}}
 
   self.hitboxes_attacking = {{L = 119, U = 166, R = 137, D = 183}}
   self.hitboxes_hyperkick = {{L = 119, U = 166, R = 137, D = 183, Flag1 = "Fire"}}
-
-  self.hyperkicking = false
+  
 
   -- sound effects
   self.jump_sfx = "Konrad/KonradJump.ogg"
