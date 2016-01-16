@@ -22,7 +22,11 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.default_gravity = 0.36
   self.jackson_stance = false
   
-  --[[Currently edited up to HERE]]
+  --[[Currently edited up to HERE
+	Moonwalk should have blue shadows behind it.
+	Make theme song more Michael Jacksony and/or with M. Bison bells
+  --]]
+
   --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
   self.hurtboxes_standing = {
     {L = 78, U = 28, R = 119, D = 50, Flag1 = "Mugshot"},
