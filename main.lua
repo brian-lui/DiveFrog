@@ -1,3 +1,4 @@
+require 'lovedebug'
 require 'utilities' -- helper functions
 require 'camera'
 local json = require 'dkjson'
