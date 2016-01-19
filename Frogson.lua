@@ -69,20 +69,23 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.hitboxes_attacking_jackson = {{L = 184, U = 107, R = 198, D = 119}}
   self.hitboxes_antigravity = {{L = 167, U = 71, R = 183, D = 91}}
   
+  -- sound effects
+  --self.jump_sfx = "Konrad/KonradJump.ogg"
+  --self.attack_sfx = "Konrad/KonradAttack.ogg"
+  --self.got_hit_sfx = "Konrad/KonradKO.ogg"
+  self.hit_sound_sfx = "Potatoes.ogg"
+  self.moonwalk1_sfx = "Frogson/Moonwalk1.ogg"
+  self.moonwalk2_sfx = "Frogson/Moonwalk2.ogg"
+  self.wow_sfx = "Frogson/Thriller.ogg"
+  self.antigravity_sfx = "Frogson/BeatIt.ogg"
+
+  self:init2(init_player, init_foe, init_super, init_dizzy, init_score)
+end
+
     --[[Currently edited up to HERE
   Moonwalk should have blue shadows behind it.
   Make theme song more Michael Jacksony and/or with M. Bison bells
   --]]    
-
-  -- sound effects
-  self.jump_sfx = "Konrad/KonradJump.ogg"
-  self.attack_sfx = "Konrad/KonradAttack.ogg"
-  self.got_hit_sfx = "Konrad/KonradKO.ogg"
-  self.hit_sound_sfx = "Potatoes.ogg"
-  self.ground_special_sfx = "Konrad/KonradHyperJump.ogg"
-
-  self:init2(init_player, init_foe, init_super, init_dizzy, init_score)
-end
 
   function Konrad:jump_key_press()
     if self.isInAir and not self.isAttacking and not self.double_jump then
