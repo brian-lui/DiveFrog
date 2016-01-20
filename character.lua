@@ -580,3 +580,5 @@ Idea for win quote: "Go home and be a family frog."
 --[[Someone from Soul Calibur]]--
 
 --[["Paul". like Paul from Tekken. The most boring character ever. has stubble and ridiculous hairstyle]]
+
+--[[A frog which has murakumo-like shadows. Ground: jump, kickback, forward move. Air: kick, backkick, stay in air]]
