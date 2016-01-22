@@ -232,9 +232,9 @@ function Sun:extraStuff()
         end
         if self.hotflametime[i] <= 30 then -- low quality way to implement startup
           self.hitboxes_hotflame[#self.hitboxes_hotflame + 1] = {
-            L = self.sprite_size[1] + (45 * (i - 1)) + 20,
+            L = self.sprite_size[1] + (45 * (i - 1)) - 20,
             U = self.sprite_size[2] - 110, 
-            R = self.sprite_size[1] + (45 * (i - 1)) + 30 , 
+            R = self.sprite_size[1] + (45 * (i - 1)) - 10, 
             D = self.sprite_size[2],
             Flag1 = "Fire",
             Flag2 = "Projectile"} 
@@ -244,7 +244,7 @@ function Sun:extraStuff()
       if self.hotflametime[i] <= 35 then -- low quality way to implmement startup
         Hotflame:repeatLoad(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
           self.hotflaming_pos[2],
-          self.sprite_size[1] / 2 + Hotflame.sprite_size[1] / 2 + 45 * (i - 1),
+          self.sprite_size[1] / 2 + 45 * (i - 1) - 20,
           self.sprite_size[2] - Hotflame.sprite_size[2],
           self.facing, 0, false)
       end
