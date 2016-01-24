@@ -27,7 +27,10 @@ love.filesystem.createDirectory("saves")
 local settingsscreen = love.graphics.newImage('images/Settings.jpg')
 local replaysscreen = love.graphics.newImage('images/Replays.jpg')
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
-local titlescreen = love.graphics.newImage('images/Title.jpg')  
+local titlescreen = love.graphics.newImage('images/TitleBackground.jpg')
+local titleselect = love.graphics.newImage('images/Titleselect.png')
+local titledivefrog = love.graphics.newImage('images/TitleDivefrog.png')
+local titlecontrolsbk = love.graphics.newImage('images/TitleControlsBk.png')
 local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
 local hpbar = love.graphics.newImage('images/HPBar.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
@@ -35,7 +38,8 @@ local greenlight = love.graphics.newImage('images/GreenLight.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
 -- load fontss
-local titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 60)
+local titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
+local roundStartFont = love.graphics.newFont('/fonts/GoodDog.otf', 60)
 local charInfoFont = love.graphics.newFont('/fonts/CharSelect.ttf', 21)
 local charSelectorFont = love.graphics.newFont('/fonts/GoodDog.otf', 18)
 local timerFont = love.graphics.newFont('/fonts/Timer.otf', 48)
@@ -288,7 +292,7 @@ function drawOverlays()
   end
   if frames_elapsed > 48 and frames_elapsed < 90 then
     love.graphics.push("all")
-      love.graphics.setFont(titleFont)
+      love.graphics.setFont(roundStartFont)
       love.graphics.setColor(255, 255, 255)
       love.graphics.printf("Round " .. game.current_round, 0, 200, window.width, "center")
       if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
@@ -304,7 +308,7 @@ function drawOverlays()
     -- end of round win message
     if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
       love.graphics.push("all")
-        love.graphics.setFont(titleFont)
+        love.graphics.setFont(roundStartFont)
         love.graphics.setColor(255, 255, 255)
         if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins.", 0, 200, window.width, "center")
         elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins.", 0, 200, window.width, "center")
@@ -404,11 +408,20 @@ function love.draw()
     end
 
   elseif game.current_screen == "title" then
-  	love.graphics.draw(titlescreen, 0, 0, 0)
+  	love.graphics.draw(titlescreen, 0, 0)
+  	love.graphics.draw(titleselect, 100, 400)
+  	love.graphics.draw(titledivefrog, 115, 70)
   	love.graphics.push("all")
-  		love.graphics.setLineWidth(2)
-  		love.graphics.setColor(0, 255, 0, 255)
-  		love.graphics.rectangle("line", 312, 391 + 20 * title.option, 70, 15)
+  		love.graphics.setColor(255, 255, 255, 196)
+  		love.graphics.draw(titlecontrolsbk, 480, 380)
+  		love.graphics.setLineWidth(3)
+  		love.graphics.setColor(255, 215, 0, 255)
+  		love.graphics.rectangle("line", 112, 362 + 48 * title.option, 125, 20)
+  		love.graphics.setFont(titleFont)
+  		love.graphics.printf("P1 Jump: " .. buttons.p1jump, 500, 400, 200)
+  		love.graphics.printf("P1 Attack: " .. buttons.p1attack, 500, 430, 200)
+  		love.graphics.printf("P2 Jump: " .. buttons.p2jump, 500, 460, 200)
+  		love.graphics.printf("P2 Attack: " .. buttons.p2attack, 500, 490, 200)
   	love.graphics.pop()
 
  	elseif game.current_screen == "settings" then
@@ -652,8 +665,8 @@ function replays()
 end
 
 title = {
-	menu = {"2 Player", "Settings", "Replays"},
-	action = {charSelect, settings, replays},
+	menu = {"Story Mode", "2 Player", "Settings"},
+	action = {charSelect, charSelect, charSelect},
 	option = 1
 }
 
