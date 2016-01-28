@@ -431,17 +431,8 @@ function love.draw()
   	love.graphics.pop()
 
  	elseif game.current_screen == "settings" then
-    love.graphics.push("all")
- 		  love.graphics.draw(settings_background, 0, 0, 0)
-      love.graphics.draw(settings_logo, 232, 60)
-      love.graphics.setLineWidth(3)
-      love.graphics.setColor(255, 215, 0, 255)
-        love.graphics.rectangle("line", 300, 238 + 35 * settings_choices.option, 200, 34)
-      love.graphics.setFont(titleFont)
-      for i = 1, #settings_choices.menu do
-      	love.graphics.printf(settings_choices.menu[i], 315, 240 + (35 * i), 200)
-      end
-    love.graphics.pop()
+ 		drawSettingsScreen()
+
 
  	elseif game.current_screen == "replays" then
 		love.graphics.draw(replaysscreen, 0, 0, 0) 		

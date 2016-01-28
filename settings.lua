@@ -1,5 +1,6 @@
 settings_background = love.graphics.newImage('images/Settings/SettingsBackground.jpg')
 settings_logo = love.graphics.newImage('images/Settings/SettingsLogo.png')
+settingsFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
 
 function setupRounds()
 end
@@ -55,5 +56,19 @@ function settingsMenu()
   ]]
 end
 
+function drawSettingsScreen()
+  love.graphics.push("all")
+    love.graphics.draw(settings_background, 0, 0, 0)
+    love.graphics.draw(settings_logo, 232, 60)
+   
+    love.graphics.setLineWidth(3)
+    love.graphics.setColor(255, 215, 0, 255)
+      love.graphics.rectangle("line", 300, 238 + 35 * settings_choices.option, 200, 34)
+    love.graphics.setFont(settingsFont)
+      for i = 1, #settings_choices.menu do
+        love.graphics.printf(settings_choices.menu[i], 315, 240 + (35 * i), 200)
+      end
+  love.graphics.pop()
+end
 
 
