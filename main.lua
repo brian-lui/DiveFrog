@@ -1,7 +1,7 @@
 require 'lovedebug'
 require 'utilities' -- helper functions
 require 'camera'
-require 'settings'
+
 local json = require 'dkjson'
 local class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
@@ -14,7 +14,7 @@ require 'Sun'
 local particles = require 'particles'
 
 -- load controls
-local buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
+buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
 if love.filesystem.exists("controls.txt") then
   local controls_string = love.filesystem.read("controls.txt")
   buttons = json.decode(controls_string)
@@ -23,14 +23,9 @@ else
 end
 love.filesystem.createDirectory("saves")
 
-
 -- load images
 local replaysscreen = love.graphics.newImage('images/Replays.jpg')
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
-local titlescreen = love.graphics.newImage('images/Title/TitleBackground.jpg')
-local titleselect = love.graphics.newImage('images/Title/TitleSelect.png')
-local titlelogo = love.graphics.newImage('images/Title/TitleLogo.png')
-local titlecontrolsbk = love.graphics.newImage('images/Title/TitleControlsBk.png')
 local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
 local hpbar = love.graphics.newImage('images/HPBar.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
@@ -38,7 +33,6 @@ local greenlight = love.graphics.newImage('images/GreenLight.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
 -- load fontss
-local titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
 local roundStartFont = love.graphics.newFont('/fonts/GoodDog.otf', 60)
 local charInfoFont = love.graphics.newFont('/fonts/CharSelect.ttf', 21)
 local charSelectorFont = love.graphics.newFont('/fonts/GoodDog.otf', 18)
@@ -364,21 +358,21 @@ function love.draw()
     love.graphics.push("all")
       love.graphics.setColor(0, 0, 0)
       love.graphics.setFont(charInfoFont)
-      love.graphics.printf(char_text[p1_char][1], 516, 350, 300) -- character movelist
-      love.graphics.printf(char_text[p1_char][2], 516, 384, 300) -- character movelist
-      love.graphics.printf(char_text[p1_char][3], 513, 425, 300) -- character movelist
-      love.graphics.printf(char_text[p1_char][4], 430, 469, 300) -- character movelist
+      love.graphics.print(char_text[p1_char][1], 516, 350) -- character movelist
+      love.graphics.print(char_text[p1_char][2], 516, 384)
+      love.graphics.print(char_text[p1_char][3], 513, 425)
+      love.graphics.print(char_text[p1_char][4], 430, 469)
       --p1 rectangle
       love.graphics.setFont(charSelectorFont)
       love.graphics.setLineWidth(2)
       love.graphics.setColor(14, 28, 232)
-      love.graphics.printf("P1", 42, 20 + (p1_char * 70), 50) -- helptext
+      love.graphics.print("P1", 42, 20 + (p1_char * 70)) -- helptext
       if frame % 45 < 7 then love.graphics.setColor(164, 164, 255) end -- flashing rectangle
       love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
       
       --p2 rectangle
       love.graphics.setColor(14, 232, 54)
-      love.graphics.printf("P2", 355, 20 + (p2_char * 70), 50)
+      love.graphics.print("P2", 355, 20 + (p2_char * 70))
       if frame % 45 < 7 then love.graphics.setColor(164, 255, 164) end
       love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
     love.graphics.pop()
@@ -390,10 +384,10 @@ function love.draw()
       love.graphics.setFont(gameoverFont)
       love.graphics.draw(game.match_winner.win_portrait, 100, 50)
       love.graphics.setColor(31, 39, 84)
-      love.graphics.printf(game.match_winner.win_quote, 50, 470, 700)
+      love.graphics.print(game.match_winner.win_quote, 50, 470)
       love.graphics.setColor(31, 39, 84) -- placeholder
       love.graphics.setFont(charSelectorFont) -- placeholder
-      love.graphics.printf("Press return/enter please", 600, 540, 190) -- placeholder
+      love.graphics.print("Press return/enter please", 600, 540) -- placeholder
     love.graphics.pop()
 
     -- fade in for match end
@@ -407,32 +401,11 @@ function love.draw()
     end
 
   elseif game.current_screen == "title" then
-    love.graphics.push("all")
-    	love.graphics.draw(titlescreen, 0, 0)
-      love.graphics.draw(titlelogo, 165, 50)
-      love.graphics.setColor(255, 255, 255, 160)
-    	  love.graphics.draw(titleselect, 100, 385)
-  		  love.graphics.draw(titlecontrolsbk, 400, 380)
-  		love.graphics.setLineWidth(3)
-  		love.graphics.setColor(255, 215, 0, 255)
-  		  love.graphics.rectangle("line", 120, 375 + 35 * title.option, 110, 35)
-  		love.graphics.setFont(titleFont)
-  			local toprint = {
-  				"P1 Jump: " .. buttons.p1jump,
-  				"P1 Attack: " .. buttons.p1attack,
-  				"P2 Jump: " .. buttons.p2jump,
-  				"P2 Attack: " .. buttons.p2attack}
-  			for i = 1, #toprint do
-  				love.graphics.printf(toprint[i], 420, 370 + (30 * i), 200)
-  			end
-  			for i = 1, #title.menu do
-  				love.graphics.printf(title.menu[i], 130, 375  + (35 * i), 200)
-  			end
-  	love.graphics.pop()
+  	drawTitle()
 
  	elseif game.current_screen == "settings" then
- 		drawSettingsScreen()
-
+ 		drawSettingsMain()
+ 		drawSettingsPopup()
 
  	elseif game.current_screen == "replays" then
 		love.graphics.draw(replaysscreen, 0, 0, 0) 		
@@ -655,15 +628,9 @@ function replays()
 	]]
 end
 
--- Need to place it down here because otherwise charSelect isn't defined yet
-title = {
-  menu = {"2 Player", "2 Player", "Settings"},
-  action = {charSelect, charSelect, settingsMenu},
-  option = 1
-}
-
 test = {}
-
+require 'settings'
+require 'title'
 
 function love.keypressed(key)
   if key == "escape" then love.event.quit() end
@@ -671,10 +638,10 @@ function love.keypressed(key)
   if game.current_screen == "title" then
   	if key == buttons.p1attack or key == buttons.start then
   		playSFX(charselected_sfx)
-  		title.action[title.option]()
+  		title_choices.action[title_choices.option]()
   	elseif key == buttons.p1jump then
     	playSFX(charselect_sfx)
-    	title.option = title.option % #title.menu + 1
+    	title_choices.option = title_choices.option % #title_choices.menu + 1
     end
 
   elseif game.current_screen == "charselect" then
