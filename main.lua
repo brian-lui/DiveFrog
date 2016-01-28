@@ -1,6 +1,7 @@
 require 'lovedebug'
 require 'utilities' -- helper functions
 require 'camera'
+require 'settings'
 local json = require 'dkjson'
 local class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
@@ -24,8 +25,6 @@ love.filesystem.createDirectory("saves")
 
 
 -- load images
-local settingsscreen = love.graphics.newImage('images/Settings/SettingsBackground.jpg')
-local settingslogo = love.graphics.newImage('images/Settings/SettingsLogo.png')
 local replaysscreen = love.graphics.newImage('images/Replays.jpg')
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
 local titlescreen = love.graphics.newImage('images/Title/TitleBackground.jpg')
@@ -416,26 +415,32 @@ function love.draw()
   		  love.graphics.draw(titlecontrolsbk, 400, 380)
   		love.graphics.setLineWidth(3)
   		love.graphics.setColor(255, 215, 0, 255)
-  		  love.graphics.rectangle("line", 120, 380 + 35 * title.option, 110, 35)
+  		  love.graphics.rectangle("line", 120, 375 + 35 * title.option, 110, 35)
   		love.graphics.setFont(titleFont)
-  		  love.graphics.printf("P1 Jump: " .. buttons.p1jump, 420, 400, 200)
-  		  love.graphics.printf("P1 Attack: " .. buttons.p1attack, 420, 430, 200)
-  		  love.graphics.printf("P2 Jump: " .. buttons.p2jump, 420, 460, 200)
-  		  love.graphics.printf("P2 Attack: " .. buttons.p2attack, 420, 490, 200)
-  		  love.graphics.printf(title.menu[1], 130, 415, 200)
-  		  love.graphics.printf(title.menu[2], 130, 450, 200)
-  		  love.graphics.printf(title.menu[3], 130, 485, 200)
+  			local toprint = {
+  				"P1 Jump: " .. buttons.p1jump,
+  				"P1 Attack: " .. buttons.p1attack,
+  				"P2 Jump: " .. buttons.p2jump,
+  				"P2 Attack: " .. buttons.p2attack}
+  			for i = 1, #toprint do
+  				love.graphics.printf(toprint[i], 420, 370 + (30 * i), 200)
+  			end
+  			for i = 1, #title.menu do
+  				love.graphics.printf(title.menu[i], 130, 375  + (35 * i), 200)
+  			end
   	love.graphics.pop()
 
  	elseif game.current_screen == "settings" then
     love.graphics.push("all")
- 		  love.graphics.draw(settingsscreen, 0, 0, 0)
-      love.graphics.draw(settingslogo, 232, 60)
+ 		  love.graphics.draw(settings_background, 0, 0, 0)
+      love.graphics.draw(settings_logo, 232, 60)
       love.graphics.setLineWidth(3)
       love.graphics.setColor(255, 215, 0, 255)
-        love.graphics.rectangle("line", 300, 350 + 40 * settings.option, 200, 30)
+        love.graphics.rectangle("line", 300, 238 + 35 * settings_choices.option, 200, 34)
       love.graphics.setFont(titleFont)
-        love.graphics.printf("blah", 310, 395, 190)
+      for i = 1, #settings_choices.menu do
+      	love.graphics.printf(settings_choices.menu[i], 315, 240 + (35 * i), 200)
+      end
     love.graphics.pop()
 
  	elseif game.current_screen == "replays" then
@@ -639,22 +644,6 @@ function charSelect()
   game.current_screen = "charselect"
 end
 
-function settings()
-	game.current_screen = "settings" 
-	--[[
-	show current P1 / P2 keys at top (load from controls.txt)
-	Display: "Select with [P1 attack] key"
-	Options: Reassign Keys. Back to main menu
-	Reassign keys: popup with:
-		Press P1 Attack Key
-		Press P1 Jump Key -- check if same as prev keys
-		Press P2 Attack Key -- "
-		Press P2 Jump Key -- "
-		Write to controls.txt, refresh display at top
-		Move cursor to 'Back to main menu'
-	]]
-end
-
 function replays()
 	game.current_screen = "replays"
 	--[[
@@ -678,13 +667,7 @@ end
 -- Need to place it down here because otherwise charSelect isn't defined yet
 title = {
   menu = {"2 Player", "2 Player", "Settings"},
-  action = {charSelect, charSelect, settings},
-  option = 1
-}
-
-settings = {
-  menu = {"Option 1", "Option 2", "Option 3"},
-  action = {option1, option2, option3},
+  action = {charSelect, charSelect, settingsMenu},
   option = 1
 }
 
@@ -723,11 +706,11 @@ function love.keypressed(key)
   elseif game.current_screen == "settings" then
     if key == buttons.p1attack then
       playSFX(charselected_sfx)
-      settings.action[settings.option]()
+      settings_choices.action[settings_choices.option]()
     end
     if key == buttons.p1jump then
       playSFX(charselect_sfx)
-      settings.option = settings.option % #settings.menu + 1
+      settings_choices.option = settings_choices.option % #settings_choices.menu + 1
     end
     if key == buttons.start then
       playSFX(charselected_sfx)
