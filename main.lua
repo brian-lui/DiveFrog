@@ -24,13 +24,14 @@ love.filesystem.createDirectory("saves")
 
 
 -- load images
-local settingsscreen = love.graphics.newImage('images/Settings.jpg')
+local settingsscreen = love.graphics.newImage('images/Settings/SettingsBackground.jpg')
+local settingslogo = love.graphics.newImage('images/Settings/SettingsLogo.png')
 local replaysscreen = love.graphics.newImage('images/Replays.jpg')
 local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
-local titlescreen = love.graphics.newImage('images/TitleBackground.jpg')
-local titleselect = love.graphics.newImage('images/Titleselect.png')
-local titledivefrog = love.graphics.newImage('images/TitleDivefrog.png')
-local titlecontrolsbk = love.graphics.newImage('images/TitleControlsBk.png')
+local titlescreen = love.graphics.newImage('images/Title/TitleBackground.jpg')
+local titleselect = love.graphics.newImage('images/Title/TitleSelect.png')
+local titlelogo = love.graphics.newImage('images/Title/TitleLogo.png')
+local titlecontrolsbk = love.graphics.newImage('images/Title/TitleControlsBk.png')
 local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
 local hpbar = love.graphics.newImage('images/HPBar.png')
 local portraits = love.graphics.newImage('images/Portraits.png')
@@ -59,7 +60,6 @@ canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
 canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
 canvas_background = love.graphics.newCanvas(stage.width, stage.height)
 
-test = {}
 
 function love.load()
   game = {
@@ -408,27 +408,35 @@ function love.draw()
     end
 
   elseif game.current_screen == "title" then
-  	love.graphics.draw(titlescreen, 0, 0)
-  	love.graphics.draw(titleselect, 100, 400)
-  	love.graphics.draw(titledivefrog, 115, 70)
-  	love.graphics.push("all")
-  		love.graphics.setColor(255, 255, 255, 196)
-  		love.graphics.draw(titlecontrolsbk, 400, 380)
+    love.graphics.push("all")
+    	love.graphics.draw(titlescreen, 0, 0)
+      love.graphics.draw(titlelogo, 165, 50)
+      love.graphics.setColor(255, 255, 255, 160)
+    	  love.graphics.draw(titleselect, 100, 385)
+  		  love.graphics.draw(titlecontrolsbk, 400, 380)
   		love.graphics.setLineWidth(3)
   		love.graphics.setColor(255, 215, 0, 255)
-  		love.graphics.rectangle("line", 120, 380 + 35 * title.option, 110, 35)
+  		  love.graphics.rectangle("line", 120, 380 + 35 * title.option, 110, 35)
   		love.graphics.setFont(titleFont)
-  		love.graphics.printf("P1 Jump: " .. buttons.p1jump, 420, 400, 200)
-  		love.graphics.printf("P1 Attack: " .. buttons.p1attack, 420, 430, 200)
-  		love.graphics.printf("P2 Jump: " .. buttons.p2jump, 420, 460, 200)
-  		love.graphics.printf("P2 Attack: " .. buttons.p2attack, 420, 490, 200)
-  		love.graphics.printf("2 Player", 130, 415, 200)
-  		love.graphics.printf("2 Player", 130, 450, 200)
-  		love.graphics.printf("2 Player", 130, 485, 200)
+  		  love.graphics.printf("P1 Jump: " .. buttons.p1jump, 420, 400, 200)
+  		  love.graphics.printf("P1 Attack: " .. buttons.p1attack, 420, 430, 200)
+  		  love.graphics.printf("P2 Jump: " .. buttons.p2jump, 420, 460, 200)
+  		  love.graphics.printf("P2 Attack: " .. buttons.p2attack, 420, 490, 200)
+  		  love.graphics.printf(title.menu[1], 130, 415, 200)
+  		  love.graphics.printf(title.menu[2], 130, 450, 200)
+  		  love.graphics.printf(title.menu[3], 130, 485, 200)
   	love.graphics.pop()
 
  	elseif game.current_screen == "settings" then
- 		love.graphics.draw(settingsscreen, 0, 0, 0)
+    love.graphics.push("all")
+ 		  love.graphics.draw(settingsscreen, 0, 0, 0)
+      love.graphics.draw(settingslogo, 232, 60)
+      love.graphics.setLineWidth(3)
+      love.graphics.setColor(255, 215, 0, 255)
+        love.graphics.rectangle("line", 300, 350 + 40 * settings.option, 200, 30)
+      love.graphics.setFont(titleFont)
+        love.graphics.printf("blah", 310, 395, 190)
+    love.graphics.pop()
 
  	elseif game.current_screen == "replays" then
 		love.graphics.draw(replaysscreen, 0, 0, 0) 		
@@ -667,28 +675,32 @@ function replays()
 	]]
 end
 
+-- Need to place it down here because otherwise charSelect isn't defined yet
 title = {
-	menu = {"Story Mode", "2 Player", "Settings"},
-	action = {charSelect, charSelect, charSelect},
-	option = 1
+  menu = {"2 Player", "2 Player", "Settings"},
+  action = {charSelect, charSelect, settings},
+  option = 1
 }
+
+settings = {
+  menu = {"Option 1", "Option 2", "Option 3"},
+  action = {option1, option2, option3},
+  option = 1
+}
+
+test = {}
 
 
 function love.keypressed(key)
   if key == "escape" then love.event.quit() end
 
   if game.current_screen == "title" then
-  	if key == buttons.p1attack then
+  	if key == buttons.p1attack or key == buttons.start then
   		playSFX(charselected_sfx)
   		title.action[title.option]()
-  	end
-    if key == buttons.p1jump then
+  	elseif key == buttons.p1jump then
     	playSFX(charselect_sfx)
     	title.option = title.option % #title.menu + 1
-    end
-    if key ==  buttons.start then
-    	playSFX(charselected_sfx)
-    	title.action[title.option]()
     end
 
   elseif game.current_screen == "charselect" then
@@ -709,10 +721,20 @@ function love.keypressed(key)
     end
 
   elseif game.current_screen == "settings" then
-  	if key == buttons.start then
-  		playSFX(charselected_sfx)
-  		game.current_screen = "title"
-  	end
+    if key == buttons.p1attack then
+      playSFX(charselected_sfx)
+      settings.action[settings.option]()
+    end
+    if key == buttons.p1jump then
+      playSFX(charselect_sfx)
+      settings.option = settings.option % #settings.menu + 1
+    end
+    if key == buttons.start then
+      playSFX(charselected_sfx)
+      game.current_screen = "title"
+    end
+
+
 
   elseif game.current_screen == "replays" then
   	if key == buttons.start then

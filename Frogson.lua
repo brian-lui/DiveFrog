@@ -70,9 +70,9 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.hitboxes_antigravity = {{L = 167, U = 71, R = 183, D = 91}}
   
   -- sound effects
-  --self.jump_sfx = "Konrad/KonradJump.ogg"
-  --self.attack_sfx = "Konrad/KonradAttack.ogg"
-  --self.got_hit_sfx = "Konrad/KonradKO.ogg"
+  self.jump_sfx = "Frogson/FrogsonJump.ogg" -- placeholder
+  self.attack_sfx = "Frogson/FrogsonAttack.ogg" -- placeholder
+  self.got_hit_sfx = "Frogson/FrogsonKO.ogg" -- placeholder
   self.hit_sound_sfx = "Potatoes.ogg"
   self.moonwalk1_sfx = "Frogson/Moonwalk1.ogg"
   self.moonwalk2_sfx = "Frogson/Moonwalk2.ogg"
@@ -82,21 +82,9 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self:init2(init_player, init_foe, init_super, init_dizzy, init_score)
 end
 
-    --[[Currently edited up to HERE
-  Moonwalk should have blue shadows behind it.
-  Make theme song more Michael Jacksony and/or with M. Bison bells
-  --]]    
 
-  function Konrad:jump_key_press()
-    if self.isInAir and not self.isAttacking and not self.double_jump then
-      self.waiting = 3
-      self.waiting_state = "DoubleJump"
-      self.double_jump = true
-    end
-    Fighter.jump_key_press(self) -- check for ground jump or special move
-  end
 
-  function Konrad:attack_key_press()
+  function Frogson:attack_key_press()
     -- attack if in air and not already attacking and either: >50 above floor, or landing and >30 above.
     if self.isInAir and not self.isAttacking and 
       (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
@@ -110,6 +98,11 @@ end
     end
     Fighter.attack_key_press(self) -- check for special move
   end
+
+    --[[Currently edited up to HERE
+  Moonwalk should have blue shadows behind it.
+  Make theme song more Michael Jacksony and/or with M. Bison bells
+  --]]    
 
   function Konrad:air_special()
     if self.super >= 16 and not self.isAttacking and not self.isSupering and
