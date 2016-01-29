@@ -662,20 +662,7 @@ function love.keypressed(key)
     end
 
   elseif game.current_screen == "settings" then
-    if key == buttons.p1attack then
-      playSFX(charselected_sfx)
-      settings_choices.action[settings_choices.option]()
-    end
-    if key == buttons.p1jump then
-      playSFX(charselect_sfx)
-      settings_choices.option = settings_choices.option % #settings_choices.menu + 1
-    end
-    if key == buttons.start then
-      playSFX(charselected_sfx)
-      game.current_screen = "title"
-    end
-
-
+  	setupReceiveKeypress(key)
 
   elseif game.current_screen == "replays" then
   	if key == buttons.start then
