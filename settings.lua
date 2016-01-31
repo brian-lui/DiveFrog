@@ -128,6 +128,7 @@ function backToTitle()
   game.best_to_x = Params.Rounds
   init_round_timer = Params.Timer * 60
   game.speed = Params.Speed
+  currentBGM:setVolume(0.9 * Params.Music)
 
   love.filesystem.write("settings.txt", json.encode(settings_options))  
 
