@@ -1,3 +1,5 @@
+local json = require 'dkjson'
+
 settings_background = love.graphics.newImage('images/Settings/SettingsBackground.jpg')
 settings_logo = love.graphics.newImage('images/Settings/SettingsLogo.png')
 settings_texture = love.graphics.newImage('images/Settings/SettingsMenuBk.jpg')
@@ -13,20 +15,26 @@ settings_timer_background = love.graphics.newQuad(0, 0, 70, 60,
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
 settings_speed_background = love.graphics.newQuad(0, 0, 130, 60, 
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
-settings_music_background = love.graphics.newQuad(0, 0, 60, 60, 
+settings_music_background = love.graphics.newQuad(0, 0, 85, 60, 
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
-settings_sound_background = love.graphics.newQuad(0, 0, 60, 60, 
+settings_sound_background = love.graphics.newQuad(0, 0, 85, 60, 
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
 
 settings_table = {
-      Rounds = {1, 3, 5, 7, 9},
-      Timer = {10, 15, 20, 99},
-      Speed = {"Normal", "Fast", "Faster", "Too Fast"},
-      Music = {0, 5, 7, 10},
-      Sound = {0, 5, 7, 10}
-    }  
-settings_options = {Rounds = 3, Timer = 3, Speed = 1, Music = 3, Sound = 3}
+  Rounds = {{1, 1}, {3, 3}, {5, 5}, {7, 7}, {9, 9}},
+  Timer = {{10, 10}, {15, 15}, {20, 20}, {99, 99}},
+  Speed = {{"Normal", 1.0}, {"Fast", 1.2}, {"Faster", 1.4}, {"Too Fast", 1.8}},
+  Music = {{"0%", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}},
+  Sound = {{"0%", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}}
+  }  
 
+Params = {
+  Rounds = settings_table.Rounds[settings_options.Rounds][2],
+  Timer = settings_table.Timer[settings_options.Timer][2],
+  Speed = settings_table.Speed[settings_options.Speed][2],
+  Music = settings_table.Music[settings_options.Music][2],
+  Sound = settings_table.Sound[settings_options.Sound][2]
+  }
 
 function setupReceiveKeypress(key)
   if key == buttons.start then
@@ -43,6 +51,28 @@ function setupReceiveKeypress(key)
       playSFX(charselect_sfx)
       settings_choices.option = settings_choices.option % #settings_choices.menu + 1
     end
+
+  elseif settings_popup_window == "Controls" then
+
+  --[[
+  Show table:
+    P1 Jump     buttons.p1jump
+    P1 Attack   buttons.p1attack
+    P2 Jump     buttons.p2jump
+    P2 Attack   buttons.p2attack
+    Start       buttons.start
+    Back
+  
+  Draw rectangle around "P1 Jump"
+  Press P1 Jump moves the rectangle. Moves the "active button" variable.
+  Press P1 Attack changes current key to ____. Then accepts next keypress as input
+  Input overwrites "active button" e.g. buttons.p2jump
+  when press 'Back', also saves to json file
+  ]]
+
+--buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
+--love.filesystem.write("controls.txt", json.encode(buttons))  
+
   else
     for k, v in pairs(settings_table) do
       if settings_popup_window == k then
@@ -64,7 +94,6 @@ end
 
 function setupRounds()
   settings_popup_window = "Rounds"
-
 end
 
 function setupTimer()
@@ -84,10 +113,24 @@ function setupSound()
 end
 
 function setupControls()
-
+  settings_popup_window = "Controls"
 end
 
 function backToTitle()
+  Params = {
+    Rounds = settings_table.Rounds[settings_options.Rounds][2],
+    Timer = settings_table.Timer[settings_options.Timer][2],
+    Speed = settings_table.Speed[settings_options.Speed][2],
+    Music = settings_table.Music[settings_options.Music][2],
+    Sound = settings_table.Sound[settings_options.Sound][2]
+  }
+  
+  game.best_to_x = Params.Rounds
+  init_round_timer = Params.Timer * 60
+  game.speed = Params.Speed
+
+  love.filesystem.write("settings.txt", json.encode(settings_options))  
+
   settings_choices.option = 1
   game.current_screen = 'title'
 end
@@ -109,18 +152,6 @@ settings_choices = {
 function settingsMenu()
   title_choices.option = 1
   game.current_screen = "settings" 
-  --[[
-  show current P1 / P2 keys at top (load from controls.txt)
-  Display: "Select with [P1 attack] key"
-  Options: Reassign Keys. Back to main menu
-  Reassign keys: popup with:
-    Press P1 Attack Key
-    Press P1 Jump Key -- check if same as prev keys
-    Press P2 Attack Key -- "
-    Press P2 Jump Key -- "
-    Write to controls.txt, refresh display at top
-    Move cursor to 'Back to main menu'
-  ]]
 end
 
 function drawSettingsMain()
@@ -153,7 +184,7 @@ Use printf and "center" later
 ]]
 function drawSettingsPopup()
   if settings_popup_window == "Rounds" then
-    local toprint = settings_table.Rounds[settings_options.Rounds]
+    local toprint = settings_table.Rounds[settings_options.Rounds][1]
 
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
@@ -165,7 +196,7 @@ function drawSettingsPopup()
     love.graphics.pop()
 
   elseif settings_popup_window == "Timer" then
-    local toprint = settings_table.Timer[settings_options.Timer]
+    local toprint = settings_table.Timer[settings_options.Timer][1]
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
         love.graphics.draw(settings_texture, settings_timer_background, 510, 295)
@@ -176,7 +207,7 @@ function drawSettingsPopup()
     love.graphics.pop()
 
   elseif settings_popup_window == "Speed" then
-    local toprint = settings_table.Speed[settings_options.Speed]
+    local toprint = settings_table.Speed[settings_options.Speed][1]
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
         love.graphics.draw(settings_texture, settings_speed_background, 510, 330)
@@ -187,26 +218,28 @@ function drawSettingsPopup()
     love.graphics.pop()
 
   elseif settings_popup_window == "Music" then
-    local toprint = settings_table.Music[settings_options.Music]
+    local toprint = settings_table.Music[settings_options.Music][1]
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
         love.graphics.draw(settings_texture, settings_music_background, 510, 365)
 
       love.graphics.setColor(255, 215, 0, 255)
-      love.graphics.setFont(settingsOptionsFontBig)
+      love.graphics.setFont(settingsOptionsFontSmall)
         love.graphics.print(toprint, 520, 368)
     love.graphics.pop()
 
   elseif settings_popup_window == "Sound" then
-    local toprint = settings_table.Sound[settings_options.Sound]
+    local toprint = settings_table.Sound[settings_options.Sound][1]
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
         love.graphics.draw(settings_texture, settings_sound_background, 510, 400)
 
       love.graphics.setColor(255, 215, 0, 255)
-      love.graphics.setFont(settingsOptionsFontBig)
+      love.graphics.setFont(settingsOptionsFontSmall)
         love.graphics.print(toprint, 520, 403)
     love.graphics.pop()
+  elseif settings_popup_window == "Controls" then
+    --Draw the background, then the list of controls, etc.
 
   end
 end

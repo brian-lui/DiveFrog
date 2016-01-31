@@ -195,12 +195,12 @@ end
       end
       if self.waiting == 0 and self.waiting_state == "Dandy" then
         self.waiting_state = ""
-        self:dandyStep(-36)        
+        self:dandyStep(-36 / game.speed)        
         writeSound(self.dandy_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Pilebunker" then
         self.waiting_state = ""
-        self:pilebunk(56)        
+        self:pilebunk(56 / game.speed)
         writeSound(self.pilebunker_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Jump" then
@@ -212,15 +212,15 @@ end
   end
 
   function Jean:extraStuff()
-    if self.dandy or self.pilebunking then self.vel[1] = self.vel[1] * 0.77 end -- custom friction
+    if self.dandy or self.pilebunking then self.vel[1] = self.vel[1] / 1.3  end -- custom friction
     -- during dandy step's slowing end part, allow pilebunker
-    if self.dandy and math.abs(self.vel[1]) >= 0.1 and math.abs(self.vel[1]) < 3.6 then
+    if self.dandy and math.abs(self.vel[1]) >= (0.1 * game.speed) and math.abs(self.vel[1]) < (3.6 * game.speed) then
       self.pilebunk_ok = true
     else self.pilebunk_ok = false 
     end 
     
     -- when dandy step is almost stopped, return to neutral
-    if self.dandy and math.abs(self.vel[1]) < 0.02 then
+    if self.dandy and math.abs(self.vel[1]) < (0.02 * game.speed) then
       self.dandy = false
       self.pilebunk_ok = false
       self.isFrictionOn = false
@@ -230,7 +230,7 @@ end
     end
 
     -- stop pilebunking, and change to recovery frames
-    if self.pilebunking and math.abs(self.vel[1]) >= 0.001 and math.abs(self.vel[1]) < 1.2 then
+    if self.pilebunking and math.abs(self.vel[1]) >= (0.001 * game.speed) and math.abs(self.vel[1]) < (1.2 * game.speed) then
       self.isAttacking = false
       self:updateImage(7)
       self.current_hurtboxes = self.hurtboxes_pilebunkerB
@@ -238,7 +238,7 @@ end
     end
 
     -- change from recovery to neutral
-    if self.pilebunking and math.abs(self.vel[1]) < 0.001 and not self.hasWon then
+    if self.pilebunking and math.abs(self.vel[1]) < (0.001 * game.speed) and not self.hasWon then
       self.pilebunking = false
       self.dandy = false
       self.isFrictionOn = false

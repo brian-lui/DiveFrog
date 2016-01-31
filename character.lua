@@ -465,10 +465,10 @@ function Fighter:updatePos()
     end
 
     -- update position with velocity, then apply gravity if airborne, then apply inertia
-    self.pos[1] = self.pos[1] + (self.vel[1] * self.vel_multiple)
-    self.pos[2] = self.pos[2] + (self.vel[2] * self.vel_multiple)
+    self.pos[1] = self.pos[1] + (self.vel[1] * self.vel_multiple * game.speed)
+    self.pos[2] = self.pos[2] + (self.vel[2] * self.vel_multiple * game.speed)
 
-    if self.isInAir then self.vel[2] = self.vel[2] + (self.gravity * self.vel_multiple) end
+    if self.isInAir then self.vel[2] = self.vel[2] + (self.gravity * self.vel_multiple * game.speed) end
 
     if math.abs(self.vel[1]) > 0.1 and self.isFrictionOn then
       self.vel[1] = self.vel[1] * self.friction

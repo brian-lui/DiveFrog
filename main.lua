@@ -21,6 +21,17 @@ if love.filesystem.exists("controls.txt") then
 else
   love.filesystem.write("controls.txt", json.encode(buttons))  
 end
+
+-- load settings
+settings_options = {Rounds = 3, Timer = 3, Speed = 1, Music = 3, Sound = 3}
+
+if love.filesystem.exists("settings.txt") then
+  local settings_string = love.filesystem.read("settings.txt")
+  settings_options = json.decode(settings_string)
+else
+  love.filesystem.write("settings.txt", json.encode(settings_options))  
+end
+
 love.filesystem.createDirectory("saves")
 
 -- load images
@@ -57,7 +68,8 @@ canvas_background = love.graphics.newCanvas(stage.width, stage.height)
 function love.load()
   game = {
     current_screen = "title",
-    best_to_x = 5,
+    best_to_x = Params.Rounds,
+    speed = Params.Speed,
     current_round = 0,
     match_winner = false,
     superfreeze_time = 0,
@@ -65,13 +77,14 @@ function love.load()
     BGM = nil,
   	background_color = nil,
   	isScreenShaking = false,
-  	identical_players = false}
+  	identical_players = false
+    }
   setBGM("Intro.ogg")
   min_dt = 1/60 -- frames per second
   next_time = love.timer.getTime()
   frame = 0 -- framecount
   frame0 = 0 -- timer for start of round fade in
-  init_round_timer = 1200 -- round time in frames
+  init_round_timer = Params.Timer * 60 -- round time in frames
   round_timer = init_round_timer
   round_end_frame = 0
   round_ended = false
