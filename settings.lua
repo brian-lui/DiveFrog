@@ -8,24 +8,23 @@ settingsOptionsFontBig = love.graphics.newFont('/fonts/GoodDog.otf', 60)
 settingsOptionsFontSmall = love.graphics.newFont('/fonts/GoodDog.otf', 45)
 settings_popup_window = ""
 
-
 settings_rounds_background = love.graphics.newQuad(0, 0, 60, 60, 
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
 settings_timer_background = love.graphics.newQuad(0, 0, 70, 60, 
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
 settings_speed_background = love.graphics.newQuad(0, 0, 130, 60, 
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
-settings_music_background = love.graphics.newQuad(0, 0, 85, 60, 
+settings_music_background = love.graphics.newQuad(0, 0, 90, 60, 
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
-settings_sound_background = love.graphics.newQuad(0, 0, 85, 60, 
+settings_sound_background = love.graphics.newQuad(0, 0, 90, 60, 
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
 
 settings_table = {
   Rounds = {{1, 1}, {3, 3}, {5, 5}, {7, 7}, {9, 9}},
   Timer = {{10, 10}, {15, 15}, {20, 20}, {99, 99}},
   Speed = {{"Normal", 1.5}, {"Fast", 1.8}, {"Faster", 2.2}, {"Too Fast", 2.7}},
-  Music = {{"0%", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}},
-  Sound = {{"0%", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}}
+  Music = {{"Mute", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}},
+  Sound = {{"Mute", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}}
   }  
 
 Params = {
@@ -36,6 +35,7 @@ Params = {
   Sound = settings_table.Sound[settings_options.Sound][2]
   }
 
+--[[ Make it useable with arrow keys too]]
 function setupReceiveKeypress(key)
   if key == buttons.start then
       playSFX(charselected_sfx)
@@ -53,20 +53,15 @@ function setupReceiveKeypress(key)
     end
 
   elseif settings_popup_window == "Controls" then
-
+    if key == buttons.p1attack then
+      playSFX(charselected_sfx)
+      --Press P1 Attack changes current key to ____. Then accepts next keypress as input
+    elseif key = buttons.p1jump then
+      playSFX(charselect_sfx)
+      --Press P1 Jump moves the rectangle. Moves the "active button" variable.
+    end
   --[[
-  Show table:
-    P1 Jump     buttons.p1jump
-    P1 Attack   buttons.p1attack
-    P2 Jump     buttons.p2jump
-    P2 Attack   buttons.p2attack
-    Start       buttons.start
-    Back
-  
-  Draw rectangle around "P1 Jump"
-  Press P1 Jump moves the rectangle. Moves the "active button" variable.
-  Press P1 Attack changes current key to ____. Then accepts next keypress as input
-  Input overwrites "active button" e.g. buttons.p2jump
+    Input overwrites "active button" e.g. buttons.p2jump
   when press 'Back', also saves to json file
   ]]
 
@@ -87,9 +82,6 @@ function setupReceiveKeypress(key)
       end
     end
   end
-
-  
-
 end
 
 function setupRounds()
@@ -136,7 +128,6 @@ function backToTitle()
   game.current_screen = 'title'
 end
 
-
 settings_choices = {
   menu = {
     "Number of Rounds",
@@ -178,11 +169,6 @@ function drawSettingsMain()
   love.graphics.pop()
 end
 
---[[
-
-Use printf and "center" later
-
-]]
 function drawSettingsPopup()
   if settings_popup_window == "Rounds" then
     local toprint = settings_table.Rounds[settings_options.Rounds][1]
@@ -193,7 +179,7 @@ function drawSettingsPopup()
 
       love.graphics.setColor(255, 215, 0, 255)
       love.graphics.setFont(settingsOptionsFontBig)
-        love.graphics.print(toprint, 528, 252)
+        love.graphics.printf(toprint, 508, 252, 60, "center")
     love.graphics.pop()
 
   elseif settings_popup_window == "Timer" then
@@ -203,8 +189,8 @@ function drawSettingsPopup()
         love.graphics.draw(settings_texture, settings_timer_background, 510, 295)
 
       love.graphics.setColor(255, 215, 0, 255)
-      love.graphics.setFont(settingsOptionsFontBig)
-        love.graphics.print(toprint, 520, 290)
+      love .graphics.setFont(settingsOptionsFontBig)
+        love.graphics.printf(toprint, 510, 290, 70, "center")
     love.graphics.pop()
 
   elseif settings_popup_window == "Speed" then
@@ -215,7 +201,7 @@ function drawSettingsPopup()
 
       love.graphics.setColor(255, 215, 0, 255)
       love.graphics.setFont(settingsOptionsFontSmall)
-        love.graphics.print(toprint, 520, 333)
+        love.graphics.printf(toprint, 510, 333, 130, "center")
     love.graphics.pop()
 
   elseif settings_popup_window == "Music" then
@@ -226,7 +212,7 @@ function drawSettingsPopup()
 
       love.graphics.setColor(255, 215, 0, 255)
       love.graphics.setFont(settingsOptionsFontSmall)
-        love.graphics.print(toprint, 520, 368)
+        love.graphics.printf(toprint, 510, 368, 90, "center")
     love.graphics.pop()
 
   elseif settings_popup_window == "Sound" then
@@ -237,10 +223,28 @@ function drawSettingsPopup()
 
       love.graphics.setColor(255, 215, 0, 255)
       love.graphics.setFont(settingsOptionsFontSmall)
-        love.graphics.print(toprint, 520, 403)
+        love.graphics.printf(toprint, 510, 403, 90, "center")
     love.graphics.pop()
   elseif settings_popup_window == "Controls" then
-    --Draw the background, then the list of controls, etc.
+    
+  --[[ draw background
+   love.graphics.setColor(255, 255, 255, 160)
+      love.graphics.draw(settings_texture, x, y)
+    ]]
+  
+  --[[Show table:
+    P1 Jump     buttons.p1jump
+    P1 Attack   buttons.p1attack
+    P2 Jump     buttons.p2jump
+    P2 Attack   buttons.p2attack
+    Start       buttons.start
+    Back
+    ]]
 
+    --[[ Draw rectangle:
+    love.graphics.setLineWidth(3)
+    love.graphics.setColor(255, 215, 0, 255)
+    love.graphics.rectangle("line", 290, 238 + 35 * settings_choices.option, 200, 34)
+    ]]
   end
 end

@@ -466,8 +466,7 @@ function love.update(dt)
       
       local h_position = game.superfreeze_player:getCenter() - 0.5 * window.center
       local v_position = game.superfreeze_player.pos[2]
-      local h_tween = (h_position + 14 * camera_xy_temp[1]) / 15
-      if h_tween < 0 then h_tween = 0 end
+      local h_tween = math.max((h_position + 14 * camera_xy_temp[1]) / 15, 0)
       local v_tween = (v_position + 14 * camera_xy_temp[2]) / 15
       camera:setPosition(h_tween, v_tween)
       camera_xy_temp[1] = h_tween
@@ -481,8 +480,7 @@ function love.update(dt)
     end
 
     if not round_ended and not (p1.frozenFrames > 0 and p2.frozenFrames > 0) then
-      round_timer = round_timer - (1 * game.speed)
-      if round_timer < 0 then round_timer = 0 end
+      round_timer = math.max(round_timer - (1 * game.speed), 0)
     end
 
     -- get button press state, and write to keybuffer table

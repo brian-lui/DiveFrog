@@ -225,8 +225,7 @@ function Sun:extraStuff()
       self.isAttacking = true
       
       if self.frozenFrames == 0 and not self.foe.hitflag.Projectile then 
-        self.hotflametime[i] = self.hotflametime[i] - (1 * game.speed)
-        if self.hotflametime[i] < 0 then self.hotflametime[i] = 0 end
+        self.hotflametime[i] = math.max(self.hotflametime[i] - (1 * game.speed), 0)
 
         if self.hotflametime[i] < 15 and self.hotflametime[i] > 13 then
           self.hotflametime[i + 1] = 30
@@ -263,9 +262,8 @@ function Sun:extraStuff()
       self.facing)
 
     if self.frozenFrames == 0 and not self.foe.hitflag.Projectile then
-      self.hotterflametime = self.hotterflametime - (1 * game.speed)
-      if self.hotterflametime < 0 then self.hotterflametime = 0 end
-      
+      self.hotterflametime = math.max(self.hotterflametime - (1 * game.speed), 0)
+            
       self.hitboxes_hotflame[1] = {
         L = self.sprite_size[1] - self.sprite_wallspace,
         U = self.sprite_size[2] - 120,
