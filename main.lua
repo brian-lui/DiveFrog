@@ -23,7 +23,7 @@ else
 end
 
 -- load settings
-settings_options = {Rounds = 3, Timer = 3, Speed = 1, Music = 3, Sound = 3}
+settings_options = {Rounds = 3, Timer = 2, Speed = 1, Music = 3, Sound = 3}
 
 if love.filesystem.exists("settings.txt") then
   local settings_string = love.filesystem.read("settings.txt")
@@ -481,7 +481,8 @@ function love.update(dt)
     end
 
     if not round_ended and not (p1.frozenFrames > 0 and p2.frozenFrames > 0) then
-      round_timer = round_timer - 1
+      round_timer = round_timer - (1 * game.speed)
+      if round_timer < 0 then round_timer = 0 end
     end
 
     -- get button press state, and write to keybuffer table
@@ -567,10 +568,11 @@ end
 
 function newRound()
 
-	local keybuffer_string = json.encode(keybuffer)
-	local filename = "saves/" .. os.date("%m%d%H%M") .. p1_char .. "v" ..
-		p2_char .. "R" .. game.current_round .. ".txt" -- need to modify this later if 10+ chars
-	love.filesystem.write(filename, keybuffer_string)
+  --Uncomment this for replays later. Too annoying atm sorry
+	--local keybuffer_string = json.encode(keybuffer)
+	--local filename = "saves/" .. os.date("%m%d%H%M") .. p1_char .. "v" ..
+	--	p2_char .. "R" .. game.current_round .. ".txt" -- need to modify this later if 10+ chars
+	--love.filesystem.write(filename, keybuffer_string)
 
   p1:initialize(1, p2, p1.super, p1.hitflag.Mugshot, p1.score)
   p2:initialize(2, p1, p2.super, p2.hitflag.Mugshot, p2.score)
@@ -686,7 +688,7 @@ function love.keypressed(key)
   elseif game.current_screen == "match_end" then
     if key ==  buttons.start then
       love.load()
-      charSelect()
+      game.current_screen = "title"
     end
   end
 

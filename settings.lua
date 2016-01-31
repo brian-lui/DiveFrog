@@ -23,7 +23,7 @@ settings_sound_background = love.graphics.newQuad(0, 0, 85, 60,
 settings_table = {
   Rounds = {{1, 1}, {3, 3}, {5, 5}, {7, 7}, {9, 9}},
   Timer = {{10, 10}, {15, 15}, {20, 20}, {99, 99}},
-  Speed = {{"Normal", 1.0}, {"Fast", 1.2}, {"Faster", 1.4}, {"Too Fast", 1.8}},
+  Speed = {{"Normal", 1.5}, {"Fast", 1.8}, {"Faster", 2.2}, {"Too Fast", 2.7}},
   Music = {{"0%", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}},
   Sound = {{"0%", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}}
   }  
