@@ -18,6 +18,8 @@ settings_music_background = love.graphics.newQuad(0, 0, 90, 60,
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
 settings_sound_background = love.graphics.newQuad(0, 0, 90, 60, 
   love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
+settings_controls_background = love.graphics.newQuad(0, 0, 210, 225, 
+  love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
 
 settings_table = {
   Rounds = {{1, 1}, {3, 3}, {5, 5}, {7, 7}, {9, 9}},
@@ -35,7 +37,16 @@ Params = {
   Sound = settings_table.Sound[settings_options.Sound][2]
   }
 
+
+
+
 --[[ Make it useable with arrow keys too]]
+
+
+
+
+
+
 function setupReceiveKeypress(key)
   if key == buttons.start then
       playSFX(charselected_sfx)
@@ -53,20 +64,39 @@ function setupReceiveKeypress(key)
     end
 
   elseif settings_popup_window == "Controls" then
-    if key == buttons.p1attack then
-      playSFX(charselected_sfx)
-      --Press P1 Attack changes current key to ____. Then accepts next keypress as input
-    elseif key = buttons.p1jump then
-      playSFX(charselect_sfx)
-      --Press P1 Jump moves the rectangle. Moves the "active button" variable.
+    if controls_choices.assigning then
+      local to_change = controls_choices.key[controls_choices.option]
+      print(to_change)
+      --tbd
+      controls_choices.assigning = false
+
+    else  
+      if key == buttons.p1attack then
+        playSFX(charselected_sfx)
+
+        if controls_choices.key[controls_choices.option] == "Back" then
+          settings_popup_window = ""
+        else
+          controls_choices.assigning = true
+        end
+
+        --Press P1 Attack changes current key to ____. Then accepts next keypress as input
+      elseif key == buttons.p1jump then
+        playSFX(charselect_sfx)
+        controls_choices.option = controls_choices.option % #controls_choices.key + 1
+      end
     end
   --[[
+
+  controls_choices = {
+  key = {buttons.p1jump, buttons.p1attack, buttons.p2jump, buttons.p2attack, buttons.start, "Back"},
+  assigning = false
+  option = 1
+  }
     Input overwrites "active button" e.g. buttons.p2jump
   when press 'Back', also saves to json file
   ]]
 
---buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
---love.filesystem.write("controls.txt", json.encode(buttons))  
 
   else
     for k, v in pairs(settings_table) do
@@ -77,7 +107,7 @@ function setupReceiveKeypress(key)
 
         elseif key == buttons.p1jump then
           playSFX(charselect_sfx)
-          settings_options[k] = settings_options[k] % #settings_table[k] + 1
+          settings_options[k] = settings_options[k] % #settings_table[k] + 1 
         end
       end
     end
@@ -123,6 +153,7 @@ function backToTitle()
   currentBGM:setVolume(0.9 * Params.Music)
 
   love.filesystem.write("settings.txt", json.encode(settings_options))  
+--love.filesystem.write("controls.txt", json.encode(buttons))  
 
   settings_choices.option = 1
   game.current_screen = 'title'
@@ -138,6 +169,12 @@ settings_choices = {
     "Controls",
     "Back to Title"},
   action = {setupRounds, setupTimer, setupSpeed, setupMusic, setupSound, setupControls, backToTitle},
+  option = 1
+}
+
+controls_choices = {
+  key = {buttons.p1jump, buttons.p1attack, buttons.p2jump, buttons.p2attack, buttons.start, "Back"},
+  assigning = false,
   option = 1
 }
 
@@ -226,25 +263,37 @@ function drawSettingsPopup()
         love.graphics.printf(toprint, 510, 403, 90, "center")
     love.graphics.pop()
   elseif settings_popup_window == "Controls" then
+    love.graphics.push("all")
+      love.graphics.setColor(255, 255, 255, 160)
+        love.graphics.draw(settings_texture, settings_controls_background, 510, 245)
+      
+      local toprint = {
+        {"P1 Jump", buttons.p1jump},
+        {"P1 Attack", buttons.p1attack},
+        {"P2 Jump", buttons.p2jump},
+        {"P2 Attack", buttons.p2attack},
+        {"Start", buttons.start},
+        {"Back", ""}
+      }
     
-  --[[ draw background
-   love.graphics.setColor(255, 255, 255, 160)
-      love.graphics.draw(settings_texture, x, y)
-    ]]
-  
-  --[[Show table:
-    P1 Jump     buttons.p1jump
-    P1 Attack   buttons.p1attack
-    P2 Jump     buttons.p2jump
-    P2 Attack   buttons.p2attack
-    Start       buttons.start
-    Back
-    ]]
+      if controls_choices.assigning then
+        toprint[controls_choices.option][2] = "[      ]"
+      end
+        
+      love.graphics.setFont(settingsFont)
 
-    --[[ Draw rectangle:
-    love.graphics.setLineWidth(3)
-    love.graphics.setColor(255, 215, 0, 255)
-    love.graphics.rectangle("line", 290, 238 + 35 * settings_choices.option, 200, 34)
-    ]]
+      for i = 1, #toprint do
+        love.graphics.setColor(255, 215, 0, 255)
+          love.graphics.print(toprint[i][1], 525, 220 + 35 * i)
+
+        love.graphics.setColor(128, 255, 128, 255)
+          love.graphics.print(toprint[i][2], 640, 220 + 35 * i)
+      end
+
+      love.graphics.setLineWidth(3)
+      love.graphics.setColor(255, 215, 0, 255)
+      love.graphics.rectangle("line", 520, 220 + 35 * controls_choices.option, 190, 34)
+      
+    love.graphics.pop()
   end
 end

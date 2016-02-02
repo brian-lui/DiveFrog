@@ -1,7 +1,6 @@
 require 'lovedebug'
 require 'utilities' -- helper functions
 require 'camera'
-
 local json = require 'dkjson'
 local class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
@@ -15,6 +14,7 @@ local particles = require 'particles'
 
 -- load controls
 buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
+
 if love.filesystem.exists("controls.txt") then
   local controls_string = love.filesystem.read("controls.txt")
   buttons = json.decode(controls_string)
@@ -32,7 +32,7 @@ else
   love.filesystem.write("settings.txt", json.encode(settings_options))  
 end
 
-love.filesystem.createDirectory("saves")
+--love.filesystem.createDirectory("saves")
 
 -- load images
 local replaysscreen = love.graphics.newImage('images/Replays.jpg')
@@ -64,7 +64,6 @@ canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
 canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
 canvas_background = love.graphics.newCanvas(stage.width, stage.height)
 
-
 function love.load()
   game = {
     current_screen = "title",
@@ -93,12 +92,12 @@ function love.load()
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
   soundbuffer = {} -- pre-load sound effects into future frames
   camera_xy = {} -- top left window corner for camera and window drawing
-  debug = {boxes = false, sprites = false, midpoints = false, camera = false,
-  	keybuffer = false}
+  debug = {boxes = false, sprites = false, midpoints = false, camera = false,	keybuffer = false}
 end
 
 function drawBackground()
   love.graphics.clear()
+  
   local temp_color = {255, 255, 255, 255}
 
   if game.background_color then
@@ -125,6 +124,7 @@ function drawSprites()
       love.graphics.setColor(100 + (180 - round_timer) / 2, 0, 0, 200)
       love.graphics.setLineWidth(12)
       love.graphics.line(stage.center, 0, stage.center, stage.height)
+
 	    if round_timer > 0 then
 	    	love.graphics.setLineWidth(1)
 	    	local alpha = (180 - round_timer) / 2 + 90
@@ -134,6 +134,7 @@ function drawSprites()
 	    		{shift = 6 * round_timer, color = {220, 220, 220, alpha}},
 	    		{shift = 12 * round_timer, color = {255, 255, 255, alpha}}
 	    		}
+
 	    	for _, line in pairs(lines) do
 	    		love.graphics.setColor(line.color)
 	    		love.graphics.line(stage.center - line.shift, 0, stage.center - line.shift, stage.height)
@@ -162,21 +163,26 @@ function drawSprites()
   ----------------------------------------------]]--      
 	for side, op in pairs(PLAYERS) do
 	  love.graphics.push("all")
+
 			-- Ground shadow for sprites
 		  love.graphics.setColor(0, 0, 0, 96)
 		  love.graphics.ellipse("fill", side:getCenter(), stage.floor - 5, 50, 20)
 
 		  -- Sprites
 		  local temp_color = {255, 255, 255, 255}
+
 		  if side.color then
 		  	for i = 1, 4 do temp_color[i] = side.color[i] end
 		  end
+
 		  if game.identical_players and side == p2 then
 		  	temp_color[1] = temp_color[1] * 0.7
 		  	temp_color[2] = temp_color[2] * 0.85
 		  	temp_color[3] = temp_color[3] * 0.7
 		  end
+
 		  love.graphics.setColor(temp_color)
+      
       love.graphics.draw(side.image, side.sprite,
         side.pos[1] + side.h_mid, side.pos[2] + side.v_mid, 0, side.facing, 1, side.h_mid, side.v_mid)
 
