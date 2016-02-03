@@ -658,9 +658,14 @@ function love.keypressed(key)
   	if key == buttons.p1attack or key == buttons.start then
   		playSFX(charselected_sfx)
   		title_choices.action[title_choices.option]()
-  	elseif key == buttons.p1jump then
+  	
+    elseif key == buttons.p1jump or key == "down" then
     	playSFX(charselect_sfx)
     	title_choices.option = title_choices.option % #title_choices.menu + 1
+
+    elseif key == "up" then
+      playSFX(charselect_sfx)
+      title_choices.option = (title_choices.option - 2) % #title_choices.menu + 1      
     end
 
   elseif game.current_screen == "charselect" then

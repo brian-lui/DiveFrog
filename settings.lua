@@ -38,40 +38,33 @@ Params = {
   }
 
 
-
-
---[[ Make it useable with arrow keys too]]
-
-
-
-
-
-
 function setupReceiveKeypress(key)
-  if key == buttons.start then
-      playSFX(charselected_sfx)
-      game.current_screen = "title"
-  end
-  
+
   if settings_popup_window == "" then
-    if key == buttons.p1attack then
+    if key == buttons.p1attack or key == "right" or key == "return" then
       playSFX(charselected_sfx)
       settings_choices.action[settings_choices.option]()
     
-    elseif key == buttons.p1jump then
+    elseif key == buttons.p1jump or key == "down" then
       playSFX(charselect_sfx)
       settings_choices.option = settings_choices.option % #settings_choices.menu + 1
+
+    elseif key == "up" then
+      playSFX(charselect_sfx)
+      settings_choices.option = (settings_choices.option - 2) % #settings_choices.menu + 1
     end
 
   elseif settings_popup_window == "Controls" then
     if controls_choices.assigning then
-      local to_change = controls_choices.key[controls_choices.option]
-      print(to_change)
-      --tbd
-      controls_choices.assigning = false
+      if not (key == "left" or key == "right" or key == "up" or key == "down") then
+        for _, v in pairs(controls_choices.key[controls_choices.option]) do
+          buttons[v] = key
+        end
+        controls_choices.assigning = false
+      end
 
     else  
-      if key == buttons.p1attack then
+      if key == buttons.p1attack or key == "right" or key == "return" then
         playSFX(charselected_sfx)
 
         if controls_choices.key[controls_choices.option] == "Back" then
@@ -80,34 +73,34 @@ function setupReceiveKeypress(key)
           controls_choices.assigning = true
         end
 
-        --Press P1 Attack changes current key to ____. Then accepts next keypress as input
-      elseif key == buttons.p1jump then
+      elseif key == buttons.p1jump or key == "down" then
         playSFX(charselect_sfx)
         controls_choices.option = controls_choices.option % #controls_choices.key + 1
+
+      elseif key == "up" then
+        playSFX(charselect_sfx)
+        controls_choices.option = (controls_choices.option - 2) % #controls_choices.key + 1        
+
+      elseif key == "left" then
+        settings_popup_window = ""
+
       end
     end
-  --[[
-
-  controls_choices = {
-  key = {buttons.p1jump, buttons.p1attack, buttons.p2jump, buttons.p2attack, buttons.start, "Back"},
-  assigning = false
-  option = 1
-  }
-    Input overwrites "active button" e.g. buttons.p2jump
-  when press 'Back', also saves to json file
-  ]]
-
 
   else
     for k, v in pairs(settings_table) do
       if settings_popup_window == k then
-        if key == buttons.p1attack then
+        if key == buttons.p1attack or key == "return" then
           playSFX(charselected_sfx)
           settings_popup_window = ""
 
-        elseif key == buttons.p1jump then
+        elseif key == buttons.p1jump or key == "down" then
           playSFX(charselect_sfx)
           settings_options[k] = settings_options[k] % #settings_table[k] + 1 
+
+        elseif key == "up" then
+          playSFX(charselect_sfx)
+          settings_options[k] = (settings_options[k] - 2) % #settings_table[k] + 1 
         end
       end
     end
@@ -153,7 +146,7 @@ function backToTitle()
   currentBGM:setVolume(0.9 * Params.Music)
 
   love.filesystem.write("settings.txt", json.encode(settings_options))  
---love.filesystem.write("controls.txt", json.encode(buttons))  
+  love.filesystem.write("controls.txt", json.encode(buttons))  
 
   settings_choices.option = 1
   game.current_screen = 'title'
@@ -173,7 +166,7 @@ settings_choices = {
 }
 
 controls_choices = {
-  key = {buttons.p1jump, buttons.p1attack, buttons.p2jump, buttons.p2attack, buttons.start, "Back"},
+  key = {{"p1jump"}, {"p1attack"}, {"p2jump"}, {"p2attack"}, {"start"}, "Back"},
   assigning = false,
   option = 1
 }
