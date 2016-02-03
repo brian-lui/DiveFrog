@@ -37,9 +37,7 @@ Params = {
   Sound = settings_table.Sound[settings_options.Sound][2]
   }
 
-
 function setupReceiveKeypress(key)
-
   if settings_popup_window == "" then
     if key == buttons.p1attack or key == "right" or key == "return" then
       playSFX(charselected_sfx)
@@ -182,7 +180,7 @@ function drawSettingsMain()
     love.graphics.draw(settings_logo, 232, 60)
 
     love.graphics.setColor(255, 255, 255, 160)
-      love.graphics.draw(settings_texture, 280, 260)
+    love.graphics.draw(settings_texture, 280, 260)
 
     love.graphics.setLineWidth(3)
     if settings_popup_window == "" then
@@ -205,60 +203,60 @@ function drawSettingsPopup()
 
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
-        love.graphics.draw(settings_texture, settings_rounds_background, 510, 260)
+      love.graphics.draw(settings_texture, settings_rounds_background, 510, 260)
 
       love.graphics.setColor(255, 215, 0, 255)
       love.graphics.setFont(settingsOptionsFontBig)
-        love.graphics.printf(toprint, 508, 252, 60, "center")
+      love.graphics.printf(toprint, 508, 252, 60, "center")
     love.graphics.pop()
 
   elseif settings_popup_window == "Timer" then
     local toprint = settings_table.Timer[settings_options.Timer][1]
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
-        love.graphics.draw(settings_texture, settings_timer_background, 510, 295)
+      love.graphics.draw(settings_texture, settings_timer_background, 510, 295)
 
       love.graphics.setColor(255, 215, 0, 255)
       love .graphics.setFont(settingsOptionsFontBig)
-        love.graphics.printf(toprint, 510, 290, 70, "center")
+      love.graphics.printf(toprint, 510, 290, 70, "center")
     love.graphics.pop()
 
   elseif settings_popup_window == "Speed" then
     local toprint = settings_table.Speed[settings_options.Speed][1]
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
-        love.graphics.draw(settings_texture, settings_speed_background, 510, 330)
+      love.graphics.draw(settings_texture, settings_speed_background, 510, 330)
 
       love.graphics.setColor(255, 215, 0, 255)
       love.graphics.setFont(settingsOptionsFontSmall)
-        love.graphics.printf(toprint, 510, 333, 130, "center")
+      love.graphics.printf(toprint, 510, 333, 130, "center")
     love.graphics.pop()
 
   elseif settings_popup_window == "Music" then
     local toprint = settings_table.Music[settings_options.Music][1]
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
-        love.graphics.draw(settings_texture, settings_music_background, 510, 365)
+      love.graphics.draw(settings_texture, settings_music_background, 510, 365)
 
       love.graphics.setColor(255, 215, 0, 255)
       love.graphics.setFont(settingsOptionsFontSmall)
-        love.graphics.printf(toprint, 510, 368, 90, "center")
+      love.graphics.printf(toprint, 510, 368, 90, "center")
     love.graphics.pop()
 
   elseif settings_popup_window == "Sound" then
     local toprint = settings_table.Sound[settings_options.Sound][1]
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
-        love.graphics.draw(settings_texture, settings_sound_background, 510, 400)
+      love.graphics.draw(settings_texture, settings_sound_background, 510, 400)
 
       love.graphics.setColor(255, 215, 0, 255)
       love.graphics.setFont(settingsOptionsFontSmall)
-        love.graphics.printf(toprint, 510, 403, 90, "center")
+      love.graphics.printf(toprint, 510, 403, 90, "center")
     love.graphics.pop()
   elseif settings_popup_window == "Controls" then
     love.graphics.push("all")
       love.graphics.setColor(255, 255, 255, 160)
-        love.graphics.draw(settings_texture, settings_controls_background, 510, 245)
+      love.graphics.draw(settings_texture, settings_controls_background, 510, 245)
       
       local toprint = {
         {"P1 Jump", buttons.p1jump},
@@ -277,10 +275,10 @@ function drawSettingsPopup()
 
       for i = 1, #toprint do
         love.graphics.setColor(255, 215, 0, 255)
-          love.graphics.print(toprint[i][1], 525, 220 + 35 * i)
+        love.graphics.print(toprint[i][1], 525, 220 + 35 * i)
 
         love.graphics.setColor(128, 255, 128, 255)
-          love.graphics.print(toprint[i][2], 640, 220 + 35 * i)
+        love.graphics.print(toprint[i][2], 640, 220 + 35 * i)
       end
 
       love.graphics.setLineWidth(3)
