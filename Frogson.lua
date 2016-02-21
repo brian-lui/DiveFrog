@@ -21,7 +21,7 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.sprite_wallspace = 60 -- how many pixels to reduce when checking against stage wall
   self.default_gravity = 0.36
   self.jackson_stance = false
-	self.wow = false
+	self.wow_frames = 0
 	self.lean_frames = 0
 	self.moonwalk_frames = 0
 
@@ -109,11 +109,10 @@ end
       self.waiting_state = ""
       --HyperKickFlames:playSound()
       self.vel = {0, 0}
-      self.wow = true
+      self.wow_frames = 20
       self:updateImage(7)
       self.gravity = 0
-      self.current_hurtboxes = self.hurtboxes_attacking
-      self.current_hitboxes = self.hitboxes_hyperkick
+      self.current_hurtboxes = self.hurtboxes_wow
     end
   end
 
@@ -231,19 +230,31 @@ end
   	if self.moonwalk_frames > 0 then
   		self.moonwalk_frames = math.max(self.moonwalk_frames - 1, 0)
   		self.super = self.super + 0.25
-  		if self.moonwalk_frames <= 0 then
+  		if self.moonwalk_frames == 0 then
   			self:land()
   		end
   	end
 
   	if self.lean_frames > 0 and not self.hasWon then
   		self.lean_frames = math.max(self.lean_frames - 1, 0)
-  		if self.lean_frames <= 0 then
+  		if self.lean_frames == 0 then
   			self:land()
+  		end
+  	end
+
+  	if self.wow_frames > 0 and not self.hasWon then
+  		self.wow_frames = math.max(self.wow_frames - 1, 0)
+  		if self.wow_frames == 0 then
+  			self.foe.pos[1] = self.foe.pos[1] - 200 * self.foe.facing
+  			self.gravity = self.default_gravity
+  			self:setFrozen(10)
+  			self.foe:setFrozen(10)
+  			-- add screenflash
   		end
   	end
   end
 
 	function Fighter:getNeutral()
-	  return not self.isKO and not self.isAttacking and self.recovery == 0 and self.moonwalk_frames == 0
+	  return not self.isKO and not self.isAttacking and self.recovery == 0 and 
+	  	self.moonwalk_frames == 0 and self.lean_frames == 0 and self.wow_frames == 0
 	end
