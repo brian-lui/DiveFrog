@@ -10,6 +10,7 @@ local character = require 'character'
 require 'Konrad'
 require 'Jean'
 require 'Sun'
+require 'Frogson'
 local particles = require 'particles'
 
 -- load controls
@@ -616,11 +617,12 @@ end
 
 function charSelect()
   setBGM("CharSelect.ogg")
-  available_chars = {Konrad, Jean, Sun}
+  available_chars = {Konrad, Jean, Sun, Frogson}
   char_text = {
     {"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},
     {"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"},
-    {"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"}
+    {"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"},
+    {"Anti-Gravity Frog", "Wow!", "+40%", "Jackson/Bison Stances"}
     }
   p1_char = 1
   p2_char = 2

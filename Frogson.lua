@@ -21,6 +21,9 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.sprite_wallspace = 60 -- how many pixels to reduce when checking against stage wall
   self.default_gravity = 0.36
   self.jackson_stance = false
+	self.wow = false
+	self.lean_frames = 0
+	self.moonwalk_frames = 0
 
   self.hurtboxes_standing = {
     {L = 80, U = 39, R = 129, D = 85, Flag1 = "Mugshot"},
@@ -43,7 +46,7 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
     {L = 86, U = 25, R = 117, D = 42},
     {L = 62, U = 58, R = 86, D = 186},
     {L = 87, U = 177, R = 97, D = 186},
-    {L = 37, U = 153, R = 167, D = 187}}
+    {L = 37, U = 153, R = 67, D = 187}}
   self.hurtboxes_attacking_bison  = {
     {L = 80, U = 39, R = 129, D = 85, Flag1 = "Mugshot"},
     {L = 70, U = 90, R = 127, D = 138},
@@ -86,50 +89,49 @@ end
 
   function Frogson:attack_key_press()
     -- attack if in air and not already attacking and either: >50 above floor, or landing and >30 above.
-    if self.isInAir and not self.isAttacking and 
+    if self.isInAir and not self.isAttacking and not self.wow and
       (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
       (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
         self.waiting = 3
         self.waiting_state = "Attack"
     -- if on ground, kickback
-    elseif not self.isInAir then
+    elseif not self.isInAir and self.moonwalk_frames == 0 then
       self.waiting = 3
       self.waiting_state = "Kickback"
     end
     Fighter.attack_key_press(self) -- check for special move
   end
 
-    --[[Currently edited up to HERE
-  Moonwalk should have blue shadows behind it.
-  Make theme song more Michael Jacksony and/or with M. Bison bells
-  --]]    
-
-  function Konrad:air_special()
-    if self.super >= 16 and not self.isAttacking and not self.isSupering and
+  function Frogson:air_special()
+    if self.super >= 16 and not self.isAttacking and
     self.pos[2] + self.sprite_size[2] < stage.floor - 50 then
       self.super = self.super - 16
       self.waiting_state = ""
-      HyperKickFlames:playSound()
-      self.vel = {14 * self.facing, 19}
-      self.isAttacking = true  
-      self.hyperkicking = true
-      self:updateImage(4)
+      --HyperKickFlames:playSound()
+      self.vel = {0, 0}
+      self.wow = true
+      self:updateImage(7)
       self.gravity = 0
       self.current_hurtboxes = self.hurtboxes_attacking
       self.current_hitboxes = self.hitboxes_hyperkick
     end
   end
 
-  function Konrad:ground_special()
-    if self.super >= 16 and not self.isSupering then
-      self.super = self.super - 16
+  function Frogson:ground_special()
+    if self.super >= 8 then
+      self.super = self.super - 8
       self.waiting_state = ""
-      writeSound(self.ground_special_sfx)
-      self:jump(0, 29, 1.2)
+      --writeSound(self.ground_special_sfx)
+      self:updateImage(6)
+      self.current_hurtboxes = self.hurtboxes_antigravity
+      self.current_hitboxes = self.hitboxes_antigravity
+      self.lean_frames = 20
+      self.jackson_stance = not self.jackson_stance
+      self.isAttacking = true
     end
   end
 
-  function Konrad:jump(h_vel, v_vel, gravity)
+  function Frogson:jump(h_vel, v_vel, gravity)
     self.isInAir = true
     self.gravity = gravity
     self.vel = {h_vel * self.facing, -v_vel}
@@ -137,11 +139,10 @@ end
     self.current_hurtboxes = self.hurtboxes_jumping
   end
 
-  function Konrad:land() -- called when character lands on floor
+  function Frogson:land() -- called when character lands on floor
     self.isInAir = false
     self.isAttacking = false
-    self.double_jump = false
-    self.hyperkicking = false
+    self.wow = false
     if not self.isKO then
       self.vel = {0, 0}
       self:updateImage(0)
@@ -149,42 +150,100 @@ end
     end
   end
 
-  function Konrad:stateCheck()
+  function Frogson:stateCheck()
     if self.waiting > 0 then
       self.waiting = self.waiting - 1
       if self.waiting == 0 and self.waiting_state == "Jump" then
         self.waiting_state = ""
-        self:jump(0, 14, self.default_gravity)
         writeSound(self.jump_sfx)
         JumpDust:singleLoad(self.center, self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
+        
+        if self.jackson_stance then
+        	self:jump(0, 8, self.default_gravity * 0.5)
+        else
+        	self:jump(0, 14, self.default_gravity)
+        end
       end
-      if self.waiting == 0 and self.waiting_state == "DoubleJump" then
+			if self.waiting == 0 and self.waiting_state == "Attack" then 
         self.waiting_state = ""
-        self:jump(4.8, 4.8, self.default_gravity)
-        DoubleJumpDust:singleLoad(self.center, self.pos[2], -30, self.sprite_size[2] - DoubleJumpDust.height, self.facing)
-        DoubleJumpDust:playSound()
-      end
-      if self.waiting == 0 and self.waiting_state == "Attack" then 
-        self.waiting_state = ""
-        self:attack(7.2, 9.6)
         writeSound(self.attack_sfx)
+        
+        if self.jackson_stance then
+        	self:attack_jackson(7, 3.2)
+        else
+        	self:attack_bison(7.5, 11)
+        end
       end
+
       if self.waiting == 0 and self.waiting_state == "Kickback" then
         self.waiting_state = ""
-        self:kickback(-7.2, 7.2)
+        self:moonwalk(30, 4)
+        self.jackson_stance = not self.jackson_stance
         writeSound(self.jump_sfx)
       end
     end
   end
 
-  function Konrad:victoryPose()
-    if frame - round_end_frame == 60 then self.hyperkicking = false end
-    Fighter.victoryPose(self)
+	function Frogson:updateImage(image_index)
+		local stance = 0
+		if self.jackson_stance then stance = 1 end
+	  self.sprite = love.graphics.newQuad(image_index * self.sprite_size[1], stance * 200,
+	    self.sprite_size[1], self.sprite_size[2],
+	    self.image_size[1], self.image_size[2])
+	end
+
+	function Frogson:attack_bison(h_vel, v_vel)
+	  self.vel = {h_vel * self.facing, v_vel}
+	  self.isAttacking = true
+	  self:updateImage(4)
+	  self.gravity = 0
+	  self.current_hurtboxes = self.hurtboxes_attacking_bison
+	  self.current_hitboxes = self.hitboxes_attacking_bison
+	  if self.super < 96 and not self.isSupering then 
+	    self.super = math.min(self.super + 8, 96)
+	    if self.super == 96 then writeSound(super_sfx) end
+	  end
+	end
+
+	function Frogson:attack_jackson(h_vel, v_vel)
+	  self.vel = {h_vel * self.facing, v_vel}
+	  self.isAttacking = true
+	  self:updateImage(4)
+	  self.gravity = 0
+	  self.current_hurtboxes = self.hurtboxes_attacking_jackson
+	  self.current_hitboxes = self.hitboxes_attacking_jackson
+	  if self.super < 96 and not self.isSupering then 
+	    self.super = math.min(self.super + 8, 96)
+	    if self.super == 96 then writeSound(super_sfx) end
+	  end
+	end
+
+	function Frogson:moonwalk(frames, h_vel)
+		self.moonwalk_frames = frames
+		self.vel = {-h_vel * self.facing, 0}
+		self:updateImage(3)
+		self.current_hurtboxes = self.hurtboxes_moonwalk
+		KickbackDust:singleLoad(self.center,
+    self.pos[2], 0, self.sprite_size[2] - KickbackDust.height, self.facing)
+	end
+
+  function Frogson:extraStuff()
+  	if self.moonwalk_frames > 0 then
+  		self.moonwalk_frames = math.max(self.moonwalk_frames - 1, 0)
+  		self.super = self.super + 0.25
+  		if self.moonwalk_frames <= 0 then
+  			self:land()
+  		end
+  	end
+
+  	if self.lean_frames > 0 and not self.hasWon then
+  		self.lean_frames = math.max(self.lean_frames - 1, 0)
+  		if self.lean_frames <= 0 then
+  			self:land()
+  		end
+  	end
   end
 
-  function Konrad:extraStuff()
-    if self.hyperkicking and not self.isKO then
-      HyperKickFlames:repeatLoad(self.center, self.pos[2], 0, 0, self.facing)
-    end
-  end
-
+	function Fighter:getNeutral()
+	  return not self.isKO and not self.isAttacking and self.recovery == 0 and self.moonwalk_frames == 0
+	end
