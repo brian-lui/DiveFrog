@@ -169,6 +169,10 @@ end
     end
   end
 
+  function Konrad:getNeutral()
+    return not self.isKO and not self.isAttacking and self.recovery == 0
+  end
+
   function Konrad:victoryPose()
     if frame - round_end_frame == 60 then self.hyperkicking = false end
     Fighter.victoryPose(self)

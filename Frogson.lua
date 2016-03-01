@@ -70,7 +70,7 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
 
   self.hitboxes_attacking_bison = {{L = 78, U = 187, R = 114, D = 195}}
   self.hitboxes_attacking_jackson = {{L = 184, U = 107, R = 198, D = 119}}
-  self.hitboxes_antigravity = {{L = 170, U = 71, R = 199, D = 91}}
+  self.hitboxes_antigravity = {{L = 100, U = 71, R = 199, D = 91}}
   
   -- sound effects
   self.jump_sfx = "Frogson/FrogsonJump.ogg" -- placeholder
@@ -159,9 +159,9 @@ end
         JumpDust:singleLoad(self.center, self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
         
         if self.jackson_stance then
-        	self:jump(0, 8, self.default_gravity * 0.5)
+        	self:jump(0, 9, self.default_gravity * 0.5)
         else
-        	self:jump(0, 16, self.default_gravity)
+        	self:jump(0, 14, self.default_gravity)
         end
       end
 			if self.waiting == 0 and self.waiting_state == "Attack" then 
@@ -172,7 +172,7 @@ end
         	self:attack_jackson(5, 3.2)
         	writeSound(self.attack_jackson_sfx)
         else
-        	self:attack_bison(7.5, 11)
+        	self:attack_bison(6, 11)
         	writeSound(self.attack_bison_sfx)
         end
       end
