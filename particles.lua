@@ -115,43 +115,47 @@ end
 
 ---------------------------------- OVERLAYS -----------------------------------
  
-FrogFactor = Particle:new(love.graphics.newImage('images/FrogFactor.png'), -- OK 2
+FrogFactor = Particle:new(love.graphics.newImage('images/FrogFactor.png'),
   {1176, 130}, {168, 130}, 4)
-SuperBarBase = Particle:new(love.graphics.newImage('images/SuperBarBase.png'), -- OK 2
+SuperBarBase = Particle:new(love.graphics.newImage('images/SuperBarBase.png'), 
   {196, 19}, {196, 19}, 1)
-SuperMeter = Particle:new(love.graphics.newImage('images/SuperMeter.png'), -- OK 2
+SuperMeter = Particle:new(love.graphics.newImage('images/SuperMeter.png'), 
   {192, 120}, {192, 15}, 8)
 ------------------------------ COMMON PARTICLES -------------------------------
 Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
   {600, 140}, {600, 140}, 60, "Mugshot.ogg")
-Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), -- OK 2
+Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), 
   {70, 50}, {70, 50}, 1, true)
-OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'), -- OK 2
+OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'), 
   {800, 200}, {200, 200}, 3)
-JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), -- OK 2
+JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), 
   {528, 60}, {132, 60}, 4, "dummy.ogg", {255, 255, 255, 196})
-KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), -- OK 2
+KickbackDust = Particle:new(love.graphics.newImage('images/KickbackDust.png'), 
   {162, 42}, {54, 42}, 4, "dummy.ogg", {255, 255, 255, 196})
-WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'), -- OK 2
+WireSea = Particle:new(love.graphics.newImage('images/WireSea.png'), 
   {1600, 220}, {200, 220}, 2, "WireSea.ogg")
 Explosion1 = Particle:new(love.graphics.newImage('images/Explosion1.png'), 
   {800, 80}, {80, 80}, 3, "Explosion.ogg")
-Explosion2 = Particle:new(love.graphics.newImage('images/Explosion2.png'), -- OK 2
+Explosion2 = Particle:new(love.graphics.newImage('images/Explosion2.png'), 
   {880, 80}, {80, 80}, 3, "Explosion.ogg")
-Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'), -- OK 2
+Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'), 
   {880, 80}, {80, 80}, 3, "Explosion.ogg")
 
 
 ----------------------------------- KONRAD ------------------------------------
-HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), -- OK 2
+HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), 
   {800, 200}, {200, 200}, 2, "Konrad/KonradHyperKick.ogg")
-DoubleJumpDust = Particle:new(love.graphics.newImage('images/Konrad/DoubleJumpDust.png'), -- OK 2
+DoubleJumpDust = Particle:new(love.graphics.newImage('images/Konrad/DoubleJumpDust.png'), 
   {162, 43}, {54, 43}, 4, "Konrad/KonradDoubleJump.ogg", {255, 255, 255, 196})
 
 -------------------------------- SUN BADFROG ----------------------------------
-SunAura = Particle:new(love.graphics.newImage('images/Sun/Aura.png'), -- OK 2
+SunAura = Particle:new(love.graphics.newImage('images/Sun/Aura.png'), 
   {800, 250}, {200, 250}, 6)
-Hotflame = Particle:new(love.graphics.newImage('images/Sun/HotflameFX.png'), -- OK 2
+Hotflame = Particle:new(love.graphics.newImage('images/Sun/HotflameFX.png'), 
   {120, 195}, {60, 195}, 4, "Sun/Hotflame.ogg")
-Hotterflame = Particle:new(love.graphics.newImage('images/Sun/HotterflameFX.png'), -- OK 2
+Hotterflame = Particle:new(love.graphics.newImage('images/Sun/HotterflameFX.png'), 
   {300, 252}, {150, 252}, 4, "Sun/Hotterflame.ogg")
+
+--------------------------------- M. FROGSON ----------------------------------
+ScreenFlash = Particle:new(love.graphics.newImage('images/Frogson/Flash.png'),
+  {1200, 800}, {1200, 800}, 4)

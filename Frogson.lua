@@ -64,22 +64,23 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
     {L = 66, U = 142, R = 86, D = 185}}
   self.hurtboxes_wow  = {
     {L = 72, U = 41, R = 129, D = 90, Flag1 = "Mugshot"},
-    {L = 72, U = 92, R = 126, D = 1156},
+    {L = 72, U = 92, R = 126, D = 156},
     {L = 52, U = 162, R = 73, D = 182},
     {L = 112, U = 162, R = 143, D = 186}}
 
   self.hitboxes_attacking_bison = {{L = 78, U = 187, R = 114, D = 195}}
   self.hitboxes_attacking_jackson = {{L = 184, U = 107, R = 198, D = 119}}
-  self.hitboxes_antigravity = {{L = 167, U = 71, R = 183, D = 91}}
+  self.hitboxes_antigravity = {{L = 170, U = 71, R = 199, D = 91}}
   
   -- sound effects
   self.jump_sfx = "Frogson/FrogsonJump.ogg" -- placeholder
-  self.attack_sfx = "Frogson/FrogsonAttack.ogg" -- placeholder
-  self.got_hit_sfx = "Frogson/FrogsonKO.ogg" -- placeholder
+  self.attack_jackson_sfx = "Frogson/FrogsonAttackJackson.ogg" -- placeholder
+  self.attack_bison_sfx = "Frogson/FrogsonAttackBison.ogg" -- placeholder
+  self.got_hit_sfx = "Frogson/FrogsonKO.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
   self.moonwalk1_sfx = "Frogson/Moonwalk1.ogg"
   self.moonwalk2_sfx = "Frogson/Moonwalk2.ogg"
-  self.wow_sfx = "Frogson/Thriller.ogg"
+  self.wow_sfx = "Frogson/Wow.ogg"
   self.antigravity_sfx = "Frogson/BeatIt.ogg"
 
   self:init2(init_player, init_foe, init_super, init_dizzy, init_score)
@@ -107,7 +108,7 @@ end
     self.pos[2] + self.sprite_size[2] < stage.floor - 50 then
       self.super = self.super - 16
       self.waiting_state = ""
-      --HyperKickFlames:playSound()
+      writeSound(self.wow_sfx)
       self.vel = {0, 0}
       self.wow_frames = 20
       self:updateImage(7)
@@ -120,7 +121,7 @@ end
     if self.super >= 8 then
       self.super = self.super - 8
       self.waiting_state = ""
-      --writeSound(self.ground_special_sfx)
+      writeSound(self.antigravity_sfx)
       self:updateImage(6)
       self.current_hurtboxes = self.hurtboxes_antigravity
       self.current_hitboxes = self.hitboxes_antigravity
@@ -160,25 +161,31 @@ end
         if self.jackson_stance then
         	self:jump(0, 8, self.default_gravity * 0.5)
         else
-        	self:jump(0, 14, self.default_gravity)
+        	self:jump(0, 16, self.default_gravity)
         end
       end
 			if self.waiting == 0 and self.waiting_state == "Attack" then 
         self.waiting_state = ""
-        writeSound(self.attack_sfx)
+        
         
         if self.jackson_stance then
-        	self:attack_jackson(7, 3.2)
+        	self:attack_jackson(5, 3.2)
+        	writeSound(self.attack_jackson_sfx)
         else
         	self:attack_bison(7.5, 11)
+        	writeSound(self.attack_bison_sfx)
         end
       end
 
       if self.waiting == 0 and self.waiting_state == "Kickback" then
         self.waiting_state = ""
         self:moonwalk(30, 4)
+        if self.jackson_stance then
+        	writeSound(self.moonwalk1_sfx)
+        else
+        	writeSound(self.moonwalk2_sfx)
+        end
         self.jackson_stance = not self.jackson_stance
-        writeSound(self.jump_sfx)
       end
     end
   end
@@ -249,7 +256,7 @@ end
   			self.gravity = self.default_gravity
   			self:setFrozen(10)
   			self.foe:setFrozen(10)
-  			-- add screenflash
+  			ScreenFlash:singleLoad(camera_xy[1], camera_xy[2], 600, 0, 1, 0)
   		end
   	end
   end
