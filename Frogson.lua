@@ -106,7 +106,7 @@ end
   function Frogson:air_special()
     if self.super >= 16 and not self.isAttacking and
     self.pos[2] + self.sprite_size[2] < stage.floor - 50 then
-      self.super = self.super - 16
+      self.super = self.super - 12
       self.waiting_state = ""
       writeSound(self.wow_sfx)
       self.vel = {0, 0}
@@ -119,7 +119,7 @@ end
 
   function Frogson:ground_special()
     if self.super >= 8 then
-      self.super = self.super - 8
+      self.super = self.super - 4
       self.waiting_state = ""
       writeSound(self.antigravity_sfx)
       self:updateImage(6)
