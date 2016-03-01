@@ -169,7 +169,7 @@ end
         
         
         if self.jackson_stance then
-        	self:attack_jackson(5, 3.2)
+        	self:attack_jackson(6, 4)
         	writeSound(self.attack_jackson_sfx)
         else
         	self:attack_bison(6, 11)
