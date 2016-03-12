@@ -27,10 +27,12 @@ function AI.Action(player, foe)
 	local sendjump = false
 	local sendattack = false
 
-  if player.isInAir then
-    sendjump, sendattack = AI.Konrad.inAir(player, foe)
-  else
-    sendjump, sendattack = AI.Konrad.onGround(player, foe)
+  if frame % 6 == 0 then -- don't ask too often
+    if player.isInAir then
+      sendjump, sendattack = AI.Konrad.inAir(player, foe)
+    else
+      sendjump, sendattack = AI.Konrad.onGround(player, foe)
+    end
   end
 
 	return sendjump, sendattack
@@ -42,12 +44,12 @@ AI.Konrad = {
   MAX_SUPERJUMP_HEIGHT = 700,
   MIN_KICK_HEIGHT = stage.floor - 50,
 
-  FAR_JUMP = 0.8,
+  FAR_JUMP = 0.5, -- otherwise kickback
   FAR_DOUBLEJUMP = 0.2,
-  FAR_DOUBLEJUMP_LOWEST = 100,
-  FAR_DOUBLEJUMP_HIGHEST = 500,
+  FAR_DOUBLEJUMP_LOWEST = 600,
+  FAR_DOUBLEJUMP_HIGHEST = 300,
   
-  NEAR_SUPERJUMP = 0.8,
+  NEAR_SUPERJUMP = 0.6,
 
   KILL_SUPERKICK = 0.5,
 
@@ -60,8 +62,8 @@ AI.Konrad = {
 
 
 function AI.Konrad.inKillRange(player, foe)
-  local player_foot = {player.h_mid, player.pos[2] + player.sprite_size[2]}
-  local foe_target = {foe.h_mid, foe.pos[2]}
+  local player_foot = {player.center, player.pos[2] + player.sprite_size[2]}
+  local foe_target = {foe.center, foe.pos[2]}
 
   -- calculate current angle
   local h_dist = math.abs(player_foot[1] - foe_target[1])
@@ -102,24 +104,28 @@ function AI.Konrad.onGround(player, foe)
   
   if near then
     AI.Konrad.GoForKill = true
-    if num < AI.Konrad.NEAR_SUPERJUMP then
+    if num < AI.Konrad.NEAR_SUPERJUMP and player.super >= 16 then
       jump = true
       attack = true
     else
       jump = true
     end
+
   else
     AI.Konrad.GoForKill = false
     if num < AI.Konrad.FAR_JUMP then
       jump = true
-      if math.random() < AI.Konrad.FAR_DOUBLEJUMP then
+
+      if math.random() < AI.Konrad.FAR_DOUBLEJUMP then -- queue a double jump
         AI.Konrad.DoDoublejump = true
-        AI.Konrad.DoublejumpHeight = stage.floor - math.random(AI.Konrad.FAR_DOUBLEJUMP_LOWEST, AI.Konrad.FAR_DOUBLEJUMP_HIGHEST)
+        AI.Konrad.DoublejumpHeight = math.random(AI.Konrad.FAR_DOUBLEJUMP_LOWEST, AI.Konrad.FAR_DOUBLEJUMP_HIGHEST)
       end
+    
     else
       attack = true -- kickback
     end
   end
+
   return jump, attack
 end
 
@@ -159,6 +165,7 @@ function AI.Konrad.inAir(player, foe)
     end
     -- don't gain meter if waiting to doublejump
   else
+    
     if player.pos[2] + player.sprite_size[2] < AI.Konrad.MIN_KICK_HEIGHT then
       attack = true
     end
