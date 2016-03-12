@@ -73,11 +73,11 @@ function AI.Konrad.inKillRange(player, foe)
   end
 
   -- calculate current angle
-	local h_dist = (player_foot[1] - foe_target[1]) * -player.facing
-	local v_dist = player_foot[2] - foe_target[2]
+  local h_dist = math.abs(player_foot[1] - foe_target[1])
+  local v_dist = math.abs(player_foot[2] - foe_target[2])
+  local angle = h_dist / v_dist
 
   -- compare angle with kill angle, and check for height
-	local angle = h_dist / v_dist
 	local killangle = AI.KillAngle.Konrad
   local Konrad_above = player.pos[2] < foe.pos[2]
 
