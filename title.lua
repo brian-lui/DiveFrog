@@ -36,7 +36,7 @@ function drawTitle()
 end
 
 title_choices = {
-  menu = {"2 Player", "2 Player", "Settings"},
-  action = {charSelect, charSelect, settingsMenu},
+  menu = {"1 Player", "2 Player", "Settings"},
+  action = {select1P, select2P, settingsMenu},
   option = 1
 }

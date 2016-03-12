@@ -70,7 +70,7 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
 
   self.hitboxes_attacking_bison = {{L = 78, U = 187, R = 114, D = 195}}
   self.hitboxes_attacking_jackson = {{L = 184, U = 107, R = 198, D = 119}}
-  self.hitboxes_antigravity = {{L = 100, U = 71, R = 199, D = 91}}
+  self.hitboxes_antigravity = {{L = 170, U = 71, R = 190, D = 91}}
   
   -- sound effects
   self.jump_sfx = "Frogson/FrogsonJump.ogg" -- placeholder
@@ -219,7 +219,7 @@ end
 	  self.current_hurtboxes = self.hurtboxes_attacking_jackson
 	  self.current_hitboxes = self.hitboxes_attacking_jackson
 	  if self.super < 96 and not self.isSupering then 
-	    self.super = math.min(self.super + 8, 96)
+	    self.super = math.min(self.super + 12, 96)
 	    if self.super == 96 then writeSound(super_sfx) end
 	  end
 	end
@@ -236,7 +236,6 @@ end
   function Frogson:extraStuff()
   	if self.moonwalk_frames > 0 then
   		self.moonwalk_frames = math.max(self.moonwalk_frames - 1, 0)
-  		self.super = self.super + 0.25
   		if self.moonwalk_frames == 0 then
   			self:land()
   		end

@@ -126,7 +126,6 @@ end
     self:updateImage(3)
     self.current_hurtboxes = self.hurtboxes_dandy
     self.isFrictionOn = false
-    if not self.isSupering then self.super = math.min(self.super + 4, 96) end
   end
 
   function Jean:pilebunk(h_vel)

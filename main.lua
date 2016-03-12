@@ -11,6 +11,7 @@ require 'Konrad'
 require 'Jean'
 require 'Sun'
 require 'Frogson'
+require 'AI'
 local particles = require 'particles'
 
 -- load controls
@@ -77,7 +78,8 @@ function love.load()
     BGM = nil,
   	background_color = nil,
   	isScreenShaking = false,
-  	identical_players = false
+  	identical_players = false,
+    format = "2P"
     }
   setBGM("Intro.ogg")
   min_dt = 1/60 -- frames per second
@@ -491,11 +493,33 @@ function love.update(dt)
     end
 
     -- get button press state, and write to keybuffer table
-    keybuffer[frame] = {
-    love.keyboard.isDown(buttons.p1jump),
-    love.keyboard.isDown(buttons.p1attack),
-    love.keyboard.isDown(buttons.p2jump),
-    love.keyboard.isDown(buttons.p2attack)}
+    if game.format == "2P" then
+      keybuffer[frame] = {
+      love.keyboard.isDown(buttons.p1jump),
+      love.keyboard.isDown(buttons.p1attack),
+      love.keyboard.isDown(buttons.p2jump),
+      love.keyboard.isDown(buttons.p2attack)}
+    elseif game.format == "1P" then
+      local AIjump, AIattack = AI.Action(p2, p1)
+      keybuffer[frame] = {
+      love.keyboard.isDown(buttons.p1jump),
+      love.keyboard.isDown(buttons.p1attack),
+      AIjump,
+      AIattack}
+    elseif game.format == "Netplay1P" then
+      keybuffer[frame] = {
+      love.keyboard.isDown(buttons.p1jump),
+      love.keyboard.isDown(buttons.p1attack),
+      love.keyboard.isDown(buttons.p2jump),   -- get netplay data here
+      love.keyboard.isDown(buttons.p2attack)} -- get netplay data here
+    elseif game.format == "Netplay2P" then
+      keybuffer[frame] = {
+      love.keyboard.isDown(buttons.p1jump),   -- get netplay data here
+      love.keyboard.isDown(buttons.p1attack), -- get netplay data here
+      love.keyboard.isDown(buttons.p2jump),   
+      love.keyboard.isDown(buttons.p2attack)}
+    end
+
 
     -- read keystate from keybuffer and call the associated functions
     if not round_ended then
@@ -627,6 +651,16 @@ function charSelect()
   p1_char = 1
   p2_char = 2
   game.current_screen = "charselect"
+end
+
+function select1P()
+  game.format="1P"
+  charSelect()
+end
+
+function select2P()
+  game.format="2P"
+  charSelect()
 end
 
 function replays()
