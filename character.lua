@@ -263,6 +263,11 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
   self.vel_multiple = 1.0
   self.isKO = true 
   self.isAttacking = false -- stops calling gotHit, since the hitbox check is now false
+
+  if self.isSupering then
+    self.super = 0
+    self.isSupering = false
+  end
   writeSound(self.hit_sound_sfx)
 end
 
@@ -445,7 +450,7 @@ function Fighter:updatePos()
   if self.mugshotFrames > 0 then
     self.vel_multiple = 0.7
     self.mugshotFrames = self.mugshotFrames - 1
-    Dizzy:repeatLoad(self.center, self.pos[2], 0, 0, self.facing)
+    Dizzy:repeatLoad(self.center, self.pos[2] - 32, 0, 0, 1)
     if self.mugshotFrames == 0 then self.vel_multiple = 1.0 end
   end
 

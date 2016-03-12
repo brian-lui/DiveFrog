@@ -14,7 +14,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   end
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
 
-  self.win_quote = "Robert de Niro called."
+  self.win_quote = "Go home and be a family frog."
   self.fighter_name = "Sun Badfrog"
   self.super_drainspeed = 0.25 -- per frame 
 
@@ -97,6 +97,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.hotflametime = {0, 0, 0, 0, 0}
   self.hotterflametime = 0
   self.hotflaming_pos = {0, 0}
+  self.hotflaming_facing = 1
   self.riotbackdash = false
   self.riotkick = false
   self.kicking = false -- self.isAttacking is overloaded by hotflame
@@ -149,6 +150,8 @@ function Sun:ground_special()
     self.current_hitboxes = self.hitboxes_neutral
     self.hotflaming_pos[1] = self.pos[1]
     self.hotflaming_pos[2] = self.pos[2]
+    self.hotflaming_facing = self.facing
+
 
     if not self.isSupering then
       self.super = self.super - 8
@@ -233,12 +236,14 @@ function Sun:extraStuff()
         end
         if self.hotflametime[i] <= 30 then -- low quality way to implement startup
           self.hitboxes_hotflame[#self.hitboxes_hotflame + 1] = {
-            L = self.sprite_size[1] + (45 * (i - 1)) - 20,
+            -- if facing is different from hotflame facing, reverse the horizontal direction
+            L = (self.sprite_size[1] + (45 * (i - 1)) - 20) * self.facing * self.hotflaming_facing, 
             U = self.sprite_size[2] - 110, 
-            R = self.sprite_size[1] + (45 * (i - 1)) - 10, 
+            R = (self.sprite_size[1] + (45 * (i - 1)) - 10) * self.facing * self.hotflaming_facing, 
             D = self.sprite_size[2],
             Flag1 = "Fire",
             Flag2 = "Projectile"} 
+            
         end
       end
 
@@ -247,7 +252,7 @@ function Sun:extraStuff()
           self.hotflaming_pos[2],
           self.sprite_size[1] / 2 + 45 * (i - 1) - 20,
           self.sprite_size[2] - Hotflame.sprite_size[2],
-          self.facing, 0, false)
+          self.hotflaming_facing, 0, false)
       end
     end
   end
@@ -259,15 +264,16 @@ function Sun:extraStuff()
       self.hotflaming_pos[2],
       self.sprite_size[1] / 2,
       self.sprite_size[2] - Hotterflame.sprite_size[2],
-      self.facing)
+      self.hotflaming_facing)
 
     if self.frozenFrames == 0 and not self.foe.hitflag.Projectile then
       self.hotterflametime = math.max(self.hotterflametime - (1 * game.speed), 0)
             
       self.hitboxes_hotflame[1] = {
-        L = self.sprite_size[1] - self.sprite_wallspace,
+        -- still slightly buggy but whatevs it won't come up in a real match
+        L = (self.sprite_size[1] - 50) * self.facing * self.hotflaming_facing,
         U = self.sprite_size[2] - 120,
-        R = self.sprite_size[1] - self.sprite_wallspace + 126,
+        R = (self.sprite_size[1] + 70) * self.facing * self.hotflaming_facing,
         D = self.sprite_size[2],
         Flag1 = "Fire",
         Flag2 = "Projectile"}
@@ -393,3 +399,5 @@ function Sun:updateSuper()
     game.background_color = {255, 128, 128, 255}
   end  
 end
+
+

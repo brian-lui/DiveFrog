@@ -125,7 +125,7 @@ SuperMeter = Particle:new(love.graphics.newImage('images/SuperMeter.png'),
 Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
   {600, 140}, {600, 140}, 60, "Mugshot.ogg")
 Dizzy = Particle:new(love.graphics.newImage('images/Dizzy.png'), 
-  {70, 50}, {70, 50}, 1, true)
+  {67, 50}, {67, 50}, 1, true)
 OnFire = Particle:new(love.graphics.newImage('images/OnFire.png'), 
   {800, 200}, {200, 200}, 3)
 JumpDust = Particle:new(love.graphics.newImage('images/JumpDust.png'), 

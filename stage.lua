@@ -7,3 +7,4 @@ stage.floor = stage.height - stage.floorheight
 stage.left = 40
 stage.right = stage.width - stage.left
 return stage
+
