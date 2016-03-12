@@ -1,3 +1,5 @@
+local stage = require 'stage'
+
 AI = {
 	Konrad = {},
 	Jean = {},
@@ -25,45 +27,37 @@ function AI.Action(player, foe)
 	local sendjump = false
 	local sendattack = false
 
-	if frame % 7 == 0 then
-		sendjump = true
-	end
-
-	if frame % 13 == 0 then
-		sendattack = true
-	end
-	--print(AI.Konrad.inKillRange(player, foe))
-  print(AI.Konrad.inClose(player, foe))
+  if player.isInAir then
+    sendjump, sendattack = AI.Konrad.inAir(player, foe)
+  else
+    sendjump, sendattack = AI.Konrad.onGround(player, foe)
+  end
 
 	return sendjump, sendattack
 end
-
 
 AI.Konrad = {
   -- max height reached = v^2 / 2a (gives pixels above stage floor)
   MAX_JUMP_HEIGHT = 544,
   MAX_SUPERJUMP_HEIGHT = 700,
+  MIN_KICK_HEIGHT = stage.floor - 50,
 
-  MIN_KICK_HEIGHT = 50,
-
-  FAR_JUMP = 0.8, -- frequency
-
-  FAR_DOUBLEJUMP = 0.2, -- frequency
+  FAR_JUMP = 0.8,
+  FAR_DOUBLEJUMP = 0.2,
   FAR_DOUBLEJUMP_LOWEST = 100,
   FAR_DOUBLEJUMP_HIGHEST = 500,
   
-  NEAR_SUPERJUMP = 0.8, -- frequency
+  NEAR_SUPERJUMP = 0.8,
+
+  KILL_SUPERKICK = 0.5,
+
+  HORIZONTAL_CLOSE = 200, -- pixels apart to go for kill
+
+  GoForKill = false,
+  DoDoublejump = false,
+  DoublejumpHeight = 300
 }
 
-AI.Konrad = {
-  FAR_KICKBACK = 1 - AI.Konrad.FAR_JUMP,
-  NEAR_JUMP = 1 - AI.Konrad.NEAR_SUPERJUMP,
-  HORIZONTAL_CLOSE = AI.Konrad.MAX_JUMP_HEIGHT * AI.KillAngle.Konrad
-
-  GoForKill = false
-  DoDoublejump = false
-  DoublejumpHeight = math.random(FAR_DOUBLEJUMP_LOWEST, FAR_DOUBLEJUMP_HIGHEST)
-}
 
 function AI.Konrad.inKillRange(player, foe)
 	-- Konrad's foot  
@@ -129,13 +123,12 @@ function AI.Konrad.onGround(player, foe)
       jump = true
       if math.random() < AI.Konrad.FAR_DOUBLEJUMP then
         AI.Konrad.DoDoublejump = true
-        AI.Konrad.DoublejumpHeight = math.random(FAR_DOUBLEJUMP_LOWEST, FAR_DOUBLEJUMP_HIGHEST)
+        AI.Konrad.DoublejumpHeight = stage.floor - math.random(AI.Konrad.FAR_DOUBLEJUMP_LOWEST, AI.Konrad.FAR_DOUBLEJUMP_HIGHEST)
       end
     else
       attack = true -- kickback
     end
   end
-
   return jump, attack
 end
 
@@ -144,25 +137,46 @@ function AI.Konrad.inAir(player, foe)
   local jump = false
   local attack = false
 
+  local near = AI.Konrad.inClose(player, foe)
+  local kill = AI.Konrad.inKillRange(player, foe)
   local num = math.random()
---[[
 
-In air? Check horizontal distance
-  If flag "go for kill":
-    Calculate required headshot height (using top + closest corner of opponent and jump angle)
-    Check if angle is at headshot height or higher:
-      If yes - Superkick if available, otherwise kick
-      If no - do nothing
-  Else if not doublejump:
-    If above minimum kick height:
-      If yes - Kick
-      If no - do nothing *
-  Else if doublejump:
-    If at headshot height or higher: superkick or kick
-    Elseif at or above doublejump height - Kick
-    Otherwise do nothing *
-  
+  if AI.Konrad.GoForKill then
+    if kill then
+      if player.super >= 16 and num < AI.Konrad.KILL_SUPERKICK then
+        jump = true
+        attack = true
+      else
+        attack = true
+      end
+      AI.Konrad.GoForKill = false
+    end
+    -- do nothing if not in kill range yet (don't gain meter)
+  elseif AI.Konrad.DoDoublejump then
+    if kill then
+      if player.super >= 16 and num < AI.Konrad.KILL_SUPERKICK then
+        jump = true
+        attack = true
+      else
+        attack = true
+      end
+      AI.Konrad.GoForKill = false
+      AI.Konrad.DoDoublejump = false
+    elseif player.pos[2] + player.sprite_size[2] < AI.Konrad.DoublejumpHeight then
+      jump = true
+      AI.Konrad.DoDoublejump = false
+    end
+    -- don't gain meter if waiting to doublejump
+  else
+    if player.pos[2] + player.sprite_size[2] < AI.Konrad.MIN_KICK_HEIGHT then
+      attack = true
+    end
 
-*Something to check if the opponent is attacking at "will hit me" angle, then kick if so
+  end
 
---]]
+  return jump, attack
+end
+
+
+--Something to check if the opponent is attacking at "will hit me" angle, then kick if so
+
