@@ -60,17 +60,8 @@ AI.Konrad = {
 
 
 function AI.Konrad.inKillRange(player, foe)
-	-- Konrad's foot  
-  local player_foot = {player.pos[1] + player.sprite_size[1], player.pos[2] + player.sprite_size[2]}
-  if player.facing == -1 then
-    player_foot[1] = player.pos[1]
-  end
-
-  -- foe's closest side, top of sprite
-  local foe_target = foe.pos
-  if foe.facing == -1 then
-    foe_target[1] = foe.pos[1] + foe.sprite_size[1]
-  end
+  local player_foot = {player.h_mid, player.pos[2] + player.sprite_size[2]}
+  local foe_target = {foe.h_mid, foe.pos[2]}
 
   -- calculate current angle
   local h_dist = math.abs(player_foot[1] - foe_target[1])
