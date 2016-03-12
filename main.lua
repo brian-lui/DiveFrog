@@ -107,6 +107,8 @@ function drawBackground()
   	temp_color = game.background_color
   elseif game.superfreeze_time > 0 then
   	temp_color = {96, 96, 96, 255}
+  elseif p1.frozenFrames > 0 and p2.frozenFrames > 0 and frame > 90 then
+    temp_color = {0, 0, 0, 255}
   end
 
   love.graphics.push("all")
