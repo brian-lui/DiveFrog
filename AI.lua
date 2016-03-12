@@ -6,7 +6,7 @@ AI = {
 }
 
 -- angle of attack, expressed as h_vel / v_vel. Lower = steeper angle 
-AI.KillAngles = { 
+AI.KillAngle = { 
   Konrad = 0.75,
   Jean = 1,
   Sun = 5 / 11,
@@ -32,7 +32,7 @@ function AI.Action(player, foe)
 	if frame % 13 == 0 then
 		sendattack = true
 	end
-	local bath = AI.Konrad.inKillRange(player, foe)
+	print(AI.Konrad.inKillRange(player, foe))
 
 	return sendjump, sendattack
 end
@@ -60,31 +60,31 @@ AI.Konrad = {
 }
 
 function AI.Konrad.inKillRange(player, foe)
-	local inRange = false
-
 	-- Konrad's foot  
   local player_foot = {player.pos[1] + player.sprite_size[1], player.pos[2] + player.sprite_size[2]}
   if player.facing == -1 then
-    player_foot = {player.pos[1], player.pos[2] + player.sprite_size[2]}
+    player_foot[1] = player.pos[1]
   end
 
   -- foe's closest side, top of sprite
   local foe_target = foe.pos
   if foe.facing == -1 then
-    foe_target = {foe.pos[1] + foe.sprite_size[1], foe.pos[2]}
+    foe_target[1] = foe.pos[1] + foe.sprite_size[1]
   end
- 
- 	-- line of Konrad's foot at Konrad's Kill Angle
 
- 	-- check if foe_target is at or above line
- 		-- if so, inRange == true
-  return inRange
+  -- calculate current angle
+	local h_dist = (player_foot[1] - foe_target[1]) * -player.facing
+	local v_dist = player_foot[2] - foe_target[2]
+
+  -- compare angle with kill angle, and check for height
+	local angle = h_dist / v_dist
+	local killangle = AI.KillAngle.Konrad
+  local Konrad_above = player.pos[2] < foe.pos[2]
+
+  return (angle < killangle) and Konrad_above
 end
 
 --[[
-Calculate optimal distance:
-  Get opponent position (mid h, mid v)
-  Calculate difference between (v and Konrad max jump height), multiplied by jump angle
 
 On ground? Check horizontal distance
   Far:      NEUTRAL_JUMP% jump, NEUTRAL_KICKBACK% kickback
