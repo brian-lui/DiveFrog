@@ -185,15 +185,24 @@ function drawSettingsMain()
     love.graphics.setLineWidth(3)
     if settings_popup_window == "" then
       love.graphics.setColor(255, 215, 0, 255)
+      if frame % 60 > 50 then
+        love.graphics.setColor(255, 255, 255, 255)
+      end
     else
       love.graphics.setColor(195, 160, 0, 210)
     end
-      love.graphics.rectangle("line", 290, 238 + 35 * settings_choices.option, 200, 34)
+    love.graphics.rectangle("line", 290, 238 + 35 * settings_choices.option, 200, 34)
 
+    if settings_popup_window == "" then
+      love.graphics.setColor(255, 215, 0, 255)
+    else
+      love.graphics.setColor(195, 160, 0, 210)
+    end
     love.graphics.setFont(settingsFont)
       for i = 1, #settings_choices.menu do
         love.graphics.print(settings_choices.menu[i], 300, 240 + (35 * i))
       end
+      
   love.graphics.pop()
 end
 

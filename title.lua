@@ -18,8 +18,12 @@ function drawTitle()
 
     love.graphics.setLineWidth(3)
     love.graphics.setColor(255, 215, 0, 255)
-      love.graphics.rectangle("line", 120, 375 + 35 * title_choices.option, 110, 35)
+    if frame % 60 > 50 then
+      love.graphics.setColor(255, 255, 255, 255)
+    end
+    love.graphics.rectangle("line", 120, 375 + 35 * title_choices.option, 110, 35)
 
+    love.graphics.setColor(255, 215, 0, 255)
     love.graphics.setFont(titleFont)
       local toprint = {
         "P1 Jump: " .. buttons.p1jump,

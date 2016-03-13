@@ -45,12 +45,15 @@ local portraits = love.graphics.newImage('images/Portraits.png')
 local greenlight = love.graphics.newImage('images/GreenLight.png')
 local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
--- load fontss
-local roundStartFont = love.graphics.newFont('/fonts/GoodDog.otf', 60)
+-- load fonts
+local roundStartFont = love.graphics.newFont('/fonts/Comic.otf', 60)
+local finalroundStartFont = love.graphics.newFont('/fonts/Comic.otf', 40)
+local roundEndFont = love.graphics.newFont('/fonts/ComicItalic.otf', 42)
 local charInfoFont = love.graphics.newFont('/fonts/CharSelect.ttf', 21)
 local charSelectorFont = love.graphics.newFont('/fonts/GoodDog.otf', 18)
 local timerFont = love.graphics.newFont('/fonts/Timer.otf', 48)
-local gameoverFont = love.graphics.newFont('/fonts/GoodDog.otf', 40)
+local gameoverFont = love.graphics.newFont('/fonts/ComicItalic.otf', 24)
+local gameoverHelpFont = love.graphics.newFont('/fonts/ComicItalic.otf', 16)
 
 -- load sounds
 super_sfx = "SuperFull.ogg"
@@ -310,10 +313,11 @@ function drawOverlays()
   if frames_elapsed > 48 and frames_elapsed < 90 then
     love.graphics.push("all")
       love.graphics.setFont(roundStartFont)
-      love.graphics.setColor(255, 255, 255)
+      love.graphics.setColor(230, 200, 0)
       love.graphics.printf("Round " .. game.current_round, 0, 200, window.width, "center")
       if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
-        love.graphics.printf("Final round!", 0, 300, window.width, "center")
+        love.graphics.setFont(finalroundStartFont)
+        love.graphics.printf("Final round!", 0, 270, window.width, "center")
       end
     love.graphics.pop()
   end
@@ -325,11 +329,11 @@ function drawOverlays()
     -- end of round win message
     if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
       love.graphics.push("all")
-        love.graphics.setFont(roundStartFont)
-        love.graphics.setColor(255, 255, 255)
-        if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins.", 0, 200, window.width, "center")
-        elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins.", 0, 200, window.width, "center")
-        else love.graphics.printf("Double K.O.", 0, 200, window.width, "center")
+        love.graphics.setFont(roundEndFont)
+        love.graphics.setColor(230, 200, 0)
+        if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins!", 0, 200, window.width, "center")
+        elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins!", 0, 200, window.width, "center")
+        else love.graphics.printf("Double K.O. !!", 0, 200, window.width, "center")
         end
       love.graphics.pop()
     end
@@ -391,13 +395,13 @@ function love.draw()
       love.graphics.setLineWidth(2)
       love.graphics.setColor(14, 28, 232)
       love.graphics.print("P1", 42, 20 + (p1_char * 70)) -- helptext
-      if frame % 45 < 7 then love.graphics.setColor(164, 164, 255) end -- flashing rectangle
+      if frame % 60 < 7 then love.graphics.setColor(164, 164, 255) end -- flashing rectangle
       love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
       
       --p2 rectangle
       love.graphics.setColor(14, 232, 54)
       love.graphics.print("P2", 355, 20 + (p2_char * 70))
-      if frame % 45 < 7 then love.graphics.setColor(164, 255, 164) end
+      if (frame + 45) % 60 < 7 then love.graphics.setColor(164, 255, 164) end
       love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
     love.graphics.pop()
 
@@ -407,15 +411,14 @@ function love.draw()
     love.graphics.push("all")
       love.graphics.setFont(gameoverFont)
       love.graphics.draw(game.match_winner.win_portrait, 100, 50)
-      love.graphics.setColor(31, 39, 84)
-      love.graphics.print(game.match_winner.win_quote, 50, 470)
-      love.graphics.setColor(31, 39, 84) -- placeholder
-      love.graphics.setFont(charSelectorFont) -- placeholder
-      love.graphics.print("Press return/enter please", 600, 540) -- placeholder
+      love.graphics.setColor(0, 0, 0)
+      love.graphics.printf(game.match_winner.win_quote, 0, 470, window.width, "center")
+      love.graphics.setFont(gameoverHelpFont)
+      love.graphics.setColor(0, 0, 0, (frame * 2) % 255)
+      love.graphics.print("Press enter", 650, 540)
     love.graphics.pop()
 
     -- fade in for match end
-    frame = frame + 1
     local fadein = 255 - ((frame - frame0) * 255 / 60)
     if frame - frame0 < 60 then
       love.graphics.push("all") 
@@ -447,8 +450,8 @@ function love.draw()
 end
 
 function love.update(dt)
+  frame = frame + 1
   if game.current_screen == "maingame" then
-    frame = frame + 1
 
     if game.superfreeze_time == 0 then
       local h_midpoint = (p1:getCenter() + p2:getCenter()) / 2
