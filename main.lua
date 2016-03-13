@@ -688,6 +688,7 @@ function replays()
 	]]
 end
 
+-- load the draw functions
 test = {}
 require 'settings'
 require 'title'

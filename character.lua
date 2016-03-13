@@ -344,6 +344,24 @@ function Fighter:hitOpponent() -- execute this one time, when you hit the oppone
   self.isAttacking = false -- stops calling hitOpponent, since the hitbox check is now false
   currentBGM:pause()
   if currentBGM2:isPlaying() then currentBGM2:pause() end
+
+  -- buggy with hotflame for now
+  local h_pos = self.pos[1] + self.current_hitboxes[1].R
+  if self.facing == -1 then
+    h_pos = self.pos[1]
+  end
+  local v_pos = self.current_hitboxes[1].U + self.pos[2]
+
+  local h_offset = 0
+  local v_offset = -75
+
+  local speechbubbles = {
+    SpeechBubblePow, 
+    SpeechBubbleBiff,
+    SpeechBubbleWham
+  }
+  local bubble_to_use = speechbubbles[frame % #speechbubbles + 1]
+  bubble_to_use:singleLoad(h_pos, v_pos, h_offset, v_offset, 1, 10)
 end
 
 function Fighter:victoryPose() -- keep calling this if self.hasWon is true

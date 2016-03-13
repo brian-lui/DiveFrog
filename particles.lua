@@ -141,6 +141,15 @@ Explosion2 = Particle:new(love.graphics.newImage('images/Explosion2.png'),
 Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'), 
   {880, 80}, {80, 80}, 3, "Explosion.ogg")
 
+------------------------------- SPEECH BUBBLES --------------------------------
+
+SpeechBubblePow = Particle:new(love.graphics.newImage('images/SpeechBubbles/Pow.png'), 
+  {200, 150}, {200, 150}, 50)
+SpeechBubbleBiff = Particle:new(love.graphics.newImage('images/SpeechBubbles/Biff.png'), 
+  {200, 150}, {200, 150}, 50)
+SpeechBubbleWham = Particle:new(love.graphics.newImage('images/SpeechBubbles/Wham.png'), 
+  {200, 150}, {200, 150}, 50)
+
 
 ----------------------------------- KONRAD ------------------------------------
 HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), 
