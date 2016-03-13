@@ -358,7 +358,8 @@ function Fighter:hitOpponent() -- execute this one time, when you hit the oppone
   local speechbubbles = {
     SpeechBubblePow, 
     SpeechBubbleBiff,
-    SpeechBubbleWham
+    SpeechBubbleWham,
+    SpeechBubbleZap
   }
   local bubble_to_use = speechbubbles[frame % #speechbubbles + 1]
   bubble_to_use:singleLoad(h_pos, v_pos, h_offset, v_offset, 1, 10)

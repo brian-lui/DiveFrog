@@ -144,11 +144,13 @@ Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'),
 ------------------------------- SPEECH BUBBLES --------------------------------
 
 SpeechBubblePow = Particle:new(love.graphics.newImage('images/SpeechBubbles/Pow.png'), 
-  {200, 150}, {200, 150}, 50)
+  {160, 120}, {160, 120}, 50)
 SpeechBubbleBiff = Particle:new(love.graphics.newImage('images/SpeechBubbles/Biff.png'), 
-  {200, 150}, {200, 150}, 50)
+  {160, 120}, {160, 120}, 50)
 SpeechBubbleWham = Particle:new(love.graphics.newImage('images/SpeechBubbles/Wham.png'), 
-  {200, 150}, {200, 150}, 50)
+  {160, 120}, {160, 120}, 50)
+SpeechBubbleWham = Particle:new(love.graphics.newImage('images/SpeechBubbles/Zap.png'), 
+  {160, 120}, {160, 120}, 50)
 
 
 ----------------------------------- KONRAD ------------------------------------
