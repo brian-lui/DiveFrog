@@ -51,7 +51,7 @@ local finalroundStartFont = love.graphics.newFont('/fonts/Comic.otf', 40)
 local roundEndFont = love.graphics.newFont('/fonts/ComicItalic.otf', 42)
 local charInfoFont = love.graphics.newFont('/fonts/CharSelect.ttf', 21)
 local charSelectorFont = love.graphics.newFont('/fonts/GoodDog.otf', 18)
-local timerFont = love.graphics.newFont('/fonts/Timer.otf', 48)
+local timerFont = love.graphics.newFont('/fonts/Comic.otf', 40)
 local gameoverFont = love.graphics.newFont('/fonts/ComicItalic.otf', 24)
 local gameoverHelpFont = love.graphics.newFont('/fonts/ComicItalic.otf', 16)
 
