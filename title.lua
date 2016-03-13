@@ -26,12 +26,18 @@ function drawTitle()
     love.graphics.setColor(255, 215, 0, 255)
     love.graphics.setFont(titleFont)
       local toprint = {
-        "P1 Jump: " .. buttons.p1jump,
-        "P1 Attack: " .. buttons.p1attack,
-        "P2 Jump: " .. buttons.p2jump,
-        "P2 Attack: " .. buttons.p2attack}
+        {"P1 Jump:", buttons.p1jump},
+        {"P1 Attack:", buttons.p1attack},
+        {"P2 Jump:", buttons.p2jump},
+        {"P2 Attack:", buttons.p2attack}
+      }
+
       for i = 1, #toprint do
-        love.graphics.print(toprint[i], 420, 370 + (30 * i))
+        love.graphics.push("all")
+          love.graphics.print(toprint[i][1], 410, 370 + (30 * i))
+          love.graphics.setColor(128, 255, 128, 255)
+            love.graphics.print(toprint[i][2], 540, 370 + (30 * i))
+        love.graphics.pop()
       end
       for i = 1, #title_choices.menu do
         love.graphics.print(title_choices.menu[i], 130, 375  + (35 * i))
