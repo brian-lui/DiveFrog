@@ -143,15 +143,25 @@ Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'),
 
 ------------------------------- SPEECH BUBBLES --------------------------------
 
-SpeechBubblePow = Particle:new(love.graphics.newImage('images/SpeechBubbles/Pow.png'), 
-  {160, 120}, {160, 120}, 50)
-SpeechBubbleBiff = Particle:new(love.graphics.newImage('images/SpeechBubbles/Biff.png'), 
-  {160, 120}, {160, 120}, 50)
-SpeechBubbleWham = Particle:new(love.graphics.newImage('images/SpeechBubbles/Wham.png'), 
-  {160, 120}, {160, 120}, 50)
-SpeechBubbleWham = Particle:new(love.graphics.newImage('images/SpeechBubbles/Zap.png'), 
-  {160, 120}, {160, 120}, 50)
+SpeechPuff = Particle:new(love.graphics.newImage('images/SpeechBubbles/Puff.png'), 
+  {2400, 180}, {240, 180}, 2)
 
+SpeechBubblePow = Particle:new(love.graphics.newImage('images/SpeechBubbles/Pow.png'), 
+  {160, 125}, {160, 125}, 40, "SpeechBubble.ogg")
+SpeechBubbleBiff = Particle:new(love.graphics.newImage('images/SpeechBubbles/Biff.png'), 
+  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+SpeechBubbleWham = Particle:new(love.graphics.newImage('images/SpeechBubbles/Wham.png'), 
+  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+SpeechBubbleZap = Particle:new(love.graphics.newImage('images/SpeechBubbles/Zap.png'), 
+  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+SpeechBubbleJeb = Particle:new(love.graphics.newImage('images/SpeechBubbles/Jeb.png'), 
+  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+SpeechBubbleBath = Particle:new(love.graphics.newImage('images/SpeechBubbles/Bath.png'), 
+  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+SpeechBubbleBop = Particle:new(love.graphics.newImage('images/SpeechBubbles/Bop.png'), 
+  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+SpeechBubbleSmack = Particle:new(love.graphics.newImage('images/SpeechBubbles/Smack.png'), 
+  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
 
 ----------------------------------- KONRAD ------------------------------------
 HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), 

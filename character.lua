@@ -359,10 +359,16 @@ function Fighter:hitOpponent() -- execute this one time, when you hit the oppone
     SpeechBubblePow, 
     SpeechBubbleBiff,
     SpeechBubbleWham,
-    SpeechBubbleZap
+    SpeechBubbleZap,
+    SpeechBubbleJeb,
+    SpeechBubbleBath,
+    SpeechBubbleBop,
+    SpeechBubbleSmack
   }
   local bubble_to_use = speechbubbles[frame % #speechbubbles + 1]
   bubble_to_use:singleLoad(h_pos, v_pos, h_offset, v_offset, 1, 10)
+  bubble_to_use:playSound(10)
+  SpeechPuff:singleLoad(h_pos, v_pos, h_offset, v_offset - 30, 1, 50)
 end
 
 function Fighter:victoryPose() -- keep calling this if self.hasWon is true
