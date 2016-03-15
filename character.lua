@@ -295,7 +295,6 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
 
   if type_table.Fire then
     self.hitflag.Fire = true
-    self.color = {255, 0, 0, 255}
   end
 
   if round_timer == 0 then
@@ -315,6 +314,11 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
 end
 
 function Fighter:gotKOed() -- keep calling this until self.isKO is false
+  if self.hitflag.Fire then
+    local redness = 220 + 35 * math.sin(frame % 60 / 1.5)
+    self.color = {redness, 0, 0, 255}
+  end  
+
   if frame - round_end_frame < 60 then    
     self.vel = {0, 0}
     self.gravity = 0
@@ -338,7 +342,7 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
 
   if frame - round_end_frame > 60 then
     if self.hitflag.Fire then
-      OnFire:repeatLoad(self.center, self.pos[2], 0, 0, self.facing)
+      OnFire:repeatLoad(self.center, self.pos[2] - 50, 0, 0, self.facing * 1.5)
     end
     if self.hitflag.Wallsplat then
       if self.hasHitWall then
