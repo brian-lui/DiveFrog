@@ -298,6 +298,11 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
     self.color = {255, 0, 0, 255}
   end
 
+  if round_timer == 0 then
+    p1.hit_type = {}
+    p2.hit_type = {}
+  end
+
   self.vel_multiple = 1.0
   self.isKO = true 
   self.isAttacking = false -- stops calling gotHit, since the hitbox check is now false
@@ -349,7 +354,7 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
         game.isScreenShaking = true
       end
 
-      if frame % 6 == 0 then
+      if frame % 4 == 0 then
         local i = math.floor((frame % (12 * 4)) / 4) + 1
         Explosion1:singleLoad(self.center,
           self.pos[2],
@@ -395,16 +400,15 @@ function Fighter:hitOpponent() -- execute this one time, when you hit the oppone
     placeBubble(h_pos, v_pos, 0, -50, 0)
 
   else
+    local h_pos = self.foe.center
+    local v_pos = self.foe.pos[2]
+
     local bubbles = {
-      {h = 320, v = 200, delay = 0},
-      {h = 320, v = 400, delay = 5},
-      {h = 320, v = 600, delay = 10},
-      {h = 640, v = 200, delay = 15},
-      {h = 640, v = 400, delay = 20},
-      {h = 640, v = 600, delay = 25},
-      {h = 960, v = 200, delay = 30},
-      {h = 960, v = 400, delay = 35},
-      {h = 960, v = 600, delay = 40}
+      {h = h_pos - 80, v = v_pos + 70, delay = 10},
+      {h = h_pos + 80, v = v_pos + 70, delay = 25},
+      {h = h_pos - 80, v = v_pos - 70, delay = 37},
+      {h = h_pos + 80, v = v_pos - 70, delay = 45},
+      {h = h_pos, v = v_pos, delay = 50}
     }
 
     for i = 1, #bubbles do

@@ -194,7 +194,7 @@ function drawSprites()
 
 		  -- Sprites
 		  local temp_color = {255, 255, 255, 255}
-      -- local temp_color = COLOR.WHITE
+
 		  if side.color then
 		  	for i = 1, 4 do temp_color[i] = side.color[i] end
 		  end
