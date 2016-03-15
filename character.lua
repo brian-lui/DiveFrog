@@ -404,9 +404,9 @@ function Fighter:hitOpponent() -- execute this one time, when you hit the oppone
     local v_pos = self.foe.pos[2]
 
     local bubbles = {
-      {h = h_pos - 80, v = v_pos + 70, delay = 10},
+      {h = h_pos - 80, v = v_pos - 70, delay = 10},
       {h = h_pos + 80, v = v_pos + 70, delay = 25},
-      {h = h_pos - 80, v = v_pos - 70, delay = 37},
+      {h = h_pos - 80, v = v_pos + 70, delay = 37},
       {h = h_pos + 80, v = v_pos - 70, delay = 45},
       {h = h_pos, v = v_pos, delay = 50}
     }

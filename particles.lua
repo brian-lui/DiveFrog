@@ -143,7 +143,7 @@ Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'),
 
 ------------------------------- SPEECH BUBBLES --------------------------------
 SpeechBubblePow = Particle:new(love.graphics.newImage('images/SpeechBubbles/Pow.png'), 
-  {160, 125}, {160, 125}, 1, "SpeechBubble.ogg")
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 SpeechBubbleBiff = Particle:new(love.graphics.newImage('images/SpeechBubbles/Biff.png'), 
   {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 SpeechBubbleWham = Particle:new(love.graphics.newImage('images/SpeechBubbles/Wham.png'), 
