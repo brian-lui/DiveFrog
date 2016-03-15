@@ -142,26 +142,22 @@ Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'),
   {880, 80}, {80, 80}, 3, "Explosion.ogg")
 
 ------------------------------- SPEECH BUBBLES --------------------------------
-
-SpeechPuff = Particle:new(love.graphics.newImage('images/SpeechBubbles/Puff.png'), 
-  {2400, 180}, {240, 180}, 2)
-
 SpeechBubblePow = Particle:new(love.graphics.newImage('images/SpeechBubbles/Pow.png'), 
-  {160, 125}, {160, 125}, 40, "SpeechBubble.ogg")
+  {160, 125}, {160, 125}, 1, "SpeechBubble.ogg")
 SpeechBubbleBiff = Particle:new(love.graphics.newImage('images/SpeechBubbles/Biff.png'), 
-  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 SpeechBubbleWham = Particle:new(love.graphics.newImage('images/SpeechBubbles/Wham.png'), 
-  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 SpeechBubbleZap = Particle:new(love.graphics.newImage('images/SpeechBubbles/Zap.png'), 
-  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 SpeechBubbleJeb = Particle:new(love.graphics.newImage('images/SpeechBubbles/Jeb.png'), 
-  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 SpeechBubbleBath = Particle:new(love.graphics.newImage('images/SpeechBubbles/Bath.png'), 
-  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 SpeechBubbleBop = Particle:new(love.graphics.newImage('images/SpeechBubbles/Bop.png'), 
-  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 SpeechBubbleSmack = Particle:new(love.graphics.newImage('images/SpeechBubbles/Smack.png'), 
-  {160, 120}, {160, 120}, 40, "SpeechBubble.ogg")
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 
 ----------------------------------- KONRAD ------------------------------------
 HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), 

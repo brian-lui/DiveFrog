@@ -12,18 +12,18 @@ function drawTitle()
     love.graphics.draw(title_screen, 0, 0)
     love.graphics.draw(title_logo, 165, 30)
 
-    love.graphics.setColor(255, 255, 255, 160)
+    love.graphics.setColor(COLOR.OFF_WHITE)
       love.graphics.draw(title_select_background, 100, 385)
       love.graphics.draw(title_controls_background, 400, 380)
 
     love.graphics.setLineWidth(3)
-    love.graphics.setColor(255, 215, 0, 255)
+    love.graphics.setColor(COLOR.ORANGE)
     if frame % 60 > 50 then
-      love.graphics.setColor(255, 255, 255, 255)
+      love.graphics.setColor(COLOR.WHITE)
     end
     love.graphics.rectangle("line", 120, 375 + 35 * title_choices.option, 110, 35)
 
-    love.graphics.setColor(255, 215, 0, 255)
+    love.graphics.setColor(COLOR.ORANGE)
     love.graphics.setFont(titleFont)
       local toprint = {
         {"P1 Jump:", buttons.p1jump},
@@ -35,7 +35,7 @@ function drawTitle()
       for i = 1, #toprint do
         love.graphics.push("all")
           love.graphics.print(toprint[i][1], 410, 370 + (30 * i))
-          love.graphics.setColor(128, 255, 128, 255)
+          love.graphics.setColor(COLOR.LIGHT_GREEN)
             love.graphics.print(toprint[i][2], 540, 370 + (30 * i))
         love.graphics.pop()
       end

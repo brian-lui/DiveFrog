@@ -53,7 +53,7 @@ function writeSound(SFX, delay_time)
 end
 
 function drawDebugSprites()
-  for side, op in pairs(PLAYERS) do
+  for side, op in pairs(Players) do
     love.graphics.line(side.center, 0, side.center, stage.height)
     love.graphics.line(side.center, 200, side.center + op.flip * 30, 200)
     love.graphics.rectangle("line", side.pos[1], side.pos[2], side.sprite_size[1], side.sprite_size[2])

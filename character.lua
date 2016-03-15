@@ -5,6 +5,44 @@ local music = require 'music' -- background music
 require 'utilities'
 require 'particles'
 
+function placeBubble(h_pos, v_pos, h_move, v_move, delay)
+  -- buggy with hotflame for now
+  local h_offset = h_move or 0
+  local v_offset = v_move or -50
+
+  local speechbubbles = {
+    SpeechBubblePow, 
+    SpeechBubbleBiff,
+    SpeechBubbleWham,
+    SpeechBubbleZap,
+    SpeechBubbleJeb,
+    SpeechBubbleBath,
+    SpeechBubbleBop,
+    SpeechBubbleSmack
+  }
+
+  local bubble_to_use = speechbubbles[(frame + delay) % #speechbubbles + 1]
+  bubble_to_use:playSound(delay)
+
+  for i = 0, 9 do
+    local scaling = 9 - i
+    local v_adjust = 40 * (scaling - 1)
+    bubble_to_use:singleLoad(h_pos, v_pos - v_adjust, h_offset, v_offset, scaling, i + delay)
+  end
+
+  for i = 10, 49 do
+    local scaling = 1 + math.sin(i / 4) * 0.1
+    bubble_to_use:singleLoad(h_pos, v_pos, h_offset, v_offset, scaling, i + delay)
+  end
+
+  for i = 50, 80 do
+    local transparency = (80 - i) * 8.5
+    local scaling = 0.96 + (i - 50)^1.3 / 10
+    local v_adjust = scaling * (i - 50) * 2
+    bubble_to_use:singleLoad(h_pos, v_pos - v_adjust, h_offset, v_offset, scaling, i + delay, "post", {255, 255, 255, transparency})
+  end
+end
+
 --[[---------------------------------------------------------------------------
                                 FIGHTER SUPERCLASS
 -----------------------------------------------------------------------------]]   
@@ -300,7 +338,7 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
     if self.hitflag.Wallsplat then
       if self.hasHitWall then
         self.vel[1] = -self.vel[1]
-        self.vel[2] = -20
+        self.vel[2] = -10
         self.isInAir = true
         self.hasHitWall = false
         self.gravity = 1
@@ -310,23 +348,24 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
         self.current_hitboxes = self.hitboxes_neutral
         game.isScreenShaking = true
       end
-      if frame % 4 == 0 then
+
+      if frame % 6 == 0 then
         local i = math.floor((frame % (12 * 4)) / 4) + 1
         Explosion1:singleLoad(self.center,
           self.pos[2],
-          self.facing * (self.vel[1] + (i - 6) * 3),
-          self.vel[2] + (i - 6) * 3,
+          self.facing * (self.vel[1] + (i - 6) * 4),
+          self.vel[2] + (i - 6) * 12,
           self.facing * 4, 0)
         Explosion2:singleLoad(self.center,
           self.pos[2],
-          self.facing * (self.vel[1] / 2 + (i - 6) * 6),
-          self.vel[2] + (i - 6) * 6,
-          self.facing * 3, 1)
+          self.facing * (self.vel[1] / 2 + (i - 6) * 8),
+          self.vel[2] + (i - 6) * 4,
+          self.facing * 3, 2)
         Explosion3:singleLoad(self.center,
           self.pos[2],
-          self.facing * ((i - 6) * 10),
-          self.vel[2] + (i - 6) * 10,
-          self.facing * 2, 2)
+          self.facing * ((i - 6) * 12),
+          self.vel[2] + (i - 6) * 8,
+          self.facing * 2, 4)
         Explosion2:playSound()
       end
     else
@@ -345,30 +384,34 @@ function Fighter:hitOpponent() -- execute this one time, when you hit the oppone
   currentBGM:pause()
   if currentBGM2:isPlaying() then currentBGM2:pause() end
 
-  -- buggy with hotflame for now
-  local h_pos = self.pos[1] + self.current_hitboxes[1].R
-  if self.facing == -1 then
-    h_pos = self.pos[1]
+  if round_timer ~= 0 then -- don't show speech bubbles if round ended in timeout
+    -- buggy with hotflame for now
+    local h_pos = self.pos[1] + self.current_hitboxes[1].R
+    if self.facing == -1 then
+      h_pos = self.pos[1]
+    end
+    local v_pos = self.current_hitboxes[1].U + self.pos[2]
+
+    placeBubble(h_pos, v_pos, 0, -50, 0)
+
+  else
+    local bubbles = {
+      {h = 320, v = 200, delay = 0},
+      {h = 320, v = 400, delay = 5},
+      {h = 320, v = 600, delay = 10},
+      {h = 640, v = 200, delay = 15},
+      {h = 640, v = 400, delay = 20},
+      {h = 640, v = 600, delay = 25},
+      {h = 960, v = 200, delay = 30},
+      {h = 960, v = 400, delay = 35},
+      {h = 960, v = 600, delay = 40}
+    }
+
+    for i = 1, #bubbles do
+      placeBubble(bubbles[i].h, bubbles[i].v, 0, 0, bubbles[i].delay)
+    end
+
   end
-  local v_pos = self.current_hitboxes[1].U + self.pos[2]
-
-  local h_offset = 0
-  local v_offset = -75
-
-  local speechbubbles = {
-    SpeechBubblePow, 
-    SpeechBubbleBiff,
-    SpeechBubbleWham,
-    SpeechBubbleZap,
-    SpeechBubbleJeb,
-    SpeechBubbleBath,
-    SpeechBubbleBop,
-    SpeechBubbleSmack
-  }
-  local bubble_to_use = speechbubbles[frame % #speechbubbles + 1]
-  bubble_to_use:singleLoad(h_pos, v_pos, h_offset, v_offset, 1, 10)
-  bubble_to_use:playSound(10)
-  SpeechPuff:singleLoad(h_pos, v_pos, h_offset, v_offset - 30, 1, 50)
 end
 
 function Fighter:victoryPose() -- keep calling this if self.hasWon is true
