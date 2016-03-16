@@ -26,14 +26,6 @@ else
   love.filesystem.write("controls.txt", json.encode(buttons))  
 end
 
--- load settings
-if love.filesystem.exists("settings.txt") then
-  local settings_string = love.filesystem.read("settings.txt")
-  settings_options = json.decode(settings_string)
-else
-  love.filesystem.write("settings.txt", json.encode(settings_options))  
-end
-
 require 'settings'
 require 'title'
 
@@ -150,9 +142,6 @@ end
 
 function drawOverlays()
   love.graphics.clear()
-  --[[----------------------------------------------
-                       OVERLAYS      
-  ----------------------------------------------]]--
     																				test.o0 = love.timer.getTime()
   -- timer
   love.graphics.push("all")
@@ -235,60 +224,6 @@ function drawOverlays()
     love.graphics.pop()
       																			test.o7 = love.timer.getTime()
   end
-
-  --[[----------------------------------------------
-                OVERLAYS - ROUND START      
-  ----------------------------------------------]]--
-  local frames_elapsed = frame - frame0
-  if frames_elapsed < 60 then
-    love.graphics.push("all") 
-      love.graphics.setColor(0, 0, 0, 255 - frames_elapsed * 255 / 60)
-      love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
-    love.graphics.pop()
-  end
-  if frames_elapsed > 35 and frames_elapsed < 90 then
-    love.graphics.push("all")
-      love.graphics.setFont(roundStartFont)
-      love.graphics.setColor(COLOR.ORANGE)
-      if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
-        love.graphics.printf("Final round!", 0, 220, window.width, "center")
-      else
-        love.graphics.printf("Round " .. game.current_round, 0, 220, window.width, "center")
-      end
-
-      love.graphics.setFont(roundCountdownFont)
-      local countdown = (90 - frames_elapsed) * 17
-      love.graphics.printf(countdown, 0, 300, window.width, "center")
-
-      
-    love.graphics.pop()
-  end
-  																					test.o8 = love.timer.getTime()
-  --[[----------------------------------------------
-                 OVERLAYS - ROUND END      
-  ----------------------------------------------]]--
-  if round_end_frame > 0 then
-    -- end of round win message
-    if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
-      love.graphics.push("all")
-        love.graphics.setFont(roundEndFont)
-        love.graphics.setColor(COLOR.ORANGE)
-        if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins!", 0, 200, window.width, "center")
-        elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins!", 0, 200, window.width, "center")
-        else love.graphics.printf("Double K.O. !!", 0, 200, window.width, "center")
-        end
-      love.graphics.pop()
-    end
-    -- end of round fade out
-    if frame - round_end_frame > 120 and frame - round_end_frame < 150 then
-      local light = 255 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 255 at 150
-      love.graphics.push("all")
-        love.graphics.setColor(0, 0, 0, light)
-        love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
-      love.graphics.pop()
-    end
-  end
-  																					test.o9 = love.timer.getTime()  
 end
 
 function love.draw()
@@ -299,6 +234,8 @@ function love.draw()
     canvas_sprites:renderTo(drawSprites)
   																					test.t2 = love.timer.getTime()
     canvas_overlays:renderTo(drawOverlays)
+    canvas_overlays:renderTo(drawRoundStart)
+    canvas_overlays:renderTo(drawRoundEnd)
   																					test.t3 = love.timer.getTime()
     camera:scale(1 / camera_scale_factor, 1 / camera_scale_factor)
 
@@ -712,8 +649,6 @@ function love.keypressed(key)
   	local o_superbase = (test.o5 - test.o4) * 200/ min_dt
   	local o_superquad = (test.o6 - test.o5) * 200/ min_dt
   	local o_frogfactor = (test.o7 - test.o6) * 200/ min_dt
-  	local o_roundstart = (test.o8 - test.o7) * 100/ min_dt
-  	local o_roundend = (test.o9 - test.o8) * 100/ min_dt
   	print("Calculate timer               % of CPU:", o_timer)
   	print("Calculate HP bars             % of CPU:", o_hpbar)
   	print("Calculate win points          % of CPU:", o_winpoint)
@@ -721,8 +656,6 @@ function love.keypressed(key)
   	print("Calculate super bar base      % of CPU:", o_superbase)
   	print("Calculate super bar quad      % of CPU:", o_superquad)
   	print("Calculate frog factor quad    % of CPU:", o_frogfactor)
-  	print("Calculate round start fade in % of CPU:", o_roundstart)
-   	print("Calculate round end fade out  % of CPU:", o_roundend)
   end
   if key == '0' then
   	local timer_calc = (test.timer1 - test.timer0) * 100 / min_dt

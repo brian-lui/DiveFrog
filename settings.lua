@@ -29,7 +29,15 @@ settings_table = {
   Sound = {{"Mute", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}}
   }  
 
-settings_options = settings_options or {Rounds = 3, Timer = 2, Speed = 1, Music = 3, Sound = 3}
+settings_options = {Rounds = 3, Timer = 2, Speed = 1, Music = 3, Sound = 3}
+
+if love.filesystem.exists("settings.txt") then
+  local settings_string = love.filesystem.read("settings.txt")
+  settings_options = json.decode(settings_string)
+else
+  love.filesystem.write("settings.txt", json.encode(settings_options))  
+end
+
 
 Params = {
   Rounds = settings_table.Rounds[settings_options.Rounds][2],

@@ -72,7 +72,7 @@ function drawBackground()
   love.graphics.pop()
 end
 
-function drawMidline() -- draw if low on time
+function drawMidline() -- when low on time
   if round_timer <= 180 and round_timer > 0 then
     love.graphics.push("all")
       love.graphics.setColor(100 + (180 - round_timer) / 2, 0, 0, 200)
@@ -121,5 +121,59 @@ function drawPostbuffer()
     love.graphics.pop()
   end
   postbuffer[frame] = nil
+end
+
+
+
+function drawRoundStart() -- start of round overlays
+  local frames_elapsed = frame - frame0
+  if frames_elapsed < 60 then
+    love.graphics.push("all") 
+      love.graphics.setColor(0, 0, 0, 255 - frames_elapsed * 255 / 60)
+      love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
+    love.graphics.pop()
+  end
+  if frames_elapsed > 35 and frames_elapsed < 90 then
+    love.graphics.push("all")
+      love.graphics.setFont(roundStartFont)
+      love.graphics.setColor(COLOR.ORANGE)
+      if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
+        love.graphics.printf("Final round!", 0, 220, window.width, "center")
+      else
+        love.graphics.printf("Round " .. game.current_round, 0, 220, window.width, "center")
+      end
+
+      love.graphics.setFont(roundCountdownFont)
+      local countdown = (90 - frames_elapsed) * 17
+      love.graphics.printf(countdown, 0, 300, window.width, "center")
+
+      
+    love.graphics.pop()
+  end
+end
+
+function drawRoundEnd() -- end of round overlays
+  if round_end_frame > 0 then
+    -- end of round win message
+    if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
+      love.graphics.push("all")
+        love.graphics.setFont(roundEndFont)
+        love.graphics.setColor(COLOR.ORANGE)
+        if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins!", 0, 200, window.width, "center")
+        elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins!", 0, 200, window.width, "center")
+        else love.graphics.printf("Double K.O. !!", 0, 200, window.width, "center")
+        end
+      love.graphics.pop()
+    end
+
+    -- end of round fade out
+    if frame - round_end_frame > 120 and frame - round_end_frame < 150 then
+      local light = 255 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 255 at 150
+      love.graphics.push("all")
+        love.graphics.setColor(0, 0, 0, light)
+        love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
+      love.graphics.pop()
+    end
+  end
 end
 
