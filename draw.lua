@@ -73,7 +73,7 @@ function drawBackground()
 end
 
 function drawMidline() -- when low on time
-  if round_timer <= 180 and round_timer > 0 then
+  if round_timer <= 180 and round_timer > 0 and not round_ended then
     love.graphics.push("all")
       love.graphics.setColor(100 + (180 - round_timer) / 2, 0, 0, 200)
       love.graphics.setLineWidth(12)
