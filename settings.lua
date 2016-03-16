@@ -29,6 +29,7 @@ settings_table = {
   Sound = {{"Mute", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}}
   }  
 
+-- load settings
 settings_options = {Rounds = 3, Timer = 2, Speed = 1, Music = 3, Sound = 3}
 
 if love.filesystem.exists("settings.txt") then
@@ -38,6 +39,14 @@ else
   love.filesystem.write("settings.txt", json.encode(settings_options))  
 end
 
+-- load controls
+buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
+if love.filesystem.exists("controls.txt") then
+  local controls_string = love.filesystem.read("controls.txt")
+  buttons = json.decode(controls_string)
+else
+  love.filesystem.write("controls.txt", json.encode(buttons))  
+end
 
 Params = {
   Rounds = settings_table.Rounds[settings_options.Rounds][2],

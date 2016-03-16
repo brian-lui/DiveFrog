@@ -110,6 +110,36 @@ function drawPrebuffer()
   prebuffer[frame] = nil
 end
 
+function drawSprites()
+  for side, op in pairs(Players) do
+    love.graphics.push("all")
+
+      -- Ground shadow for sprites
+      love.graphics.setColor(COLOR.SHADOW)
+      love.graphics.ellipse("fill", side:getCenter(), stage.floor - 5, 50, 20)
+
+      -- Sprites
+      local temp_color = {255, 255, 255, 255}
+
+      if side.color then
+        for i = 1, 4 do temp_color[i] = side.color[i] end
+      end
+
+      if game.identical_players and side == p2 then
+        temp_color[1] = temp_color[1] * 0.7
+        temp_color[2] = temp_color[2] * 0.85
+        temp_color[3] = temp_color[3] * 0.7
+      end
+
+      love.graphics.setColor(temp_color)
+      
+      love.graphics.draw(side.image, side.sprite,
+        side.pos[1] + side.h_mid, side.pos[2] + side.v_mid, 0, side.facing, 1, side.h_mid, side.v_mid)
+
+    love.graphics.pop()
+  end
+end
+
 function drawPostbuffer()
   if postbuffer[frame] then
     love.graphics.push("all")
@@ -123,7 +153,100 @@ function drawPostbuffer()
   postbuffer[frame] = nil
 end
 
+function drawMain()
+  love.graphics.clear()
 
+  drawMidline()
+  drawPrebuffer()
+  drawSprites()
+  drawPostbuffer()
+end
+
+function drawOverlays()
+  love.graphics.clear()
+                                            test.o0 = love.timer.getTime()
+  -- timer
+  love.graphics.push("all")
+                                            test.timer0 = love.timer.getTime()
+    local displayed_time = math.ceil(round_timer * min_dt)
+                                            test.timer1 = love.timer.getTime()
+    love.graphics.setColor(COLOR.DARK_ORANGE)
+    love.graphics.setFont(timerFont)
+                                            test.timer2 = love.timer.getTime()
+    love.graphics.printf(displayed_time, 0, 6, window.width, "center")
+                                            test.timer3 = love.timer.getTime()
+  love.graphics.pop()
+
+  for side, op in pairs(Players) do
+                                            test.o1 = love.timer.getTime()
+    -- HP bars
+    love.graphics.draw(hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
+    -- ornament
+    local pos = (frame % 180) * 8
+    if side.life > pos then
+      h_loc = window.center + (op.move * 53) + (op.move * pos)
+      love.graphics.push("all")
+        love.graphics.setColor(COLOR.OFF_WHITE)
+        love.graphics.setLineWidth(1)
+        love.graphics.line(h_loc, 22, h_loc, 44)
+      love.graphics.pop()
+    end
+    -- life depleted
+    if side.life < 280 then
+      love.graphics.push("all")
+        love.graphics.setColor(COLOR.RED)
+        love.graphics.setLineWidth(23)
+        love.graphics.line(window.center + (op.move * 333), 34, window.center + (op.move * 333) - op.move * (280 - side.life), 34)
+      love.graphics.pop()
+    end
+                                            test.o2 = love.timer.getTime()
+    -- win points
+    for i = 1, game.best_to_x do
+      if side.score >= i then
+        love.graphics.draw(greenlight, window.center + (op.move * 354) - op.move * (20 * i),
+        52, 0, 1, 1, op.offset * greenlight:getWidth())
+      end
+    end
+                                            test.o3 = love.timer.getTime()
+    -- player icons
+    love.graphics.draw(side.icon, window.center + (op.move * 390), 10, 0, op.flip, 1, 0)
+                                            test.o4 = love.timer.getTime()
+    -- super bars
+    love.graphics.push("all")
+    if not side.isSupering then
+      -- super bar base
+      love.graphics.setColor(COLOR.OFF_WHITE)
+      love.graphics.draw(SuperBarBase.image, window.center + (op.move * 375), window.height - 35,
+        0, 1, 1, op.offset * SuperBarBase.width)
+                                            test.o5 = love.timer.getTime()
+      -- super meter
+      local index = math.floor((frame % 64) / 8)
+      local Quad = love.graphics.newQuad(0, index * SuperMeter.height,
+        SuperMeter.width * (side.super / 96), SuperMeter.height,
+        SuperMeter.image_size[1], SuperMeter.image_size[2])
+      local supermeterColor = {0, 32 + side.super * 2, 0, 255}
+      if side.super >= 32 and side.super < 64 then
+        supermeterColor = {80 + side.super, 80 + side.super, 160 + side.super, 255}
+      elseif side.super >= 64 then
+        supermeterColor = {159 + side.super, 159 + side.super, 0, 255}
+      end
+      love.graphics.setColor(supermeterColor)
+      love.graphics.draw(SuperMeter.image, Quad, window.center + (op.move * 373),
+        window.height - 33, 0, op.flip, 1, 0)
+                                            test.o6 = love.timer.getTime()
+    else -- if super full, draw frog factor
+      local index = math.floor((frame % FrogFactor.total_time) / FrogFactor.time_per_frame)
+      local Quad = love.graphics.newQuad(index * FrogFactor.width, 0,
+        FrogFactor.width * (side.super / 96), FrogFactor.height,
+        FrogFactor.image_size[1], FrogFactor.image_size[2])
+      love.graphics.setColor(COLOR.WHITE)
+      love.graphics.draw(FrogFactor.image, Quad, window.center + (op.move * 390),
+        window.height - FrogFactor.height - 10, 0, op.flip, 1, 0)
+    end
+    love.graphics.pop()
+                                            test.o7 = love.timer.getTime()
+  end
+end
 
 function drawRoundStart() -- start of round overlays
   local frames_elapsed = frame - frame0
@@ -177,3 +300,56 @@ function drawRoundEnd() -- end of round overlays
   end
 end
 
+function drawCharSelect()
+  love.graphics.draw(charselectscreen, 0, 0, 0) -- background
+  love.graphics.draw(portraits, portraitsQuad, 473, 130) -- character portrait
+  love.graphics.push("all")
+    love.graphics.setColor(COLOR.BLACK)
+    love.graphics.setFont(charInfoFont)
+    love.graphics.print(char_text[p1_char][1], 516, 350) -- character movelist
+    love.graphics.print(char_text[p1_char][2], 516, 384)
+    love.graphics.print(char_text[p1_char][3], 513, 425)
+    love.graphics.print(char_text[p1_char][4], 430, 469)
+
+    --p1 rectangle
+    love.graphics.setFont(charSelectorFont)
+    love.graphics.setLineWidth(2)
+    love.graphics.setColor(COLOR.BLUE)
+    love.graphics.print("P1", 42, 20 + (p1_char * 70)) -- helptext
+    if frame % 60 < 7 then 
+      love.graphics.setColor(COLOR.PALE_BLUE) -- flashing rectangle
+    end
+    love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
+    
+    --p2 rectangle
+    love.graphics.setColor(COLOR.GREEN)
+    love.graphics.print("P2", 355, 20 + (p2_char * 70))
+    if (frame + 45) % 60 < 7 then
+      love.graphics.setColor(COLOR.PALE_GREEN)
+    end
+    love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
+  love.graphics.pop()
+end
+
+function drawMatchEnd() -- end of the match (not end of the round)
+  love.graphics.draw(bkmatchend, 0, 0) -- background
+
+  love.graphics.push("all")
+    love.graphics.setFont(gameoverFont)
+    love.graphics.draw(game.match_winner.win_portrait, 100, 50)
+    love.graphics.setColor(COLOR.BLACK)
+    love.graphics.printf(game.match_winner.win_quote, 0, 470, window.width, "center")
+    love.graphics.setFont(gameoverHelpFont)
+    love.graphics.setColor(0, 0, 0, (frame * 2) % 255)
+    love.graphics.print("Press enter", 650, 540)
+  love.graphics.pop()
+
+  -- fade in for match end
+  local fadein = 255 - ((frame - frame0) * 255 / 60)
+  if frame - frame0 < 60 then
+    love.graphics.push("all") 
+      love.graphics.setColor(0, 0, 0, fadein)
+      love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
+    love.graphics.pop()
+  end
+end
