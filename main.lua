@@ -1,6 +1,7 @@
 require 'lovedebug'
 require 'utilities' -- helper functions
 require 'camera'
+require 'draw'
 local json = require 'dkjson'
 local class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
@@ -12,6 +13,7 @@ require 'Jean'
 require 'Sun'
 require 'Frogson'
 require 'AI'
+
 local particles = require 'particles'
 
 -- load controls
@@ -25,14 +27,15 @@ else
 end
 
 -- load settings
-settings_options = {Rounds = 3, Timer = 2, Speed = 1, Music = 3, Sound = 3}
-
 if love.filesystem.exists("settings.txt") then
   local settings_string = love.filesystem.read("settings.txt")
   settings_options = json.decode(settings_string)
 else
   love.filesystem.write("settings.txt", json.encode(settings_options))  
 end
+
+require 'settings'
+require 'title'
 
 --love.filesystem.createDirectory("saves")
 
@@ -47,31 +50,13 @@ local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensio
 
 -- load fonts
 local roundStartFont = love.graphics.newFont('/fonts/Comic.otf', 60)
-local finalroundStartFont = love.graphics.newFont('/fonts/Comic.otf', 40)
+local roundCountdownFont = love.graphics.newFont('/fonts/Comic.otf', 20)
 local roundEndFont = love.graphics.newFont('/fonts/ComicItalic.otf', 42)
 local charInfoFont = love.graphics.newFont('/fonts/CharSelect.ttf', 21)
 local charSelectorFont = love.graphics.newFont('/fonts/GoodDog.otf', 18)
 local timerFont = love.graphics.newFont('/fonts/Comic.otf', 40)
 local gameoverFont = love.graphics.newFont('/fonts/ComicItalic.otf', 24)
 local gameoverHelpFont = love.graphics.newFont('/fonts/ComicItalic.otf', 16)
-
--- color presets
-COLOR = {
-  WHITE = {255, 255, 255, 255},
-  OFF_WHITE = {255, 255, 255, 160},
-  DULL_ORANGE = {195, 160, 0, 210},
-  ORANGE = {255, 215, 0, 255},
-  DARK_ORANGE = {230, 147, 0, 255},
-  LIGHT_GREEN = {128, 255, 128, 255},
-  GRAY = {96, 96, 96, 255},
-  BLACK = {0, 0, 0, 255},
-  SHADOW = {0, 0, 0, 96},
-  RED = {220, 0, 0, 255},
-  BLUE = {14, 28, 232, 255},
-  GREEN = {14, 232, 54, 255},
-  PALE_BLUE = {164, 164, 255, 255},
-  PALE_GREEN = {164, 255, 164, 255}
-}
 
 -- load sounds
 super_sfx = "SuperFull.ogg"
@@ -119,68 +104,14 @@ function love.load()
   debug = {boxes = false, sprites = false, midpoints = false, camera = false,	keybuffer = false}
 end
 
-function drawBackground()
-  love.graphics.clear()
-  
-  local temp_color = COLOR.WHITE
 
-  if game.background_color then
-  	temp_color = game.background_color
-  elseif game.superfreeze_time > 0 then
-  	temp_color = COLOR.GRAY
-  elseif p1.frozenFrames > 0 and p2.frozenFrames > 0 and frame > 90 then
-    temp_color = COLOR.BLACK
-  end
-
-  love.graphics.push("all")
-    love.graphics.setColor(temp_color)
-    love.graphics.draw(p2.stage_background, 0, 0) 
-  love.graphics.pop()
-end
 
 function drawSprites()
   love.graphics.clear()
 
-  --[[----------------------------------------------
-                        MID-LINE      
-  ----------------------------------------------]]--   
-    -- draw if low on time
-  if round_timer <= 180 and round_timer > 0 then
-    love.graphics.push("all")
-      love.graphics.setColor(100 + (180 - round_timer) / 2, 0, 0, 200)
-      love.graphics.setLineWidth(12)
-      love.graphics.line(stage.center, 0, stage.center, stage.height)
+  drawMidline()
 
-    	love.graphics.setLineWidth(1)
-    	local alpha = (180 - round_timer) / 2 + 90
-    	local lines = {
-    		{shift = 2 * round_timer, color = {255, 0, 0, alpha}},
-    		{shift = 4 * round_timer, color = {220, 220, 0, alpha}},
-    		{shift = 6 * round_timer, color = {220, 220, 220, alpha}},
-    		{shift = 12 * round_timer, color = {255, 255, 255, alpha}}
-    		}
-
-    	for _, line in pairs(lines) do
-    		love.graphics.setColor(line.color)
-    		love.graphics.line(stage.center - line.shift, 0, stage.center - line.shift, stage.height)
-    		love.graphics.line(stage.center + line.shift, 0, stage.center + line.shift, stage.height)
-    	end
-    love.graphics.pop()
-  end
-
-  --[[----------------------------------------------
-                  UNDER-SPRITE LAYER      
-  ----------------------------------------------]]--
-  if prebuffer[frame] then
-    love.graphics.push("all")
-	    for index, _ in pairs(prebuffer[frame]) do
-	    	prebuffer[frame][index][12] = prebuffer[frame][index][12] or COLOR.WHITE
-	      love.graphics.setColor(prebuffer[frame][index][12]) -- 12 is RGB table
-	      love.graphics.draw(unpack(prebuffer[frame][index]))
-	    end
-    love.graphics.pop()
-  end
-  prebuffer[frame] = nil
+  drawPrebuffer()
   
   --[[----------------------------------------------
                         SPRITES      
@@ -213,19 +144,8 @@ function drawSprites()
 	  love.graphics.pop()
 	end
 
-  --[[----------------------------------------------
-                  OVER-SPRITE LAYER      
-  ----------------------------------------------]]--
-  if postbuffer[frame] then
-  	love.graphics.push("all")
-	    for index, _ in pairs(postbuffer[frame]) do
-	    	postbuffer[frame][index][12] = postbuffer[frame][index][12] or COLOR.WHITE
-	    	love.graphics.setColor(postbuffer[frame][index][12]) -- 12 is RGB table
-	      love.graphics.draw(unpack(postbuffer[frame][index]))
-	    end
-    love.graphics.pop()
-  end
-  postbuffer[frame] = nil
+  drawPostbuffer()
+  
 end
 
 function drawOverlays()
@@ -326,15 +246,21 @@ function drawOverlays()
       love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
     love.graphics.pop()
   end
-  if frames_elapsed > 48 and frames_elapsed < 90 then
+  if frames_elapsed > 35 and frames_elapsed < 90 then
     love.graphics.push("all")
       love.graphics.setFont(roundStartFont)
       love.graphics.setColor(COLOR.ORANGE)
-      love.graphics.printf("Round " .. game.current_round, 0, 200, window.width, "center")
       if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
-        love.graphics.setFont(finalroundStartFont)
-        love.graphics.printf("Final round!", 0, 270, window.width, "center")
+        love.graphics.printf("Final round!", 0, 220, window.width, "center")
+      else
+        love.graphics.printf("Round " .. game.current_round, 0, 220, window.width, "center")
       end
+
+      love.graphics.setFont(roundCountdownFont)
+      local countdown = (90 - frames_elapsed) * 17
+      love.graphics.printf(countdown, 0, 300, window.width, "center")
+
+      
     love.graphics.pop()
   end
   																					test.o8 = love.timer.getTime()
@@ -678,16 +604,6 @@ function charSelect()
   game.current_screen = "charselect"
 end
 
-function select1P()
-  game.format="1P"
-  charSelect()
-end
-
-function select2P()
-  game.format="2P"
-  charSelect()
-end
-
 function replays()
 	game.current_screen = "replays"
 	--[[
@@ -708,10 +624,7 @@ function replays()
 	]]
 end
 
--- load the draw functions
 test = {}
-require 'settings'
-require 'title'
 
 function love.keypressed(key)
   if key == "escape" then love.event.quit() end

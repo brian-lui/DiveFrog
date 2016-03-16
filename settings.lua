@@ -29,6 +29,8 @@ settings_table = {
   Sound = {{"Mute", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}}
   }  
 
+settings_options = settings_options or {Rounds = 3, Timer = 2, Speed = 1, Music = 3, Sound = 3}
+
 Params = {
   Rounds = settings_table.Rounds[settings_options.Rounds][2],
   Timer = settings_table.Timer[settings_options.Timer][2],

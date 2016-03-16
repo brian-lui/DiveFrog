@@ -7,6 +7,22 @@ title_controls_background = love.graphics.newImage('images/Title/TitleControlsBk
 
 titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
 
+function select1P()
+  game.format="1P"
+  charSelect()
+end
+
+function select2P()
+  game.format="2P"
+  charSelect()
+end
+
+title_choices = {
+  menu = {"1 Player", "2 Player", "Settings"},
+  action = {select1P, select2P, settingsMenu},
+  option = 1
+}
+
 function drawTitle()
   love.graphics.push("all")
     love.graphics.draw(title_screen, 0, 0)
@@ -45,8 +61,3 @@ function drawTitle()
     love.graphics.pop()
 end
 
-title_choices = {
-  menu = {"1 Player", "2 Player", "Settings"},
-  action = {select1P, select2P, settingsMenu},
-  option = 1
-}
