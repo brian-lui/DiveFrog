@@ -1,12 +1,11 @@
 require 'lovedebug'
 require 'utilities' -- helper functions
 require 'camera'
-local json = require 'dkjson'
-local class = require 'middleclass' -- class support
-local stage = require 'stage'  -- total playing field area
-local window = require 'window'  -- current view of stage
-local music = require 'music'
-local character = require 'character'
+--class = require 'middleclass' -- class support
+stage = require 'stage'  -- total playing field area
+window = require 'window'  -- current view of stage
+music = require 'music'
+character = require 'character'
 require 'Konrad'
 require 'Jean'
 require 'Sun'
@@ -17,23 +16,26 @@ require 'title'
 local particles = require 'particles'
 
 -- load images
-local replaysscreen = love.graphics.newImage('images/Replays.jpg')
-local charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
-local bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
-local hpbar = love.graphics.newImage('images/HPBar.png')
-local portraits = love.graphics.newImage('images/Portraits.png')
-local greenlight = love.graphics.newImage('images/GreenLight.png')
-local portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
+replaysscreen = love.graphics.newImage('images/Replays.jpg')
+charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
+bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
+hpbar = love.graphics.newImage('images/HPBar.png')
+portraits = love.graphics.newImage('images/Portraits.png')
+greenlight = love.graphics.newImage('images/GreenLight.png')
+portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
 -- load fonts
-local roundStartFont = love.graphics.newFont('/fonts/Comic.otf', 60)
-local roundCountdownFont = love.graphics.newFont('/fonts/Comic.otf', 20)
-local roundEndFont = love.graphics.newFont('/fonts/ComicItalic.otf', 42)
-local charInfoFont = love.graphics.newFont('/fonts/CharSelect.ttf', 21)
-local charSelectorFont = love.graphics.newFont('/fonts/GoodDog.otf', 18)
-local timerFont = love.graphics.newFont('/fonts/Comic.otf', 40)
-local gameoverFont = love.graphics.newFont('/fonts/ComicItalic.otf', 24)
-local gameoverHelpFont = love.graphics.newFont('/fonts/ComicItalic.otf', 16)
+FONT = {
+  ROUND_START = love.graphics.newFont('/fonts/Comic.otf', 60),
+  ROUND_START_COUNTDOWN = love.graphics.newFont('/fonts/Comic.otf', 20),
+  ROUND_START_FLAVOR = love.graphics.newFont('/fonts/Comic.otf', 18),
+  ROUND_END = love.graphics.newFont('/fonts/ComicItalic.otf', 42),
+  CHAR_INFO = love.graphics.newFont('/fonts/CharSelect.ttf', 21),
+  CHAR_SELECTOR = love.graphics.newFont('/fonts/GoodDog.otf', 18),
+  TIMER = love.graphics.newFont('/fonts/Comic.otf', 40),
+  GAME_OVER = love.graphics.newFont('/fonts/ComicItalic.otf', 24),
+  GAME_OVER_HELP = love.graphics.newFont('/fonts/ComicItalic.otf', 16)
+}
 
 -- color presets
 COLOR = {
@@ -51,6 +53,20 @@ COLOR = {
   GREEN = {14, 232, 54, 255},
   PALE_BLUE = {164, 164, 255, 255},
   PALE_GREEN = {164, 255, 164, 255}
+}
+
+speechbubbles = {
+  SpeechBubblePow, 
+  SpeechBubbleBiff,
+  SpeechBubbleWham,
+  SpeechBubbleZap,
+  SpeechBubbleJeb,
+  SpeechBubbleBath,
+  SpeechBubbleBop,
+  SpeechBubbleSmack,
+  SpeechBubbleThump,
+  SpeechBubbleZwapp,
+  SpeechBubbleClunk
 }
 
 function drawBackground()
@@ -171,7 +187,7 @@ function drawOverlays()
     local displayed_time = math.ceil(round_timer * min_dt)
                                             test.timer1 = love.timer.getTime()
     love.graphics.setColor(COLOR.DARK_ORANGE)
-    love.graphics.setFont(timerFont)
+    love.graphics.setFont(FONT.TIMER)
                                             test.timer2 = love.timer.getTime()
     love.graphics.printf(displayed_time, 0, 6, window.width, "center")
                                             test.timer3 = love.timer.getTime()
@@ -256,20 +272,40 @@ function drawRoundStart() -- start of round overlays
       love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
     love.graphics.pop()
   end
-  if frames_elapsed > 35 and frames_elapsed < 90 then
+  if frames_elapsed > 15 and frames_elapsed <= 90 then
     love.graphics.push("all")
-      love.graphics.setFont(roundStartFont)
       love.graphics.setColor(COLOR.ORANGE)
+      
+      -- countdown timer
+      love.graphics.setFont(FONT.ROUND_START_COUNTDOWN)
+      local countdown = (90 - frames_elapsed) * 17
+      love.graphics.printf(countdown, 0, 290, window.width, "center")
+
+      -- round
+      love.graphics.setFont(FONT.ROUND_START)
+      if frames_elapsed > 80 then
+        local transparency = 255 - ((frames_elapsed - 81) * 25)
+        love.graphics.setColor(255, 215, 0, transparency)
+      end
       if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
         love.graphics.printf("Final round!", 0, 220, window.width, "center")
       else
         love.graphics.printf("Round " .. game.current_round, 0, 220, window.width, "center")
       end
 
-      love.graphics.setFont(roundCountdownFont)
-      local countdown = (90 - frames_elapsed) * 17
-      love.graphics.printf(countdown, 0, 300, window.width, "center")
+      -- flavor text
+      love.graphics.setFont(FONT.ROUND_START_FLAVOR)
+      love.graphics.setColor(COLOR.WHITE)
+      if frames_elapsed > 80 then
+        local transparency = 255 - ((frames_elapsed - 81) * 25)
+        love.graphics.setColor(255, 255, 255, transparency)
+      end
 
+      local h_offset = math.tan((frames_elapsed - 53) / 24) -- tangent from -1.5 to 1.5
+      local h_text1 = h_offset * 12
+      local h_text2 = -h_offset * 12
+      love.graphics.printf("The quick brown fox jumped over the lazy dog.", h_text1, 205, window.width, "center")
+      love.graphics.printf("The quick brown bath barked over the lazy walk.", h_text2, 325, window.width, "center")
       
     love.graphics.pop()
   end
@@ -280,7 +316,7 @@ function drawRoundEnd() -- end of round overlays
     -- end of round win message
     if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
       love.graphics.push("all")
-        love.graphics.setFont(roundEndFont)
+        love.graphics.setFont(FONT.ROUND_END)
         love.graphics.setColor(COLOR.ORANGE)
         if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins!", 0, 200, window.width, "center")
         elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins!", 0, 200, window.width, "center")
@@ -305,14 +341,14 @@ function drawCharSelect()
   love.graphics.draw(portraits, portraitsQuad, 473, 130) -- character portrait
   love.graphics.push("all")
     love.graphics.setColor(COLOR.BLACK)
-    love.graphics.setFont(charInfoFont)
+    love.graphics.setFont(FONT.CHAR_INFO)
     love.graphics.print(char_text[p1_char][1], 516, 350) -- character movelist
     love.graphics.print(char_text[p1_char][2], 516, 384)
     love.graphics.print(char_text[p1_char][3], 513, 425)
     love.graphics.print(char_text[p1_char][4], 430, 469)
 
     --p1 rectangle
-    love.graphics.setFont(charSelectorFont)
+    love.graphics.setFont(FONT.CHAR_SELECTOR)
     love.graphics.setLineWidth(2)
     love.graphics.setColor(COLOR.BLUE)
     love.graphics.print("P1", 42, 20 + (p1_char * 70)) -- helptext
@@ -335,11 +371,11 @@ function drawMatchEnd() -- end of the match (not end of the round)
   love.graphics.draw(bkmatchend, 0, 0) -- background
 
   love.graphics.push("all")
-    love.graphics.setFont(gameoverFont)
+    love.graphics.setFont(FONT.GAME_OVER)
     love.graphics.draw(game.match_winner.win_portrait, 100, 50)
     love.graphics.setColor(COLOR.BLACK)
     love.graphics.printf(game.match_winner.win_quote, 0, 470, window.width, "center")
-    love.graphics.setFont(gameoverHelpFont)
+    love.graphics.setFont(FONT.GAME_OVER_HELP)
     love.graphics.setColor(0, 0, 0, (frame * 2) % 255)
     love.graphics.print("Press enter", 650, 540)
   love.graphics.pop()

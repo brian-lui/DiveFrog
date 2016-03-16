@@ -10,19 +10,6 @@ function placeBubble(h_pos, v_pos, h_move, v_move, delay)
   local h_offset = h_move or 0
   local v_offset = v_move or -50
 
-  local speechbubbles = {
-    SpeechBubblePow, 
-    SpeechBubbleBiff,
-    SpeechBubbleWham,
-    SpeechBubbleZap,
-    SpeechBubbleJeb,
-    SpeechBubbleBath,
-    SpeechBubbleBop,
-    SpeechBubbleSmack,
-    SpeechBubbleThump,
-    SpeechBubbleZwapp,
-    SpeechBubbleClunk
-  }
   local bubble_to_use = speechbubbles[(frame + delay + math.ceil(p1.pos[1] + p2.pos[1])) % #speechbubbles + 1]
   bubble_to_use:playSound(delay)
 
