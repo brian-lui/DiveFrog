@@ -158,6 +158,12 @@ SpeechBubbleBop = Particle:new(love.graphics.newImage('images/SpeechBubbles/Bop.
   {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 SpeechBubbleSmack = Particle:new(love.graphics.newImage('images/SpeechBubbles/Smack.png'), 
   {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
+SpeechBubbleThump = Particle:new(love.graphics.newImage('images/SpeechBubbles/Thump.png'), 
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
+SpeechBubbleZwapp = Particle:new(love.graphics.newImage('images/SpeechBubbles/Zwapp.png'), 
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
+SpeechBubbleClunk = Particle:new(love.graphics.newImage('images/SpeechBubbles/Clunk.png'), 
+  {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 
 ----------------------------------- KONRAD ------------------------------------
 HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), 

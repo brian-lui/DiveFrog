@@ -18,10 +18,12 @@ function placeBubble(h_pos, v_pos, h_move, v_move, delay)
     SpeechBubbleJeb,
     SpeechBubbleBath,
     SpeechBubbleBop,
-    SpeechBubbleSmack
+    SpeechBubbleSmack,
+    SpeechBubbleThump,
+    SpeechBubbleZwapp,
+    SpeechBubbleClunk
   }
-
-  local bubble_to_use = speechbubbles[(frame + delay) % #speechbubbles + 1]
+  local bubble_to_use = speechbubbles[(frame + delay + math.ceil(p1.pos[1] + p2.pos[1])) % #speechbubbles + 1]
   bubble_to_use:playSound(delay)
 
   for i = 0, 9 do
