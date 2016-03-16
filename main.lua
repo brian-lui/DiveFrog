@@ -2,20 +2,18 @@ require 'lovedebug'
 require 'utilities' -- helper functions
 require 'camera'
 require 'draw'
-local json = require 'dkjson'
-local class = require 'middleclass' -- class support
-local stage = require 'stage'  -- total playing field area
-local window = require 'window'  -- current view of stage
-local music = require 'music'
-local character = require 'character'
+json = require 'dkjson'
+class = require 'middleclass' -- class support
+stage = require 'stage'  -- total playing field area
+window = require 'window'  -- current view of stage
+music = require 'music'
+character = require 'character'
+particles = require 'particles'
 require 'Konrad'
 require 'Jean'
 require 'Sun'
 require 'Frogson'
 require 'AI'
-
-local particles = require 'particles'
-
 require 'settings'
 require 'title'
 

@@ -1,19 +1,4 @@
-require 'lovedebug'
-require 'utilities' -- helper functions
-require 'camera'
---class = require 'middleclass' -- class support
-stage = require 'stage'  -- total playing field area
-window = require 'window'  -- current view of stage
-music = require 'music'
-character = require 'character'
-require 'Konrad'
-require 'Jean'
-require 'Sun'
-require 'Frogson'
-require 'AI'
-require 'settings'
-require 'title'
-local particles = require 'particles'
+particles = require 'particles'
 
 -- load images
 replaysscreen = love.graphics.newImage('images/Replays.jpg')
@@ -24,7 +9,6 @@ portraits = love.graphics.newImage('images/Portraits.png')
 greenlight = love.graphics.newImage('images/GreenLight.png')
 portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
--- load fonts
 FONT = {
   ROUND_START = love.graphics.newFont('/fonts/Comic.otf', 60),
   ROUND_START_COUNTDOWN = love.graphics.newFont('/fonts/Comic.otf', 20),
@@ -37,7 +21,6 @@ FONT = {
   GAME_OVER_HELP = love.graphics.newFont('/fonts/ComicItalic.otf', 16)
 }
 
--- color presets
 COLOR = {
   WHITE = {255, 255, 255, 255},
   OFF_WHITE = {255, 255, 255, 160},

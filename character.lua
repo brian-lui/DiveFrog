@@ -1,10 +1,3 @@
-local class = require 'middleclass'
-local stage = require 'stage' -- for checking floor/walls
-local window = require 'window'
-local music = require 'music' -- background music
-require 'utilities'
-require 'particles'
-
 function placeBubble(h_pos, v_pos, h_move, v_move, delay)
   -- buggy with hotflame for now
   local h_offset = h_move or 0
