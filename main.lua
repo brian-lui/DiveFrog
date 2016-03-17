@@ -17,6 +17,9 @@ require 'AI'
 require 'settings'
 require 'title'
 
+math.randomseed(os.time())
+math.random(); math.random(); math.random()
+
 -- load sounds
 super_sfx = "SuperFull.ogg"
 charselect_sfx = "CharSelectSFX.ogg"

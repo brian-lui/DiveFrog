@@ -12,7 +12,7 @@ portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 FONT = {
   ROUND_START = love.graphics.newFont('/fonts/Comic.otf', 60),
   ROUND_START_COUNTDOWN = love.graphics.newFont('/fonts/Comic.otf', 20),
-  ROUND_START_FLAVOR = love.graphics.newFont('/fonts/Comic.otf', 18),
+  ROUND_START_FLAVOR = love.graphics.newFont('/fonts/Comic.otf', 20),
   ROUND_END = love.graphics.newFont('/fonts/ComicItalic.otf', 42),
   CHAR_INFO = love.graphics.newFont('/fonts/CharSelect.ttf', 21),
   CHAR_SELECTOR = love.graphics.newFont('/fonts/GoodDog.otf', 18),
@@ -20,6 +20,25 @@ FONT = {
   GAME_OVER = love.graphics.newFont('/fonts/ComicItalic.otf', 24),
   GAME_OVER_HELP = love.graphics.newFont('/fonts/ComicItalic.otf', 16)
 }
+
+ROUND_START_FLAVOR = {
+  {TOP = "Kill each other,", BOTTOM = "But it's good [INVERSES]"},
+  {TOP = "Heaven or hell!", BOTTOM = "Let's ROCK!"},
+  {TOP = "This battle is about to explode", BOTTOM = "Fight!"},
+  {TOP = "The wheel of fate is turning", BOTTOM = "ACTION!"},
+  {TOP = "THE TIME OF RETRIBUTION", BOTTOM = "DECIDE THE DESTINY"},
+  {TOP = "Death from above!", BOTTOM = "Divekick!"},
+  {TOP = "Welcome back to the stage of history", BOTTOM = "But the soul still burns."},
+  {TOP = "It all depends on your skill!", BOTTOM = "Ain't there somebody who can stop this fighting machine?"},
+  {TOP = "You can't give it up!", BOTTOM = "Triumph or die!"},
+  {TOP = "Welcome to the world of Divefrog...", BOTTOM = "Prepare for battle!"},
+  {TOP = "Fighters ready...", BOTTOM = "Engage!"},
+  {TOP = "Fists will fly at this location!", BOTTOM = "The stage of battle is set!"},
+  {TOP = "Let's get started!", BOTTOM = "And the battle begins!"},
+  {TOP = "Let the madness begin!", BOTTOM = "It's all or nothing!"}
+}
+
+flavor_rand = {top = 1, bottom = 1}
 
 COLOR = {
   WHITE = {255, 255, 255, 255},
@@ -249,12 +268,22 @@ end
 
 function drawRoundStart() -- start of round overlays
   local frames_elapsed = frame - frame0
+
+  if frames_elapsed == 10 then -- select which quote text to show
+    flavor_rand.top = math.random(#ROUND_START_FLAVOR)
+    flavor_rand.bottom = math.random(#ROUND_START_FLAVOR)
+    while flavor_rand.top == flavor_rand.bottom do
+      flavor_rand.bottom = math.random(#ROUND_START_FLAVOR)
+    end
+  end
+
   if frames_elapsed < 60 then
     love.graphics.push("all") 
       love.graphics.setColor(0, 0, 0, 255 - frames_elapsed * 255 / 60)
       love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
     love.graphics.pop()
   end
+
   if frames_elapsed > 15 and frames_elapsed <= 90 then
     love.graphics.push("all")
       love.graphics.setColor(COLOR.ORANGE)
@@ -271,7 +300,7 @@ function drawRoundStart() -- start of round overlays
         love.graphics.setColor(255, 215, 0, transparency)
       end
       if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
-        love.graphics.printf("Final round!", 0, 220, window.width, "center")
+        love.graphics.printf("FINAL", 0, 220, window.width, "center")
       else
         love.graphics.printf("Round " .. game.current_round, 0, 220, window.width, "center")
       end
@@ -287,8 +316,12 @@ function drawRoundStart() -- start of round overlays
       local h_offset = math.tan((frames_elapsed - 53) / 24) -- tangent from -1.5 to 1.5
       local h_text1 = h_offset * 12
       local h_text2 = -h_offset * 12
-      love.graphics.printf("The quick brown fox jumped over the lazy dog.", h_text1, 205, window.width, "center")
-      love.graphics.printf("The quick brown bath barked over the lazy walk.", h_text2, 325, window.width, "center")
+
+
+      local top_text = ROUND_START_FLAVOR[flavor_rand.top].TOP
+      local bottom_text = ROUND_START_FLAVOR[flavor_rand.bottom].BOTTOM
+      love.graphics.printf(top_text, h_text1, 205, window.width, "center")
+      love.graphics.printf(bottom_text, h_text2, 325, window.width, "center")
       
     love.graphics.pop()
   end
