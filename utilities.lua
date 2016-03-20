@@ -107,3 +107,11 @@ function drawDebugHurtboxes()
     end
   love.graphics.pop()
 end
+
+function checkVersion()
+  local major, minor, revision, codename = love.getVersion()
+  local version = major * 10000 + minor * 100 + revision * 1
+  local min_version = 001000
+  assert(version >= min_version, "Please update your Love2D to the latest version.")
+end
+  
