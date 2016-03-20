@@ -445,30 +445,6 @@ function love.keypressed(key)
   	print("Sleep:", sleep)
   end
   if key == '9' then
-  	local o_timer = (test.o1 - test.o0) * 100 / min_dt
-  	local o_hpbar = (test.o2 - test.o1) * 200 / min_dt
-  	local o_winpoint = (test.o3 - test.o2) * 200 / min_dt
-  	local o_icon = (test.o4 - test.o3) * 200/ min_dt
-  	local o_superbase = (test.o5 - test.o4) * 200/ min_dt
-  	local o_superquad = (test.o6 - test.o5) * 200/ min_dt
-  	local o_frogfactor = (test.o7 - test.o6) * 200/ min_dt
-  	print("Calculate timer               % of CPU:", o_timer)
-  	print("Calculate HP bars             % of CPU:", o_hpbar)
-  	print("Calculate win points          % of CPU:", o_winpoint)
-  	print("Calculate icons               % of CPU:", o_icon)
-  	print("Calculate super bar base      % of CPU:", o_superbase)
-  	print("Calculate super bar quad      % of CPU:", o_superquad)
-  	print("Calculate frog factor quad    % of CPU:", o_frogfactor)
-  end
-  if key == '0' then
-  	local timer_calc = (test.timer1 - test.timer0) * 100 / min_dt
-  	local timer_font = (test.timer2 - test.timer1) * 100 / min_dt  	
-  	local timer_print = (test.timer3 - test.timer2) * 100 / min_dt  	  	
-  	print("Calculate timer % of CPU:", timer_color)
-  	print("Set timer font  % of CPU:", timer_font)
-  	print("Print timer     % of CPU:", timer_print)
-  end
-  if key == '-' then
   	local globaltable = {}
   	local num = 1
   	for k, v in pairs(_G) do
@@ -478,5 +454,6 @@ function love.keypressed(key)
   	local output_globals = json.encode(globaltable)
   	local filename = os.date("%Y.%m.%d.%H%M") .. " globals.txt"
   	love.filesystem.write(filename, output_globals)
+    print("Globals written to file")
   end
 end

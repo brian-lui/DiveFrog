@@ -180,63 +180,60 @@ function drawMain()
   drawPostbuffer()
 end
 
-function drawOverlays()
-  love.graphics.clear()
-                                            test.o0 = love.timer.getTime()
+function _drawOverlayTimer()
   -- timer
   love.graphics.push("all")
-                                            test.timer0 = love.timer.getTime()
     local displayed_time = math.ceil(round_timer * min_dt)
-                                            test.timer1 = love.timer.getTime()
     love.graphics.setColor(COLOR.DARK_ORANGE)
     love.graphics.setFont(FONT.TIMER)
-                                            test.timer2 = love.timer.getTime()
     love.graphics.printf(displayed_time, 0, 6, window.width, "center")
-                                            test.timer3 = love.timer.getTime()
   love.graphics.pop()
+end
 
-  for side, op in pairs(Players) do
-                                            test.o1 = love.timer.getTime()
-    -- HP bars
-    love.graphics.draw(hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
-    -- ornament
-    local pos = (frame % 180) * 8
-    if side.life > pos then
-      h_loc = window.center + (op.move * 53) + (op.move * pos)
-      love.graphics.push("all")
-        love.graphics.setColor(COLOR.OFF_WHITE)
-        love.graphics.setLineWidth(1)
-        love.graphics.line(h_loc, 22, h_loc, 44)
-      love.graphics.pop()
-    end
-    -- life depleted
-    if side.life < 280 then
-      love.graphics.push("all")
-        love.graphics.setColor(COLOR.RED)
-        love.graphics.setLineWidth(23)
-        love.graphics.line(window.center + (op.move * 333), 34, window.center + (op.move * 333) - op.move * (280 - side.life), 34)
-      love.graphics.pop()
-    end
-                                            test.o2 = love.timer.getTime()
-    -- win points
-    for i = 1, game.best_to_x do
-      if side.score >= i then
-        love.graphics.draw(greenlight, window.center + (op.move * 354) - op.move * (20 * i),
-        52, 0, 1, 1, op.offset * greenlight:getWidth())
-      end
-    end
-                                            test.o3 = love.timer.getTime()
-    -- player icons
-    love.graphics.draw(side.icon, window.center + (op.move * 390), 10, 0, op.flip, 1, 0)
-                                            test.o4 = love.timer.getTime()
-    -- super bars
+function _drawOverlayHPbars(side, op)
+  -- HP bars
+  love.graphics.draw(hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
+  -- ornament
+  local pos = (frame % 180) * 8
+  if side.life > pos then
+    h_loc = window.center + (op.move * 53) + (op.move * pos)
     love.graphics.push("all")
+      love.graphics.setColor(COLOR.OFF_WHITE)
+      love.graphics.setLineWidth(1)
+      love.graphics.line(h_loc, 22, h_loc, 44)
+    love.graphics.pop()
+  end
+  -- life depleted
+  if side.life < 280 then
+    love.graphics.push("all")
+      love.graphics.setColor(COLOR.RED)
+      love.graphics.setLineWidth(23)
+      love.graphics.line(window.center + (op.move * 333), 34, window.center + (op.move * 333) - op.move * (280 - side.life), 34)
+    love.graphics.pop()
+  end
+end
+
+function _drawOverlayWinPoints(side, op)
+  for i = 1, game.best_to_x do
+    if side.score >= i then
+      love.graphics.draw(greenlight, window.center + (op.move * 354) - op.move * (20 * i),
+      52, 0, 1, 1, op.offset * greenlight:getWidth())
+    end
+  end
+end
+
+function _drawOverlayPlayerIcons(side, op)
+  love.graphics.draw(side.icon, window.center + (op.move * 390), 10, 0, op.flip, 1, 0)
+end
+
+function _drawOverlaySuperBars(side, op)
+  love.graphics.push("all")
     if not side.isSupering then
       -- super bar base
       love.graphics.setColor(COLOR.OFF_WHITE)
       love.graphics.draw(SuperBarBase.image, window.center + (op.move * 375), window.height - 35,
         0, 1, 1, op.offset * SuperBarBase.width)
-                                            test.o5 = love.timer.getTime()
+
       -- super meter
       local index = math.floor((frame % 64) / 8)
       local Quad = love.graphics.newQuad(0, index * SuperMeter.height,
@@ -251,7 +248,7 @@ function drawOverlays()
       love.graphics.setColor(supermeterColor)
       love.graphics.draw(SuperMeter.image, Quad, window.center + (op.move * 373),
         window.height - 33, 0, op.flip, 1, 0)
-                                            test.o6 = love.timer.getTime()
+
     else -- if super full, draw frog factor
       local index = math.floor((frame % FrogFactor.total_time) / FrogFactor.time_per_frame)
       local Quad = love.graphics.newQuad(index * FrogFactor.width, 0,
@@ -261,8 +258,19 @@ function drawOverlays()
       love.graphics.draw(FrogFactor.image, Quad, window.center + (op.move * 390),
         window.height - FrogFactor.height - 10, 0, op.flip, 1, 0)
     end
-    love.graphics.pop()
-                                            test.o7 = love.timer.getTime()
+  love.graphics.pop()
+end
+
+function drawOverlays()
+  love.graphics.clear()
+
+  _drawOverlayTimer()
+  
+  for side, op in pairs(Players) do
+    _drawOverlayHPbars(side, op)                                          
+    _drawOverlayWinPoints(side, op)
+    _drawOverlayPlayerIcons(side, op)
+    _drawOverlaySuperBars(side, op)
   end
 end
 
@@ -272,8 +280,11 @@ function drawRoundStart() -- start of round overlays
   if frames_elapsed == 10 then -- select which quote text to show
     flavor_rand.top = math.random(#ROUND_START_FLAVOR)
     flavor_rand.bottom = math.random(#ROUND_START_FLAVOR)
-    while flavor_rand.top == flavor_rand.bottom do
-      flavor_rand.bottom = math.random(#ROUND_START_FLAVOR)
+    if flavor_rand.top == flavor_rand.bottom then -- don't match quotes
+      flavor_rand.bottom = math.random(#ROUND_START_FLAVOR - 1)
+      if flavor_rand.bottom >= flavor_rand.top then
+        flavor_rand.bottom = flavor_rand.bottom + 1
+      end
     end
   end
 
