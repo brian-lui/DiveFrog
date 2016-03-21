@@ -35,7 +35,7 @@ function AI.Action(player, foe)
     end
   end
 
-	return sendjump, sendattack
+  return sendjump, sendattack
 end
 
 function AI._inKillRange(player, foe, killangle, variance)
@@ -83,7 +83,6 @@ AI.Konrad = {
   FAR_DOUBLEJUMP = 0.2,
   DOUBLEJUMP_LOWEST = 650,
   DOUBLEJUMP_HIGHEST = 400,
-  DOUBLEJUMPHEIGHT = 400, -- initialize
 
   NEAR_SUPERJUMP = 0.7,
 
@@ -101,6 +100,7 @@ AI.Konrad = {
 
   GoForKill = false,
   DoDoublejump = false
+  DoubleJumpHeight = 400, -- initialize
 }
 
 function AI.Konrad.onGround(player, foe)
@@ -154,7 +154,7 @@ function AI.Konrad._farGround(player, foe)
   if rand < AI.Konrad.FAR_JUMP then
     if math.random() < AI.Konrad.FAR_DOUBLEJUMP then -- queue a double jump
       AI.Konrad.DoDoublejump = true
-      AI.Konrad.DOUBLEJUMPHEIGHT = math.random(AI.Konrad.DOUBLEJUMP_LOWEST, AI.Konrad.DOUBLEJUMP_HIGHEST)
+      AI.Konrad.DoubleJumpHeight = math.random(AI.Konrad.DOUBLEJUMP_LOWEST, AI.Konrad.DOUBLEJUMP_HIGHEST)
     end
 
     return true, false
@@ -182,7 +182,7 @@ function AI.Konrad._airKill(player, foe)
 end
 
 function AI.Konrad._doublejump(player, foe)
-  local abovejumpheight = player.pos[2] + player.sprite_size[2] < AI.Konrad.DOUBLEJUMPHEIGHT 
+  local abovejumpheight = player.pos[2] + player.sprite_size[2] < AI.Konrad.DoubleJumpHeight 
 
   if abovejumpheight then
     AI.Konrad.GoForKill = false
