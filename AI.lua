@@ -23,6 +23,8 @@ function AI.Action(player, foe)
     myfrog = AI.Konrad
   elseif player.fighter_name == "M. Frogson" then
     myfrog = AI.Konrad
+  else
+    print("AI module not found for this character")
   end
 
   if frame % 6 == 0 then -- don't ask too often
@@ -36,9 +38,11 @@ function AI.Action(player, foe)
 	return sendjump, sendattack
 end
 
-function AI._inKillRange(player, foe, killangle)
+function AI._inKillRange(player, foe, killangle, variance)
+  local v_adjust = math.random(-variance, variance)
+
   local player_foot = {player.center, player.pos[2] + player.sprite_size[2]}
-  local foe_target = {foe.center, foe.pos[2]}
+  local foe_target = {foe.center, foe.pos[2] + v_adjust}
 
   local h_dist = math.abs(player_foot[1] - foe_target[1]) - 0.5 * player.sprite_size[1] - 0.5 * foe.sprite_size[1]
   local v_dist = math.abs(player_foot[2] - foe_target[2])
@@ -49,7 +53,9 @@ function AI._inKillRange(player, foe, killangle)
   return (angle < killangle) and player_above
 end
 
-function AI._isClose(player, foe, required_dist)
+function AI._isClose(player, foe, required_dist, variance)
+  local dist_adjust = math.random(-variance, variance)
+
   local player_foot_h = player.pos[1] + player.sprite_size[1]
   if player.facing == -1 then
     player_foot_h = player.pos[1]
@@ -63,7 +69,7 @@ function AI._isClose(player, foe, required_dist)
 
   local h_distance = math.abs(player_foot_h - foe_target_h)
 
-  return h_distance < required_dist
+  return h_distance < required_dist + dist_adjust
 end
 
 ------------------------------------KONRAD-------------------------------------
@@ -73,31 +79,42 @@ AI.Konrad = {
   MAX_SUPERJUMP_HEIGHT = 700,
   MIN_KICK_HEIGHT = stage.floor - 50,
 
-  FAR_JUMP = 0.6, -- otherwise kickback
+  FAR_JUMP = 0.7, -- otherwise kickback
   FAR_DOUBLEJUMP = 0.2,
   DOUBLEJUMP_LOWEST = 650,
   DOUBLEJUMP_HIGHEST = 400,
   DOUBLEJUMPHEIGHT = 400, -- initialize
 
-  NEAR_SUPERJUMP = 0.8,
+  NEAR_SUPERJUMP = 0.7,
 
   KILL_SUPERKICK = 0.7,
 
-  HORIZONTAL_CLOSE = 200, -- pixels apart to go for kill
+  HORIZONTAL_CLOSE = 175, -- pixels apart to go for kill
+  CLOSE_VARIANCE = 25, -- +/- X pixels from actual close
 
-  GAIN_METER = 0.7, -- every 6 frames, how often to kick for meter if conditions fulfilled
+  GAIN_METER = 0.9, -- every 6 frames, how often to kick for meter if conditions fulfilled
+
+  GO_FOR_KILL = 0.7, -- how often to go for kill
+  KILL_VARIANCE = 40, -- +/- X pixels from actual kill distance
+
+  DO_SOMETHING = 0.6,
 
   GoForKill = false,
   DoDoublejump = false
 }
 
 function AI.Konrad.onGround(player, foe)
-  local near = AI._isClose(player, foe, AI.Konrad.HORIZONTAL_CLOSE)
-  
-  if near then
-    return AI.Konrad._nearGround(player, foe)
+  local near = AI._isClose(player, foe, AI.Konrad.HORIZONTAL_CLOSE, AI.Konrad.CLOSE_VARIANCE)
+
+  local rand = math.random()
+  if rand < AI.Konrad.DO_SOMETHING then
+    if near then
+      return AI.Konrad._nearGround(player, foe)
+    else
+      return AI.Konrad._farGround(player, foe)
+    end
   else
-    return AI.Konrad._farGround(player, foe)
+    return false, false
   end
 end
 
@@ -115,11 +132,16 @@ function AI.Konrad.inAir(player, foe)
 end
 
 function AI.Konrad._nearGround(player, foe)
-  AI.Konrad.GoForKill = true
+  local rand1 = math.random()
+  if rand1 < AI.Konrad.GO_FOR_KILL then
+    AI.Konrad.GoForKill = true
 
-  local rand = math.random()
-  if rand < AI.Konrad.NEAR_SUPERJUMP and player.super >= 16 then
-    return true, true
+    local rand2 = math.random()
+    if rand2 < AI.Konrad.NEAR_SUPERJUMP and player.super >= 16 then
+      return true, true
+    else
+      return true, false
+    end
   else
     return true, false
   end
@@ -142,7 +164,7 @@ function AI.Konrad._farGround(player, foe)
 end
 
 function AI.Konrad._airKill(player, foe)
-  local inrange = AI._inKillRange(player, foe, AI.KillAngle.Konrad)
+  local inrange = AI._inKillRange(player, foe, AI.KillAngle.Konrad, AI.Konrad.KILL_VARIANCE)
   local rand = math.random()
 
   if inrange then
