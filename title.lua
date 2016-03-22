@@ -7,20 +7,32 @@ title_controls_background = love.graphics.newImage('images/Title/TitleControlsBk
 
 titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
 
+default_selections = {title = 1, player1P = 1, AI1P = 1, player12P = 1, player22P = 2}
+if love.filesystem.exists("choices.txt") then
+  local choices_string = love.filesystem.read("choices.txt")
+  default_selections = json.decode(choices_string)
+else
+  love.filesystem.write("choices.txt", json.encode(default_selections))  
+end
+
 function select1P()
-  game.format="1P"
+  game.format = "1P"
+  default_selections.title = 1
+  love.filesystem.write("choices.txt", json.encode(default_selections))  
   charSelect()
 end
 
 function select2P()
-  game.format="2P"
+  game.format = "2P"
+  default_selections.title = 2
+  love.filesystem.write("choices.txt", json.encode(default_selections))  
   charSelect()
 end
 
 title_choices = {
   menu = {"1 Player", "2 Player", "Settings"},
   action = {select1P, select2P, settingsMenu},
-  option = 1
+  option = default_selections.title
 }
 
 function drawTitle()
@@ -61,3 +73,43 @@ function drawTitle()
     love.graphics.pop()
 end
 
+function charSelect()
+  setBGM("CharSelect.ogg")
+  available_chars = {Konrad, Jean, Sun, Frogson}
+  char_text = {
+    {"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},
+    {"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"},
+    {"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"},
+    {"Anti-Gravity Frog", "Wow!", "+40%", "Jackson/Bison Stances"}
+    }
+  if game.format == "1P" then
+    p1_char = default_selections.player1P 
+    p2_char = default_selections.AI1P
+  elseif game.format == "2P" then
+    p1_char = default_selections.player12P
+    p2_char = default_selections.player22P
+  else
+    print("Invalid game mode selected.")
+  end
+  game.current_screen = "charselect"
+end
+
+function replays()
+  game.current_screen = "replays"
+  --[[
+  Scan folder for all valid folders
+  Output list of all files to a table -- https://love2d.org/wiki/love.filesystem.getDirectoryItems
+  Sort table by filename -- table.sort(table)
+  Show all files with 'round 0' as the end part
+  Each segment is from 'round 0' until (1 - next 'round 0')
+
+  Operations: select files, or back to main menu
+  Select file: play file, delete file
+    Play file --
+      9th char in string is P1, 11th is P2
+      Disable user input
+      Allow enter key to popup "return to main menu?" (can continue playing in background for simplicity)
+      For i = 1 to #-1: decode .txt into keybuffer
+    Delete file -- https://love2d.org/wiki/love.filesystem.remove
+  ]]
+end

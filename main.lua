@@ -49,7 +49,7 @@ function love.load()
   	background_color = nil,
   	isScreenShaking = false,
   	identical_players = false,
-    format = "2P"
+    format = ""
     }
   setBGM("Intro.ogg")
   min_dt = 1/60 -- frames per second
@@ -319,6 +319,16 @@ function newRound()
 end
 
 function startGame()
+
+  if game.format == "1P" then
+    default_selections.player1P = p1_char
+    default_selections.AI1P = p2_char
+  elseif game.format == "2P" then
+    default_selections.player12P = p1_char
+    default_selections.player22P = p2_char
+  end
+  love.filesystem.write("choices.txt", json.encode(default_selections)) 
+
   game.current_screen = "maingame"
 
   p1 = available_chars[p1_char](1, p2, 0, false, 0)
@@ -330,40 +340,6 @@ function startGame()
   game.BGM = p2.BGM
   setBGM(game.BGM)
   newRound()
-end
-
-function charSelect()
-  setBGM("CharSelect.ogg")
-  available_chars = {Konrad, Jean, Sun, Frogson}
-  char_text = {
-    {"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},
-    {"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"},
-    {"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"},
-    {"Anti-Gravity Frog", "Wow!", "+40%", "Jackson/Bison Stances"}
-    }
-  p1_char = 1
-  p2_char = 2
-  game.current_screen = "charselect"
-end
-
-function replays()
-	game.current_screen = "replays"
-	--[[
-	Scan folder for all valid folders
-	Output list of all files to a table -- https://love2d.org/wiki/love.filesystem.getDirectoryItems
-	Sort table by filename -- table.sort(table)
-	Show all files with 'round 0' as the end part
-	Each segment is from 'round 0' until (1 - next 'round 0')
-
-	Operations: select files, or back to main menu
-	Select file: play file, delete file
-		Play file --
-			9th char in string is P1, 11th is P2
-			Disable user input
-			Allow enter key to popup "return to main menu?" (can continue playing in background for simplicity)
-			For i = 1 to #-1: decode .txt into keybuffer
-		Delete file -- https://love2d.org/wiki/love.filesystem.remove
-	]]
 end
 
 test = {}

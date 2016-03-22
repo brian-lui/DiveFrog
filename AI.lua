@@ -99,7 +99,7 @@ AI.Konrad = {
   DO_SOMETHING = 0.6,
 
   GoForKill = false,
-  DoDoublejump = false
+  DoDoublejump = false,
   DoubleJumpHeight = 400, -- initialize
 }
 
