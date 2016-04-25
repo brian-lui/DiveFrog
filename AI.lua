@@ -10,15 +10,16 @@ AI.KillAngle = {
   FrogsonJ = 1.5
 	}
 
+
 function AI.Action(player, foe)
 	local sendjump = false
 	local sendattack = false
   local myfrog = ""
-
+  
   if player.fighter_name == "Konrad" then
     myfrog = AI.Konrad
   elseif player.fighter_name == "Mustachioed Jean" then
-    myfrog = AI.Konrad
+    myfrog = AI.Jean
   elseif player.fighter_name == "Sun Badfrog" then
     myfrog = AI.Konrad
   elseif player.fighter_name == "M. Frogson" then
@@ -53,6 +54,21 @@ function AI._inKillRange(player, foe, killangle, variance)
   return (angle < killangle) and player_above
 end
 
+function AI._inPlayersKillRange(player, foe, killangle, variance)
+	local v_adjust = math.random(-variance, variance)
+
+	local foe_foot = {foe.center, foe.pos[2] + foe.sprite_size[2]}
+	local player_target = {player.center, player.pos[2] + v_adjust}
+
+	local h_dist = math.abs(foe_foot[1] - player_target[1]) - 0.5 * player.sprite_size[1] - 0.5 * foe.sprite_size[1]
+	local v_dist = math.abs(foe_foot[2] - player_target[2])
+
+	local angle = h_dist / v_dist
+	local foe_above = foe.pos[2] < player.pos[2]
+
+	return (angle < killangle) and foe_above
+end
+
 function AI._isClose(player, foe, required_dist, variance)
   local dist_adjust = math.random(-variance, variance)
 
@@ -70,6 +86,26 @@ function AI._isClose(player, foe, required_dist, variance)
   local h_distance = math.abs(player_foot_h - foe_target_h)
 
   return h_distance < required_dist + dist_adjust
+end
+
+function AI._checkFoeAngle(foe_name) -- pass foe.fighter_name
+	local foekillangle = ""
+
+  if foe_name == "Konrad" then
+  	foekillangle = AI.KillAngle.Konrad
+  elseif foe_name == "Mustachioed Jean" then
+  	foekillangle = AI.KillAngle.Jean
+  elseif foe_name == "Sun Badfrog" then
+  	foekillangle = AI.KillAngle.Sun
+  elseif foe_name == "M. Frogson" and not foe.jackson_stance then
+  	foekillangle = AI.KillAngle.FrogsonB
+  elseif foe_name == "M. Frogson" and foe.jackson_stance then
+  	foekillangle = AI.KillAngle.FrogsonJ
+  else
+  	print("Enemy AI module not found") 
+  end
+  
+  return foekillangle
 end
 
 ------------------------------------KONRAD-------------------------------------
@@ -209,3 +245,167 @@ end
 
 --Something to check if the opponent is attacking at "will hit me" angle, then kick if so
 
+
+
+-------------------------------MUSTACHIOED JEAN--------------------------------
+AI.Jean = {
+  -- max height reached = v^2 / 2a (gives pixels above stage floor)
+  MAX_JUMP_HEIGHT = 466,
+  MIN_KICK_HEIGHT = stage.floor - 50,
+
+  FAR_JUMP = 0.7, -- otherwise dandy
+
+  HORIZONTAL_CLOSE = 175, -- pixels apart to go for kill
+  CLOSE_VARIANCE = 25, -- +/- X pixels from actual close
+
+  GAIN_METER = 0.9, -- every 6 frames, how often to kick for meter if conditions fulfilled
+
+  GO_FOR_KILL = 0.7, -- how often to go for kill
+  KILL_VARIANCE = 40, -- +/- X pixels from actual kill distance
+
+  DO_SOMETHING = 0.6,
+
+  DANDY_WHEN_CLOSE = 0.5, -- if not going for kill
+
+  MAX_DANDY_VEL = 10, -- don't pilebunker if horizontal velocity is higher than this
+  MAX_PILEBUNK_VEL = 10, -- don't YRC if horizontal velocity is higher than this
+
+  RANDOMLY_PILEBUNK = 0.1, -- chance to pilebunk regardless during dandy
+
+  AVOID_KILLRANGE = 0.5, -- chance to dandy (or YRC if dandying/pilebunking) if within enemy's kill range
+
+  GoForKill = false  
+}
+
+function AI.Jean.onGround(player, foe)
+  local near = AI._isClose(player, foe, AI.Jean.HORIZONTAL_CLOSE, AI.Jean.CLOSE_VARIANCE)
+
+  local rand = math.random()
+
+  if rand < AI.Jean.DO_SOMETHING then
+  	if player.dandy then
+  		return AI.Jean._dandying(player, foe)
+  	elseif player.pilebunking then
+  		return AI.Jean._pilebunking(player, foe)
+    elseif near then
+      return AI.Jean._nearGround(player, foe)
+    else
+      return AI.Jean._farGround(player, foe)
+    end
+  else
+    return false, false
+  end
+end
+
+function AI.Jean.inAir(player, foe)
+  local jump = false
+  local attack = false
+
+  if AI.Jean.GoForKill then
+    return AI.Jean._airKill(player, foe)
+  else
+    return AI.Jean._gainMeter(player, foe)
+  end
+end
+
+function AI.Jean._nearGround(player, foe)
+  local rand1 = math.random()
+  local rand2 = math.random()
+  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
+
+  if inenemyrange then
+  	return AI.Jean._underPressure(player, foe)
+  elseif rand1 < AI.Jean.GO_FOR_KILL then
+    AI.Jean.GoForKill = true
+    return true, false
+  elseif rand2 < AI.Jean.DANDY_WHEN_CLOSE then
+  	return false, true
+  else
+    return true, false
+  end
+end
+
+function AI.Jean._farGround(player, foe)
+  AI.Jean.GoForKill = false
+  local rand = math.random()    
+  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
+  
+  if inenemyrange then
+  	return AI.Jean._underPressure(player, foe)
+  elseif rand < AI.Jean.FAR_JUMP then
+    return true, false
+  else -- dandy
+    return false, true
+  end
+end
+
+function AI.Jean._airKill(player, foe)
+  local inrange = AI._inKillRange(player, foe, AI.KillAngle.Jean, AI.Jean.KILL_VARIANCE)
+  local rand = math.random()
+
+  if inrange then
+    AI.Jean.GoForKill = false
+    return false, true
+  else
+    return false, false
+  end  
+end
+
+function AI.Jean._gainMeter(player, foe)
+  local rand = math.random()
+  local abovekickheight = player.pos[2] + player.sprite_size[2] < AI.Jean.MIN_KICK_HEIGHT
+
+  if abovekickheight and rand < AI.Jean.GAIN_METER then
+    AI.Jean.GoForKill = false
+    return false, true
+  else
+    return false, false
+  end
+end
+
+function AI.Jean._underPressure(player, foe)
+	local rand = math.random()
+  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
+
+	if inenemyrange and rand < AI.Jean.AVOID_KILLRANGE then
+    return false, true
+	else
+		return false, false
+	end
+end
+
+function AI.Jean._dandying(player, foe)
+	local rand = math.random()
+	local rand2 = math.random()
+  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
+
+	if inenemyrange then
+		if rand < AI.Jean.AVOID_KILLRANGE then
+			return true, true
+		end
+	else
+		if foe.pos[2] + foe.sprite_size[2] > stage.floor - 150 then
+			return false, true
+		elseif rand2 < AI.Jean.RANDOMLY_PILEBUNK then
+			return false, true
+		else
+			return false, false
+		end
+	end
+end
+
+function AI.Jean._pilebunking(player, foe)
+	local rand = math.random()
+  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
+
+	if inenemyrange and math.abs(player.vel[1]) < MAX_DANDY_VEL and rand < AI.Jean.AVOID_KILLRANGE then
+		return true, true -- will do nothing if insufficient super meter
+	else
+		return false, false
+	end
+end

@@ -10,6 +10,7 @@ Jean = class('Jean', Fighter)
 function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.icon = love.graphics.newImage('images/Jean/JeanIcon.png')
+  self.superface = JeanSuperface
   self.win_portrait = love.graphics.newImage('images/Jean/JeanPortrait.png')
   self.win_quote = 'You must defeat "Wampire" to stand a chance.'
   self.fighter_name = "Mustachioed Jean"

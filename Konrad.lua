@@ -11,6 +11,7 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.fighter_name = "Konrad"
   self.icon = love.graphics.newImage('images/Konrad/KonradIcon.png')
+  self.superface = KonradSuperface
   self.win_portrait = love.graphics.newImage('images/Konrad/KonradPortrait.png')
   self.win_quote = "You have been defeated by Konrad the \ntalking frog with a cape who plays poker."
   self.stage_background = love.graphics.newImage('images/Konrad/KonradBackground.jpg')

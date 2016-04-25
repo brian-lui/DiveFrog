@@ -115,6 +115,32 @@ function drawMidline() -- when low on time
   end
 end
 
+function drawPost2Buffer()
+  if post2buffer[frame] then
+    love.graphics.push("all")
+      for index, _ in pairs(post2buffer[frame]) do
+        post2buffer[frame][index][12] = post2buffer[frame][index][12] or COLOR.WHITE
+        love.graphics.setColor(post2buffer[frame][index][12]) -- 12 is RGB table
+        love.graphics.draw(unpack(post2buffer[frame][index]))
+      end
+    love.graphics.pop()
+  end
+  post2buffer[frame] = nil
+end
+
+function drawPost3Buffer()
+  if post3buffer[frame] then
+    love.graphics.push("all")
+      for index, _ in pairs(post3buffer[frame]) do
+        post3buffer[frame][index][12] = post3buffer[frame][index][12] or COLOR.WHITE
+        love.graphics.setColor(post3buffer[frame][index][12]) -- 12 is RGB table
+        love.graphics.draw(unpack(post3buffer[frame][index]))
+      end
+    love.graphics.pop()
+  end
+  post2buffer[frame] = nil
+end
+
 function drawPrebuffer()
   if prebuffer[frame] then
     love.graphics.push("all")
@@ -272,7 +298,16 @@ function drawOverlays()
     _drawOverlayPlayerIcons(side, op)
     _drawOverlaySuperBars(side, op)
   end
+
 end
+
+function drawOverlays2()
+  love.graphics.clear()
+
+  drawPost2Buffer()
+  drawPost3Buffer()
+end
+
 
 function drawRoundStart() -- start of round overlays
   local frames_elapsed = frame - frame0
@@ -299,11 +334,6 @@ function drawRoundStart() -- start of round overlays
     love.graphics.push("all")
       love.graphics.setColor(COLOR.ORANGE)
       
-      -- countdown timer
-      love.graphics.setFont(FONT.ROUND_START_COUNTDOWN)
-      local countdown = (90 - frames_elapsed) * 17
-      love.graphics.printf(countdown, 0, 290, window.width, "center")
-
       -- round
       love.graphics.setFont(FONT.ROUND_START)
       if frames_elapsed > 80 then
@@ -332,7 +362,7 @@ function drawRoundStart() -- start of round overlays
       local top_text = ROUND_START_FLAVOR[flavor_rand.top].TOP
       local bottom_text = ROUND_START_FLAVOR[flavor_rand.bottom].BOTTOM
       love.graphics.printf(top_text, h_text1, 205, window.width, "center")
-      love.graphics.printf(bottom_text, h_text2, 325, window.width, "center")
+      love.graphics.printf(bottom_text, h_text2, 290, window.width, "center")
       
     love.graphics.pop()
   end
@@ -414,5 +444,14 @@ function drawMatchEnd() -- end of the match (not end of the round)
       love.graphics.setColor(0, 0, 0, fadein)
       love.graphics.rectangle("fill", 0, 0, stage.width, stage.height) 
     love.graphics.pop()
+  end
+end
+
+function drawSuperOverlays(facing, frogface)
+  for i = 0, 44 do
+    local h_shift = -200 + math.sin(i / 38) * 400
+    SuperProfile:repeatLoad(window.center, 200, h_shift, 0, facing, i, "post2")
+    local frog_shift = -400 + math.sin(i / 38) * 400
+    frogface:repeatLoad(window.center, 200, frog_shift, 0, facing, i, "post3")
   end
 end

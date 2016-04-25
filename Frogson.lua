@@ -11,6 +11,7 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.fighter_name = "M. Frogson"
   self.icon = love.graphics.newImage('images/Frogson/FrogsonIcon.png')
+  self.superface = FrogsonSuperface
   self.win_portrait = love.graphics.newImage('images/Frogson/FrogsonPortrait.png')
   self.win_quote = "Thanks."
   self.stage_background = love.graphics.newImage('images/Frogson/FrogsonBackground.jpg')

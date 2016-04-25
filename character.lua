@@ -77,6 +77,7 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   -- images
   self.icon = dummypic -- corner portrait icon
   self.win_portrait = dummypic -- win stage large portrait
+  self.superface = dummypic
   self.stage_background = dummypic
   self.image = dummypic -- Entire tiled image
   self.image_size = {2, 2}
@@ -128,6 +129,7 @@ function Fighter:init2(init_player, init_foe, init_super, init_dizzy, init_score
   self.pos[1] = self.start_pos[1]
   self.pos[2] = self.start_pos[2]
   self.center = self.pos[1] + 0.5 * self.sprite_size[1]
+  self.v_center = self.pos[2] + 0.5 * self.sprite_size[2]
   self.width = self.sprite_size[1]
   self.height = self.sprite_size[2]
   self.h_mid = self.sprite_size[1] / 2
@@ -581,13 +583,14 @@ end
 function Fighter:updateSuper()
   if self.super >= 96 then
     self.super = 95.999
+    drawSuperOverlays(self.facing, self.superface)
     writeSound(super_sfx)
     self.isSupering = true
     self.vel_multiple = self.vel_multiple_super
-    game.superfreeze_time = 60
+    game.superfreeze_time = 45
     game.superfreeze_player = self
-    p1:setFrozen(60)
-    p2:setFrozen(60)
+    p1:setFrozen(game.superfreeze_time)
+    p2:setFrozen(game.superfreeze_time)
   end
 
   if self.isSupering and not (self.isKO or self.hasWon) then

@@ -20,6 +20,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
 
   -- images
   self.icon = love.graphics.newImage('images/Sun/SunIcon.png')
+  self.superface = SunSuperface
   self.win_portrait = love.graphics.newImage('images/Sun/SunPortrait.png')
   self.stage_background = love.graphics.newImage('images/Sun/SunBackground.jpg')
   self.image = love.graphics.newImage('images/Sun/SunTiles.png')
@@ -364,14 +365,14 @@ function Sun:updateSuper()
     writeSound(super_sfx)
     self.isSupering = true
     self.vel_multiple = self.vel_multiple_super
-    game.superfreeze_time = 60
+    game.superfreeze_time = 45
     game.superfreeze_player = self
-    p1:setFrozen(100)
-    p2:setFrozen(100)
+    p1:setFrozen(game.superfreeze_time)
+    p2:setFrozen(game.superfreeze_time)
     pauseBGM()
     setBGM2(self.aura_BGM)
     writeSound(self.radio_sfx)
-    game.background_color = {255, 128, 128, 255}
+    game.background_color = {255, 100, 100, 255}
   end
 
   if self.isSupering then

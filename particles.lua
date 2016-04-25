@@ -57,7 +57,13 @@ function Particle:repeatLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing
   draw_count = draw_count + 1
   local delay = delay_time or 0
   local buffer = postbuffer
-  if layer == "pre" then buffer = prebuffer end
+  if layer == "pre" then
+    buffer = prebuffer
+  elseif layer == "post2" then
+    buffer = post2buffer
+  elseif layer == "post3" then
+    buffer = post3buffer
+  end
 
   local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
   buffer[frame + delay] = buffer[frame + delay] or {}
@@ -73,7 +79,13 @@ function Particle:singleLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing
   draw_count = draw_count + 1
   local delay = delay_time or 0
   local buffer = postbuffer
-  if layer == "pre" then buffer = prebuffer end
+  if layer == "pre" then
+    buffer = prebuffer
+  elseif layer == "post2" then
+    buffer = post2buffer
+  elseif layer == "post3" then
+    buffer = post3buffer
+  end
 
   for i = (frame + delay), (frame + delay + self.total_time) do
     local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
@@ -121,6 +133,8 @@ SuperBarBase = Particle:new(love.graphics.newImage('images/SuperBarBase.png'),
   {196, 19}, {196, 19}, 1)
 SuperMeter = Particle:new(love.graphics.newImage('images/SuperMeter.png'), 
   {192, 120}, {192, 15}, 8)
+SuperProfile = Particle:new(love.graphics.newImage('images/SuperProfile.png'), 
+  {1200, 200}, {1200, 200}, 1)
 ------------------------------ COMMON PARTICLES -------------------------------
 Mugshot = Particle:new(love.graphics.newImage('images/Mugshot.png'),
   {600, 140}, {600, 140}, 60, "Mugshot.ogg")
@@ -140,6 +154,7 @@ Explosion2 = Particle:new(love.graphics.newImage('images/Explosion2.png'),
   {880, 80}, {80, 80}, 3, "Explosion.ogg")
 Explosion3 = Particle:new(love.graphics.newImage('images/Explosion3.png'), 
   {880, 80}, {80, 80}, 3, "Explosion.ogg")
+
 
 ------------------------------- SPEECH BUBBLES --------------------------------
 SpeechBubblePow = Particle:new(love.graphics.newImage('images/SpeechBubbles/Pow.png'), 
@@ -166,12 +181,16 @@ SpeechBubbleClunk = Particle:new(love.graphics.newImage('images/SpeechBubbles/Cl
   {160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
 
 ----------------------------------- KONRAD ------------------------------------
+KonradSuperface = Particle:new(love.graphics.newImage('images/Konrad/KonradSuperface.png'), 
+  {275, 200}, {275, 200}, 1)
 HyperKickFlames = Particle:new(love.graphics.newImage('images/Konrad/HyperKickFlames.png'), 
   {800, 200}, {200, 200}, 2, "Konrad/KonradHyperKick.ogg")
 DoubleJumpDust = Particle:new(love.graphics.newImage('images/Konrad/DoubleJumpDust.png'), 
   {162, 43}, {54, 43}, 4, "Konrad/KonradDoubleJump.ogg", {255, 255, 255, 196})
 
 -------------------------------- SUN BADFROG ----------------------------------
+SunSuperface = Particle:new(love.graphics.newImage('images/Sun/SunSuperface.png'), 
+  {275, 200}, {275, 200}, 1)
 SunAura = Particle:new(love.graphics.newImage('images/Sun/Aura.png'), 
   {800, 250}, {200, 250}, 6)
 Hotflame = Particle:new(love.graphics.newImage('images/Sun/HotflameFX.png'), 
@@ -180,5 +199,11 @@ Hotterflame = Particle:new(love.graphics.newImage('images/Sun/HotterflameFX.png'
   {300, 252}, {150, 252}, 4, "Sun/Hotterflame.ogg")
 
 --------------------------------- M. FROGSON ----------------------------------
+FrogsonSuperface = Particle:new(love.graphics.newImage('images/Frogson/FrogsonSuperface.png'), 
+  {275, 200}, {275, 200}, 1)
 ScreenFlash = Particle:new(love.graphics.newImage('images/Frogson/Flash.png'),
   {1200, 800}, {1200, 800}, 4)
+
+------------------------------ MUSTACHIOED JEAN -------------------------------
+JeanSuperface = Particle:new(love.graphics.newImage('images/Jean/JeanSuperface.png'), 
+  {275, 200}, {275, 200}, 1)

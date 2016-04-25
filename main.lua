@@ -2,6 +2,7 @@ require 'lovedebug'
 require 'utilities' -- helper functions
 require 'camera'
 require 'draw'
+-- require 'strict' this conflicts with lovedebug
 json = require 'dkjson'
 class = require 'middleclass' -- class support
 stage = require 'stage'  -- total playing field area
@@ -28,13 +29,14 @@ charselect_sfx = "CharSelectSFX.ogg"
 charselected_sfx = "CharSelectedSFX.ogg"
 
 -- build screen
-love.window.setMode(window.width, window.height, { borderless = true })
-love.window.setTitle("Divefrog")
+love.window.setMode(window.width, window.height)
+love.window.setTitle("Divefrog the fighting game sensation")
 
 -- build canvas layers
 canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
 canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
 canvas_background = love.graphics.newCanvas(stage.width, stage.height)
+canvas_super = love.graphics.newCanvas(stage.width, stage.height)
 
 function love.load()
   game = {
@@ -63,6 +65,8 @@ function love.load()
   keybuffer = {false, false, false, false} -- log of all keystates during the round. Useful for netplay!
   prebuffer = {} -- pre-load draw instruction into future frames behind sprite
   postbuffer = {} -- pre-load draw instructions into future frames over sprite
+  post2buffer = {}
+  post3buffer = {}
   soundbuffer = {} -- pre-load sound effects into future frames
   camera_xy = {} -- top left window corner for camera and window drawing
   debug = {boxes = false, sprites = false, midpoints = false, camera = false,	keybuffer = false}
@@ -80,9 +84,11 @@ function love.draw()
     canvas_overlays:renderTo(drawOverlays)
     canvas_overlays:renderTo(drawRoundStart)
     canvas_overlays:renderTo(drawRoundEnd)
+    
+    canvas_super:renderTo(drawOverlays2)
 
   		test.t3 = love.timer.getTime()
-    camera:scale(1 / camera_scale_factor, 1 / camera_scale_factor)
+    --camera:scale(1 / camera_scale_factor, 1 / camera_scale_factor)
 
     camera:set(0.5, 1)
     love.graphics.draw(canvas_background)
@@ -91,18 +97,23 @@ function love.draw()
   		test.t4 = love.timer.getTime()
     camera:set(1, 1)
     love.graphics.draw(canvas_sprites)
+
     if debug.boxes then drawDebugHurtboxes() end 
     if debug.sprites then drawDebugSprites() end 
     camera:unset()
 
   		test.t5 = love.timer.getTime()
     camera:set(0, 0)
-    if game.superfreeze_time == 0 then love.graphics.draw(canvas_overlays) end
+    
+    love.graphics.draw(canvas_overlays)
+
+    love.graphics.draw(canvas_super)
+
     if debug.midpoints then drawMidPoints() end
     camera:unset()
 
   		test.t6 = love.timer.getTime()
-    camera:scale(camera_scale_factor, camera_scale_factor)
+    --camera:scale(camera_scale_factor, camera_scale_factor)
 
     if debug.camera then print(unpack(camera_xy)) end
     if debug.keybuffer then print(unpack(keybuffer[frame])) end
@@ -161,7 +172,9 @@ function love.update(dt)
 
     -- tweening for scale and camera position
     else
-    	camera_xy_temp = camera_xy_temp or camera_xy
+      game.superfreeze_time = game.superfreeze_time - 1
+      -- obsolete tweening for zoom in. We're using orange bar now
+    	--[[camera_xy_temp = camera_xy_temp or camera_xy
 
       camera_scale_factor = camera_scale_factor * 1.015
       if camera_scale_factor > 2 then camera_scale_factor = 2 end
@@ -174,11 +187,12 @@ function love.update(dt)
       camera_xy_temp[1] = h_tween
       camera_xy_temp[2] = v_tween
 
-      game.superfreeze_time = game.superfreeze_time - 1
+      
       if game.superfreeze_time == 0 then
       	camera_xy_temp = nil
       	camera_scale_factor = 1
       end
+      --]]
     end
 
     if not round_ended and not (p1.frozenFrames > 0 and p2.frozenFrames > 0) then
@@ -310,6 +324,8 @@ function newRound()
   keybuffer = {false, false, false, false}
   prebuffer = {}
   postbuffer = {}
+  post2buffer = {}
+  post3buffer = {}
   soundbuffer = {}
 	camera_xy_temp = nil
 	camera_scale_factor = 1
