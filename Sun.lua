@@ -372,6 +372,7 @@ function Sun:updateSuper()
     pauseBGM()
     setBGM2(self.aura_BGM)
     writeSound(self.radio_sfx)
+    drawSuperOverlays(self.facing, self.superface)
     game.background_color = {255, 100, 100, 255}
   end
 
