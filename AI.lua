@@ -88,18 +88,18 @@ function AI._isClose(player, foe, required_dist, variance)
   return h_distance < required_dist + dist_adjust
 end
 
-function AI._checkFoeAngle(foe_name) -- pass foe.fighter_name
+function AI._checkFoeAngle(foe) -- pass foe.fighter_name
 	local foekillangle = ""
 
-  if foe_name == "Konrad" then
+  if foe.fighter_name == "Konrad" then
   	foekillangle = AI.KillAngle.Konrad
-  elseif foe_name == "Mustachioed Jean" then
+  elseif foe.fighter_name == "Mustachioed Jean" then
   	foekillangle = AI.KillAngle.Jean
-  elseif foe_name == "Sun Badfrog" then
+  elseif foe.fighter_name == "Sun Badfrog" then
   	foekillangle = AI.KillAngle.Sun
-  elseif foe_name == "M. Frogson" and not foe.jackson_stance then
+  elseif foe.fighter_name == "M. Frogson" and not foe.jackson_stance then
   	foekillangle = AI.KillAngle.FrogsonB
-  elseif foe_name == "M. Frogson" and foe.jackson_stance then
+  elseif foe.fighter_name == "M. Frogson" and foe.jackson_stance then
   	foekillangle = AI.KillAngle.FrogsonJ
   else
   	print("Enemy AI module not found") 
@@ -253,9 +253,9 @@ AI.Jean = {
   MAX_JUMP_HEIGHT = 466,
   MIN_KICK_HEIGHT = stage.floor - 50,
 
-  FAR_JUMP = 0.7, -- otherwise dandy
+  FAR_JUMP = 0.85, -- otherwise dandy
 
-  HORIZONTAL_CLOSE = 175, -- pixels apart to go for kill
+  HORIZONTAL_CLOSE = 150, -- pixels apart to go for kill
   CLOSE_VARIANCE = 25, -- +/- X pixels from actual close
 
   GAIN_METER = 0.9, -- every 6 frames, how often to kick for meter if conditions fulfilled
@@ -263,16 +263,16 @@ AI.Jean = {
   GO_FOR_KILL = 0.7, -- how often to go for kill
   KILL_VARIANCE = 40, -- +/- X pixels from actual kill distance
 
-  DO_SOMETHING = 0.6,
+  DO_SOMETHING = 0.7,
 
-  DANDY_WHEN_CLOSE = 0.5, -- if not going for kill
+  DANDY_WHEN_CLOSE = 0.6, -- if not going for kill
 
-  MAX_DANDY_VEL = 10, -- don't pilebunker if horizontal velocity is higher than this
-  MAX_PILEBUNK_VEL = 10, -- don't YRC if horizontal velocity is higher than this
+  MAX_DANDY_VEL = 18, -- don't pilebunker if horizontal velocity is higher than this
+  MAX_PILEBUNK_VEL = 18, -- don't YRC if horizontal velocity is higher than this
 
-  RANDOMLY_PILEBUNK = 0.1, -- chance to pilebunk regardless during dandy
+  RANDOMLY_PILEBUNK = 0.07, -- chance to pilebunk regardless during dandy
 
-  AVOID_KILLRANGE = 0.5, -- chance to dandy (or YRC if dandying/pilebunking) if within enemy's kill range
+  AVOID_KILLRANGE = 0.65, -- chance to dandy (or YRC if dandying/pilebunking) if within enemy's kill range
 
   GoForKill = false  
 }
@@ -311,7 +311,7 @@ end
 function AI.Jean._nearGround(player, foe)
   local rand1 = math.random()
   local rand2 = math.random()
-  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local enemyangle = AI._checkFoeAngle(foe)
   local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
 
   if inenemyrange then
@@ -329,7 +329,7 @@ end
 function AI.Jean._farGround(player, foe)
   AI.Jean.GoForKill = false
   local rand = math.random()    
-  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local enemyangle = AI._checkFoeAngle(foe)
   local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
   
   if inenemyrange then
@@ -367,7 +367,7 @@ end
 
 function AI.Jean._underPressure(player, foe)
 	local rand = math.random()
-  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local enemyangle = AI._checkFoeAngle(foe)
   local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
 
 	if inenemyrange and rand < AI.Jean.AVOID_KILLRANGE then
@@ -380,7 +380,7 @@ end
 function AI.Jean._dandying(player, foe)
 	local rand = math.random()
 	local rand2 = math.random()
-  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local enemyangle = AI._checkFoeAngle(foe)
   local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
 
 	if inenemyrange then
@@ -400,10 +400,10 @@ end
 
 function AI.Jean._pilebunking(player, foe)
 	local rand = math.random()
-  local enemyangle = AI._checkFoeAngle(foe.fighter_name)
+  local enemyangle = AI._checkFoeAngle(foe)
   local inenemyrange = AI._inPlayersKillRange(player, foe, enemyangle, AI.Jean.KILL_VARIANCE)
 
-	if inenemyrange and math.abs(player.vel[1]) < MAX_DANDY_VEL and rand < AI.Jean.AVOID_KILLRANGE then
+	if inenemyrange and math.abs(player.vel[1]) < AI.Jean.MAX_DANDY_VEL and rand < AI.Jean.AVOID_KILLRANGE then
 		return true, true -- will do nothing if insufficient super meter
 	else
 		return false, false
