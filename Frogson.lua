@@ -127,7 +127,7 @@ end
       self:updateImage(6)
       self.current_hurtboxes = self.hurtboxes_antigravity
       self.current_hitboxes = self.hitboxes_antigravity
-      self.lean_frames = 20
+      self.lean_frames = 10
       self.jackson_stance = not self.jackson_stance
       self.isAttacking = true
     end
@@ -161,7 +161,7 @@ end
         JumpDust:singleLoad(self.center, self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
         
         if self.jackson_stance then
-        	self:jump(0, 9, self.default_gravity * 0.5)
+        	self:jump(0, 9, self.default_gravity * 0.6)
         else
         	self:jump(0, 14, self.default_gravity)
         end
@@ -171,10 +171,10 @@ end
         
         
         if self.jackson_stance then
-        	self:attack_jackson(6, 4)
+        	self:attack_jackson(10, 6)
         	writeSound(self.attack_jackson_sfx)
         else
-        	self:attack_bison(6, 11)
+        	self:attack_bison(8, 12)
         	writeSound(self.attack_bison_sfx)
         end
       end

@@ -89,11 +89,12 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
   self.BGM = "SunTheme.ogg"
   self.aura_BGM = "SunAuraCrackle.ogg"
   self.jump_sfx = "Sun/SunJump.ogg"
-  self.got_hit_sfx = "Sun/SolKO.ogg"
+  self.got_hit_sfx = "Sun/Deathcry.ogg"
   self.hit_sound_sfx = "Potatoes.ogg"
   self.hotflame_sfx = "Sun/HotflameVocals.ogg"
   self.hotterflame_sfx = "Sun/HotterflameVocals.ogg"
-  self.radio_sfx = "Sun/SolDragonInstall.ogg"
+  self.radio_sfx = "Sun/Radio.ogg"
+  self.attack_sfx = "Sun/Teyah.ogg"
 
   self.hotflametime = {0, 0, 0, 0, 0}
   self.hotterflametime = 0
@@ -211,6 +212,7 @@ function Sun:stateCheck()
     if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
       self:attack(5, 11)
+      writeSound(self.attack_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Kickback" then
       self.waiting_state = ""
@@ -371,7 +373,7 @@ function Sun:updateSuper()
     p2:setFrozen(game.superfreeze_time)
     pauseBGM()
     setBGM2(self.aura_BGM)
-    writeSound(self.radio_sfx)
+    writeSound(self.radio_sfx, 10)
     drawSuperOverlays(self.facing, self.superface)
     game.background_color = {255, 100, 100, 255}
   end
