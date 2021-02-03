@@ -49,7 +49,7 @@ function Particle:_getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBT
 end
 
 function Particle:playSound(delay_time)
-  writeSound(self.sound, delay_time)
+  sound.writeSound(self.sound, delay_time)
 end
 
 -- called each frame while condition is valid

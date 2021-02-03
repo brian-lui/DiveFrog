@@ -8,7 +8,7 @@ title_controls_background = love.graphics.newImage('images/Title/TitleControlsBk
 titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
 
 default_selections = {title = 1, player1P = 1, AI1P = 1, player12P = 1, player22P = 2}
-if love.filesystem.exists("choices.txt") then
+if love.filesystem.getInfo("choices.txt") then
   local choices_string = love.filesystem.read("choices.txt")
   default_selections = json.decode(choices_string)
 else

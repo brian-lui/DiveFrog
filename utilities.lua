@@ -43,15 +43,6 @@ function check_got_hit(getting_hit, attacker)
   return gothit
 end
 
-function writeSound(SFX, delay_time)
-  local delay = delay_time or 0
-  local write_frame = frame + delay
-  while soundbuffer[write_frame] do
-    write_frame = write_frame + 1
-  end
-  soundbuffer[write_frame] = SFX
-end
-
 function drawDebugSprites()
   for side, op in pairs(Players) do
     love.graphics.line(side.center, 0, side.center, stage.height)

@@ -241,7 +241,7 @@ function Fighter:attack(h_vel, v_vel)
   self.current_hitboxes = self.hitboxes_attacking
   if self.super < 96 and not self.isSupering then 
     self.super = math.min(self.super + 8, 96)
-    if self.super == 96 then writeSound(super_sfx) end
+    if self.super == 96 then sound.writeSound(super_sfx) end
   end
 end
 
@@ -249,7 +249,7 @@ function Fighter:air_special()
   if self.super >= 16 and not self.isSupering then
     self.super = self.super - 16
     self.waiting_state = ""
-    writeSound(self.air_special_sfx)
+    sound.writeSound(self.air_special_sfx)
   end
 end
 
@@ -257,7 +257,7 @@ function Fighter:ground_special()
   if self.super >= 16 and not self.isSupering then
     self.super = self.super - 16
     self.waiting_state = ""
-    writeSound(self.ground_special_sfx)
+    sound.writeSound(self.ground_special_sfx)
   end
 end
 
@@ -294,7 +294,7 @@ function Fighter:gotHit(type_table) -- execute this one time, when character get
     self.super = 0
     self.isSupering = false
   end
-  writeSound(self.hit_sound_sfx)
+  sound.writeSound(self.hit_sound_sfx)
 end
 
 function Fighter:gotKOed() -- keep calling this until self.isKO is false
@@ -315,7 +315,7 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
     game.isScreenShaking = false
     self.gravity = 2
     if self.facing == 1 then self.vel[1] = -10 else self.vel[1] = 10 end
-    writeSound(self.got_hit_sfx) 
+    sound.writeSound(self.got_hit_sfx) 
 
     if self.hitflag.Wallsplat then
       self.vel[1] = self.facing * -40
@@ -418,7 +418,7 @@ function Fighter:victoryPose() -- keep calling this if self.hasWon is true
   end
 
   if frame - round_end_frame == 60 then
-    if currentBGM2:isPaused() then currentBGM2:play() else currentBGM:play() end
+    if not currentBGM2:isPlaying() then currentBGM2:play() else currentBGM:play() end
   end
 
   if frame - round_end_frame > 60 then
@@ -584,7 +584,7 @@ function Fighter:updateSuper()
   if self.super >= 96 then
     self.super = 95.999
     drawSuperOverlays(self.facing, self.superface)
-    writeSound(super_sfx)
+    sound.writeSound(super_sfx)
     self.isSupering = true
     self.vel_multiple = self.vel_multiple_super
     game.superfreeze_time = 45
@@ -613,17 +613,17 @@ function Fighter:stateCheck()
     if self.waiting == 0 and self.waiting_state == "Jump" then
       self.waiting_state = ""
       self:jump(0, 12)
-      writeSound(self.jump_sfx)
+      sound.writeSound(self.jump_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
       self:attack(6, 8)
-      writeSound(self.attack_sfx)
+      sound.writeSound(self.attack_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Kickback" then
       self.waiting_state = ""
       self:kickback(-6, 6)
-      writeSound(self.jump_sfx)
+      sound.writeSound(self.jump_sfx)
     end
   end
 --]]

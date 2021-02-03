@@ -1,12 +1,12 @@
-currentBGM = love.audio.newSource("sounds/dummy.ogg")
-currentBGM2 = love.audio.newSource("sounds/dummy.ogg")
+currentBGM = love.audio.newSource("sounds/dummy.ogg", "stream")
+currentBGM2 = love.audio.newSource("sounds/dummy.ogg", "stream")
 
 function setBGM(filename)
   if currentBGM then currentBGM:stop() end
   currentBGM = love.audio.newSource("music/" .. filename, "stream")
   currentBGM:setVolume(0.9 * Params.Music)
   currentBGM:setLooping(true)
-  currentBGM:rewind()
+  currentBGM:stop()
   currentBGM:play()
 end
 
@@ -32,7 +32,7 @@ function setBGM2(filename)
   currentBGM2 = love.audio.newSource("music/" .. filename, "stream")
   currentBGM2:setVolume(0.9 * Params.Music)
   currentBGM2:setLooping(true)
-  currentBGM2:rewind()
+  currentBGM2:stop()
   currentBGM2:play()
 end
 
@@ -51,11 +51,3 @@ end
 function setBGM2speed(speed)
   currentBGM2:setPitch(speed)
 end
-
-currentSFX = nil
-function playSFX(filename)
-	currentSFX = love.audio.newSource("sounds/" .. filename)
-	currentSFX:setVolume(Params.Sound)
-	currentSFX:play()
-end
-

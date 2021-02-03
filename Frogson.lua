@@ -110,7 +110,7 @@ end
       self.super = self.super - 12
       self.isAttacking = true
       self.waiting_state = ""
-      writeSound(self.wow_sfx)
+      sound.writeSound(self.wow_sfx)
       self.vel = {0, 0}
       self.wow_frames = 20
       self:updateImage(7)
@@ -123,7 +123,7 @@ end
     if self.super >= 8 then
       self.super = self.super - 4
       self.waiting_state = ""
-      writeSound(self.antigravity_sfx)
+      sound.writeSound(self.antigravity_sfx)
       self:updateImage(6)
       self.current_hurtboxes = self.hurtboxes_antigravity
       self.current_hitboxes = self.hitboxes_antigravity
@@ -157,7 +157,7 @@ end
       self.waiting = self.waiting - 1
       if self.waiting == 0 and self.waiting_state == "Jump" then
         self.waiting_state = ""
-        writeSound(self.jump_sfx)
+        sound.writeSound(self.jump_sfx)
         JumpDust:singleLoad(self.center, self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
         
         if self.jackson_stance then
@@ -172,10 +172,10 @@ end
         
         if self.jackson_stance then
         	self:attack_jackson(10, 6)
-        	writeSound(self.attack_jackson_sfx)
+        	sound.writeSound(self.attack_jackson_sfx)
         else
         	self:attack_bison(8, 12)
-        	writeSound(self.attack_bison_sfx)
+        	sound.writeSound(self.attack_bison_sfx)
         end
       end
 
@@ -183,9 +183,9 @@ end
         self.waiting_state = ""
         self:moonwalk(30, 4)
         if self.jackson_stance then
-        	writeSound(self.moonwalk1_sfx)
+        	sound.writeSound(self.moonwalk1_sfx)
         else
-        	writeSound(self.moonwalk2_sfx)
+        	sound.writeSound(self.moonwalk2_sfx)
         end
         self.jackson_stance = not self.jackson_stance
       end
@@ -209,7 +209,7 @@ end
 	  self.current_hitboxes = self.hitboxes_attacking_bison
 	  if self.super < 96 and not self.isSupering then 
 	    self.super = math.min(self.super + 8, 96)
-	    if self.super == 96 then writeSound(super_sfx) end
+	    if self.super == 96 then sound.writeSound(super_sfx) end
 	  end
 	end
 
@@ -222,7 +222,7 @@ end
 	  self.current_hitboxes = self.hitboxes_attacking_jackson
 	  if self.super < 96 and not self.isSupering then 
 	    self.super = math.min(self.super + 12, 96)
-	    if self.super == 96 then writeSound(super_sfx) end
+	    if self.super == 96 then sound.writeSound(super_sfx) end
 	  end
 	end
 

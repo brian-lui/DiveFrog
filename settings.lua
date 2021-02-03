@@ -32,7 +32,7 @@ settings_table = {
 -- load settings
 settings_options = {Rounds = 3, Timer = 2, Speed = 1, Music = 3, Sound = 3}
 
-if love.filesystem.exists("settings.txt") then
+if love.filesystem.getInfo("settings.txt") then
   local settings_string = love.filesystem.read("settings.txt")
   settings_options = json.decode(settings_string)
 else
@@ -41,7 +41,7 @@ end
 
 -- load controls
 buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
-if love.filesystem.exists("controls.txt") then
+if love.filesystem.getInfo("controls.txt") then
   local controls_string = love.filesystem.read("controls.txt")
   buttons = json.decode(controls_string)
 else
@@ -59,15 +59,15 @@ Params = {
 function setupReceiveKeypress(key)
   if settings_popup_window == "" then
     if key == buttons.p1attack or key == "right" or key == "return" then
-      playSFX(charselected_sfx)
+      sound.playCharSelectSFX()
       settings_choices.action[settings_choices.option]()
     
     elseif key == buttons.p1jump or key == "down" then
-      playSFX(charselect_sfx)
+      sound.playCharSelectSFX()
       settings_choices.option = settings_choices.option % #settings_choices.menu + 1
 
     elseif key == "up" then
-      playSFX(charselect_sfx)
+      sound.playCharSelectSFX()
       settings_choices.option = (settings_choices.option - 2) % #settings_choices.menu + 1
     end
 
@@ -82,7 +82,7 @@ function setupReceiveKeypress(key)
 
     else  
       if key == buttons.p1attack or key == "right" or key == "return" then
-        playSFX(charselected_sfx)
+        sound.playCharSelectSFX()
 
         if controls_choices.key[controls_choices.option] == "Back" then
           settings_popup_window = ""
@@ -91,11 +91,11 @@ function setupReceiveKeypress(key)
         end
 
       elseif key == buttons.p1jump or key == "down" then
-        playSFX(charselect_sfx)
+        sound.playCharSelectSFX()
         controls_choices.option = controls_choices.option % #controls_choices.key + 1
 
       elseif key == "up" then
-        playSFX(charselect_sfx)
+        sound.playCharSelectSFX()
         controls_choices.option = (controls_choices.option - 2) % #controls_choices.key + 1        
 
       elseif key == "left" then
@@ -108,15 +108,15 @@ function setupReceiveKeypress(key)
     for k, v in pairs(settings_table) do
       if settings_popup_window == k then
         if key == buttons.p1attack or key == "return" then
-          playSFX(charselected_sfx)
+          sound.playCharSelectSFX()
           settings_popup_window = ""
 
         elseif key == buttons.p1jump or key == "down" then
-          playSFX(charselect_sfx)
+          sound.playCharSelectSFX()
           settings_options[k] = settings_options[k] % #settings_table[k] + 1 
 
         elseif key == "up" then
-          playSFX(charselect_sfx)
+          sound.playCharSelectSFX()
           settings_options[k] = (settings_options[k] - 2) % #settings_table[k] + 1 
         end
       end

@@ -159,13 +159,13 @@ function Sun:ground_special()
       self.super = self.super - 8
       self.hotflametime = {50, 0, 0, 0, 0} -- "low quality" way to implement (50 - 30) frame delay
       Hotflame:playSound() -- flamey sounds
-      writeSound(self.hotflame_sfx)
+      sound.writeSound(self.hotflame_sfx)
       self.recovery = 45
     elseif self.isSupering and self.life > 25 then
       self.life = self.life - 20
       self.hotterflametime = 40
       Hotterflame:playSound() -- big flamey sound
-      writeSound(self.hotterflame_sfx)
+      sound.writeSound(self.hotterflame_sfx)
       self.recovery = 15
     end
   end
@@ -193,7 +193,7 @@ function Sun:air_special()
   if self.super >= 8 and self:getNeutral() and v_distance > 100 then
     if not self.isSupering then self.super = self.super - 8 end
     self.waiting_state = ""
-    --writeSound(self.air_special_sfx)
+    --sound.writeSound(self.air_special_sfx)
     self.gravity = 0
     self.vel[1] = -60 * self.facing
     self.vel[2] = v_distance / 30
@@ -207,17 +207,17 @@ function Sun:stateCheck()
     if self.waiting == 0 and self.waiting_state == "Jump" then
       self.waiting_state = ""
       self:jump(0, 15)
-      writeSound(self.jump_sfx)
+      sound.writeSound(self.jump_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
       self:attack(5, 11)
-      writeSound(self.attack_sfx)
+      sound.writeSound(self.attack_sfx)
     end
     if self.waiting == 0 and self.waiting_state == "Kickback" then
       self.waiting_state = ""
       self:kickback(-4, 7)
-      writeSound(self.jump_sfx)
+      sound.writeSound(self.jump_sfx)
     end
   end
 end
@@ -364,7 +364,7 @@ end
 function Sun:updateSuper()
   if self.super >= 96 then
     self.super = 95.999
-    writeSound(super_sfx)
+    sound.writeSound(super_sfx)
     self.isSupering = true
     self.vel_multiple = self.vel_multiple_super
     game.superfreeze_time = 45
@@ -373,7 +373,7 @@ function Sun:updateSuper()
     p2:setFrozen(game.superfreeze_time)
     pauseBGM()
     setBGM2(self.aura_BGM)
-    writeSound(self.radio_sfx, 10)
+    sound.writeSound(self.radio_sfx, 10)
     drawSuperOverlays(self.facing, self.superface)
     game.background_color = {255, 100, 100, 255}
   end
