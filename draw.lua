@@ -1,3 +1,4 @@
+local stage = require 'stage'
 particles = require 'particles'
 
 -- load images

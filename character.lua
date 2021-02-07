@@ -1,3 +1,5 @@
+local stage = require 'stage'
+
 function placeBubble(h_pos, v_pos, h_move, v_move, delay)
   -- buggy with hotflame for now
   local h_offset = h_move or 0
@@ -84,7 +86,7 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.image_index = 0 -- Horizontal offset starting at 0
   self.sprite_size = {1, 1}
   self.sprite_wallspace = 0 -- how many pixels to reduce when checking against stage wall
-  
+
   -- character variables
   self.default_gravity = 0.3
   self.vel_multiple_super = 1.4 -- default is 1.4 for Frog Factor, 0.7 for Mugshotted

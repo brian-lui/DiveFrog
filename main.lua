@@ -4,7 +4,7 @@ require 'camera'
 require 'draw'
 json = require 'dkjson'
 class = require 'middleclass' -- class support
-stage = require 'stage'  -- total playing field area
+local stage = require 'stage'  -- total playing field area
 window = require 'window'  -- current view of stage
 music = require 'music'
 character = require 'character'

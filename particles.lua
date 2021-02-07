@@ -14,7 +14,7 @@ draw_count = 0 -- each object gets a new index number, to prevent overwriting
 
 --[[---------------------------------------------------------------------------
                               PARTICLE / FX CLASS
------------------------------------------------------------------------------]]   
+-----------------------------------------------------------------------------]]
 Particle = class('Particle')
 function Particle:initialize(image, image_size, sprite_size, time_per_frame, sound, color)
   self.image = image
