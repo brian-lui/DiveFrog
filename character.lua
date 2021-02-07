@@ -300,15 +300,15 @@ end
 function Fighter:gotKOed() -- keep calling this until self.isKO is false
 
 
-  if frame - round_end_frame < 60 then    
+  if frame - round_end_frame < 60 then
     self.vel = {0, 0}
     self.gravity = 0
     if self.life > 0 then self.life = math.max(self.life - 6, 0) end
 
     if self.hitflag.Fire then
       local redness = 220 + 35 * math.sin(frame % 60 / 1.5)
-      self.color = {redness, 0, 0, 255}
-    end  
+      self.color = {redness, 0, 0, 1}
+    end
   end
 
   if frame - round_end_frame == 60 then
@@ -330,8 +330,8 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
     if self.hitflag.Fire then
       OnFire:repeatLoad(self.center, self.pos[2] - 50, 0, 0, self.facing * 1.5)
       local burn = math.max(255 - (frame - round_end_frame - 40) * 6, 0)
-      local fade = math.max(255 - (frame - round_end_frame - 82) * 10, 0)
-      self.color = {burn, burn, burn, math.min(fade, 255)}
+      local fade = math.max(255 - (frame - round_end_frame - 82) * 10, 0) / 256
+      self.color = {burn, burn, burn, math.min(fade, 1)}
     end
     if self.hitflag.Wallsplat then
       if self.hasHitWall then

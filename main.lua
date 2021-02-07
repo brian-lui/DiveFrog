@@ -1,4 +1,4 @@
---require 'lovedebug'
+require 'lovedebug'
 require 'utilities' -- helper functions
 require 'camera'
 require 'draw'

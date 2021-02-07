@@ -87,7 +87,7 @@ function drawDebugHurtboxes()
       local dog = drawboxes
       for i = 1, #dog do
         if dog[i].Flag1 == Mugshot then
-          love.graphics.setColor({0, 0, 255, 160})
+          love.graphics.setColor({0, 0, 255, 160/255})
         else
           love.graphics.setColor(color[num])
         end

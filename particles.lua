@@ -34,7 +34,7 @@ end
 function Particle:_getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBTable)
   local quad = love.graphics.newQuad(image_index * self.width, 0,
     self.width, self.height, self.image_size[1], self.image_size[2])
-  return {self.image, 
+  return {self.image,
     quad, 
     pos_h + self.center,
     pos_v,
@@ -71,7 +71,6 @@ function Particle:repeatLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing
     sprite_center_h - self.center + (facing * h_shift),
     sprite_v + v_shift,
     facing, math.abs(facing), RGBTable)
-
 end
 
 -- called once, loads entire anim
