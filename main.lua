@@ -1,5 +1,5 @@
 require 'lovedebug'
-require 'utilities' -- helper functions
+local utilities = require 'utilities' -- helper functions
 require 'camera'
 require 'draw'
 json = require 'dkjson'
@@ -23,7 +23,7 @@ sound = require 'sound'
 math.randomseed(os.time())
 math.random(); math.random(); math.random()
 
-checkVersion()
+utilities.checkVersion()
 
 
 -- build screen
@@ -95,8 +95,8 @@ function love.draw()
 	camera:set(1, 1)
 	love.graphics.draw(canvas_sprites)
 
-	if debug.boxes then drawDebugHurtboxes() end 
-	if debug.sprites then drawDebugSprites() end 
+	if debug.boxes then utilities.drawDebugHurtboxes() end
+	if debug.sprites then utilities.drawDebugSprites() end
 	camera:unset()
 
 		test.t5 = love.timer.getTime()
@@ -106,7 +106,7 @@ function love.draw()
 
 	love.graphics.draw(canvas_super)
 
-	if debug.midpoints then drawMidPoints() end
+	if debug.midpoints then utilities.drawMidPoints() end
 	camera:unset()
 
 		test.t6 = love.timer.getTime()
@@ -154,7 +154,7 @@ function love.update(dt)
 	  local highest_sprite = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2])
 	  local screen_bottom = stage.height - window.height
 
-	  camera_xy = {clamp(h_midpoint - window.center, 0, stage.width - window.width),
+	  camera_xy = {utilities.clamp(h_midpoint - window.center, 0, stage.width - window.width),
 		screen_bottom - (stage.floor - highest_sprite) / 8 }
 
 			-- screen shake
@@ -218,19 +218,19 @@ function love.update(dt)
 	p2:updatePos()
 
 	-- check if anyone got hit
-	if check_got_hit(p1, p2) and check_got_hit(p2, p1) then
+	if utilities.check_got_hit(p1, p2) and utilities.check_got_hit(p2, p1) then
 	  round_end_frame = frame
 	  round_ended = true
 	  p1:gotHit(p2.hit_type)
 	  p2:gotHit(p1.hit_type)
 
-	elseif check_got_hit(p1, p2) then
+	elseif utilities.check_got_hit(p1, p2) then
 	  round_end_frame = frame
 	  round_ended = true
 	  p1:gotHit(p2.hit_type)
 	  p2:hitOpponent()
 
-	elseif check_got_hit(p2, p1) then
+	elseif utilities.check_got_hit(p2, p1) then
 	  round_end_frame = frame
 	  round_ended = true
 	  p2:gotHit(p1.hit_type)

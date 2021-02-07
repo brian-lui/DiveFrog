@@ -1,7 +1,9 @@
 local stage = require 'stage'
 local window = require 'window'
 
-function clamp(x, min, max)
+local utilities = {}
+
+function utilities.clamp(x, min, max)
   if x < min then
     return min
   elseif x > max then
@@ -11,19 +13,19 @@ function clamp(x, min, max)
   end
 end
 
-function leftEdge() -- get temp left edge based on camera and window position
+function utilities.leftEdge() -- get temp left edge based on camera and window position
   return math.max(window.left + camera_xy[1], stage.left)
 end
 
-function rightEdge() -- get temp right edge based on camera and window position
+function utilities.rightEdge() -- get temp right edge based on camera and window position
   return math.min(window.right + camera_xy[1], stage.right)
 end
 
-function quadOverlap(q1, q2)
+local function quadOverlap(q1, q2)
   return q1.R > q2.L and q2.R > q1.L and q1.D > q2.U and q2.D > q1.U
 end    
 
-function check_got_hit(getting_hit, attacker)
+function utilities.check_got_hit(getting_hit, attacker)
   local gothit = false
   if attacker.isAttacking then
     local hurt = getting_hit.hurtboxes
@@ -43,7 +45,7 @@ function check_got_hit(getting_hit, attacker)
   return gothit
 end
 
-function drawDebugSprites()
+function utilities.drawDebugSprites()
   for side, op in pairs(Players) do
     love.graphics.line(side.center, 0, side.center, stage.height)
     love.graphics.line(side.center, 200, side.center + op.flip * 30, 200)
@@ -66,11 +68,9 @@ function drawDebugSprites()
       love.graphics.line(l, u + 50, l, u - 50)
     end
   end
+end
 
-
-end      
-
-function drawMidPoints()
+function utilities.drawMidPoints()
   love.graphics.push("all")
     love.graphics.setLineWidth(10)
     love.graphics.line(stage.center - 5, stage.height / 2, stage.center + 5, stage.height / 2)
@@ -79,7 +79,7 @@ function drawMidPoints()
   love.graphics.pop()
 end
 
-function drawDebugHurtboxes()
+function utilities.drawDebugHurtboxes()
   love.graphics.push("all")
     local todraw = {p1.hurtboxes, p1.hitboxes, p2.hurtboxes, p2.hitboxes}
     local color = {{255, 255, 255, 192}, {255, 0, 0, 255}, {255, 255, 255, 192}, {255, 0, 0, 255}}
@@ -99,10 +99,11 @@ function drawDebugHurtboxes()
   love.graphics.pop()
 end
 
-function checkVersion()
+function utilities.checkVersion()
   local major, minor, revision, codename = love.getVersion()
   local version = major * 10000 + minor * 100 + revision * 1
   local min_version = 001000
   assert(version >= min_version, "Please update your Love2D to the latest version.")
 end
-  
+
+return utilities

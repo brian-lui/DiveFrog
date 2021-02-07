@@ -1,4 +1,5 @@
 local stage = require 'stage'
+local utilities = require 'utilities'
 
 function placeBubble(h_pos, v_pos, h_move, v_move, delay)
   -- buggy with hotflame for now
@@ -546,21 +547,21 @@ function Fighter:updatePos()
       self.vel[1] = self.vel[1] * self.friction
     elseif self.vel[1] <= 0.1 and self.isFrictionOn then
       self.vel[1] = 0
-    end  
-     
+    end
+
     -- check if character has landed
-    if self.pos[2] + self.sprite_size[2] > stage.floor then 
+    if self.pos[2] + self.sprite_size[2] > stage.floor then
       self.pos[2] = stage.floor - self.sprite_size[2]
       self:land()
     end
 
     -- check if character is at left or right edges of playing field
-    if self.pos[1] < leftEdge() - self.sprite_wallspace then
-      self.pos[1] = leftEdge() - self.sprite_wallspace
+    if self.pos[1] < utilities.leftEdge() - self.sprite_wallspace then
+      self.pos[1] = utilities.leftEdge() - self.sprite_wallspace
       self.hasHitWall = true
     end
-    if self.pos[1] + self.sprite_size[1] > rightEdge() + self.sprite_wallspace then
-      self.pos[1] = rightEdge() - self.sprite_size[1] + self.sprite_wallspace
+    if self.pos[1] + self.sprite_size[1] > utilities.rightEdge() + self.sprite_wallspace then
+      self.pos[1] = utilities.rightEdge() - self.sprite_size[1] + self.sprite_wallspace
       self.hasHitWall = true
     end
 
@@ -571,8 +572,8 @@ function Fighter:updatePos()
     if self.isInAir and self.vel[2] > 0 and not self.isAttacking and not self.isKO then
       self.current_hurtboxes = self.hurtboxes_falling
       self:updateImage(2)
-    end 
-    
+    end
+
     self:updateSuper() -- Frog Factor related logic
     self:stateCheck() -- check for button presses and change actions
     self:extraStuff() -- any character-specific routines
