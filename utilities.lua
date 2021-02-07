@@ -23,7 +23,7 @@ end
 
 local function quadOverlap(q1, q2)
   return q1.R > q2.L and q2.R > q1.L and q1.D > q2.U and q2.D > q1.U
-end    
+end
 
 function utilities.check_got_hit(getting_hit, attacker)
   local gothit = false
@@ -79,14 +79,14 @@ function utilities.drawMidPoints()
   love.graphics.pop()
 end
 
-function utilities.drawDebugHurtboxes()
+function utilities.drawDebugHurtboxes(p1, p2)
   love.graphics.push("all")
     local todraw = {p1.hurtboxes, p1.hitboxes, p2.hurtboxes, p2.hitboxes}
     local color = {{255, 255, 255, 192}, {255, 0, 0, 255}, {255, 255, 255, 192}, {255, 0, 0, 255}}
     for num, drawboxes in pairs(todraw) do
       local dog = drawboxes
       for i = 1, #dog do
-        if dog[i].Flag1 == Mugshot then
+        if dog[i].Flag1 == "Mugshot" then
           love.graphics.setColor({0, 0, 255, 160/255})
         else
           love.graphics.setColor(color[num])

@@ -95,7 +95,7 @@ function love.draw()
 	camera:set(1, 1)
 	love.graphics.draw(canvas_sprites)
 
-	if debug.boxes then utilities.drawDebugHurtboxes() end
+	if debug.boxes then utilities.drawDebugHurtboxes(p1, p2) end
 	if debug.sprites then utilities.drawDebugSprites() end
 	camera:unset()
 
