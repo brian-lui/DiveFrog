@@ -19,7 +19,7 @@ function stopBGM()
 end
 
 function resumeBGM()
-  currentBGM:resume()
+  currentBGM:play()
 end
 
 function setBGMspeed(speed)
