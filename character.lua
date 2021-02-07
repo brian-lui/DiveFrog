@@ -18,7 +18,7 @@ function placeBubble(h_pos, v_pos, h_move, v_move, delay)
   end
 
   for i = 50, 80 do
-    local transparency = (80 - i) * 8.5
+    local transparency = ((80 - i) * 8.5) / 256
     local scaling = 0.96 + (i - 50)^1.3 / 10
     local v_adjust = scaling * (i - 50) * 2
     bubble_to_use:singleLoad(h_pos, v_pos - v_adjust, h_offset, v_offset, scaling, i + delay, "post", {255, 255, 255, transparency})
@@ -27,17 +27,17 @@ end
 
 --[[---------------------------------------------------------------------------
                                 FIGHTER SUPERCLASS
------------------------------------------------------------------------------]]   
-Fighter = class('Fighter')    
+-----------------------------------------------------------------------------]]
+Fighter = class('Fighter')
 function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   --[[-------------------------------------------------------------------------
                               NO NEED TO MODIFY THESE
   ---------------------------------------------------------------------------]]
-  
+
   dummypic = love.graphics.newImage('images/dummy.png')
-  self.player = init_player 
+  self.player = init_player
   self.foe = init_foe
-  self.frozenFrames = 90 
+  self.frozenFrames = 90
   self.score = init_score
   self.isInAir = false
   self.life = 280 -- 280 pixels in the life bar
@@ -48,8 +48,8 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.mugshotFrames = 0
   self.hit_type = {} -- passed through to gotHit()
   self.super = init_super -- max 96
-  self.isSupering = false 
-  self.super_drainspeed = 0.3 -- per frame 
+  self.isSupering = false
+  self.super_drainspeed = 0.3 -- per frame
   self.start_pos = {1, 1}
   self.pos = {1, 1} -- Top left corner of sprite
   self.vel = {0, 0}

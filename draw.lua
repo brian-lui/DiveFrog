@@ -333,7 +333,7 @@ function drawRoundStart() -- start of round overlays
 	if frames_elapsed > 15 and frames_elapsed <= 90 then
 		love.graphics.push("all")
 			love.graphics.setColor(COLOR.ORANGE)
-			
+
 			-- round
 			love.graphics.setFont(FONT.ROUND_START)
 			if frames_elapsed > 80 then
