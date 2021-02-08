@@ -1,5 +1,6 @@
 local love = _G.love
 
+local colors = require 'colors'
 local fonts = require 'fonts'
 local images = require 'images'
 local stage = require 'stage'
@@ -26,22 +27,6 @@ local ROUND_START_FLAVOR = {
 
 local flavor_rand = {top = 1, bottom = 1}
 
-COLOR = {
-	WHITE = {255, 255, 255, 1},
-	OFF_WHITE = {255, 255, 255, 0.63},
-	DULL_ORANGE = {195, 160, 0, 0.82},
-	ORANGE = {255, 215, 0, 1},
-	DARK_ORANGE = {230, 147, 0, 1},
-	LIGHT_GREEN = {128, 255, 128, 1},
-	GRAY = {96, 96, 96, 1},
-	BLACK = {0, 0, 0, 1},
-	SHADOW = {0, 0, 0, 0.38},
-	RED = {220, 0, 0, 1},
-	BLUE = {14, 28, 232, 1},
-	GREEN = {14, 232, 54, 1},
-	PALE_BLUE = {164, 164, 255, 1},
-	PALE_GREEN = {164, 255, 164, 1}
-}
 
 speechbubbles = {
 	SpeechBubblePow,
@@ -60,14 +45,14 @@ speechbubbles = {
 function drawBackground()
 	love.graphics.clear()
 
-	local temp_color = COLOR.WHITE
+	local temp_color = colors.WHITE
 
 	if game.background_color then
 		temp_color = game.background_color
 	elseif game.superfreeze_time > 0 then
-		temp_color = COLOR.GRAY
+		temp_color = colors.GRAY
 	elseif p1.frozenFrames > 0 and p2.frozenFrames > 0 and frame > 90 then
-		temp_color = COLOR.BLACK
+		temp_color = colors.BLACK
 	end
 
 	love.graphics.push("all")
@@ -105,7 +90,7 @@ function drawPost2Buffer()
 	if post2buffer[frame] then
 		love.graphics.push("all")
 			for index, _ in pairs(post2buffer[frame]) do
-				post2buffer[frame][index][12] = post2buffer[frame][index][12] or COLOR.WHITE
+				post2buffer[frame][index][12] = post2buffer[frame][index][12] or colors.WHITE
 				love.graphics.setColor(post2buffer[frame][index][12]) -- 12 is RGB table
 				love.graphics.draw(unpack(post2buffer[frame][index]))
 			end
@@ -118,7 +103,7 @@ function drawPost3Buffer()
 	if post3buffer[frame] then
 		love.graphics.push("all")
 			for index, _ in pairs(post3buffer[frame]) do
-				post3buffer[frame][index][12] = post3buffer[frame][index][12] or COLOR.WHITE
+				post3buffer[frame][index][12] = post3buffer[frame][index][12] or colors.WHITE
 				love.graphics.setColor(post3buffer[frame][index][12]) -- 12 is RGB table
 				love.graphics.draw(unpack(post3buffer[frame][index]))
 			end
@@ -131,7 +116,7 @@ function drawPrebuffer()
 	if prebuffer[frame] then
 		love.graphics.push("all")
 			for index, _ in pairs(prebuffer[frame]) do
-				prebuffer[frame][index][12] = prebuffer[frame][index][12] or COLOR.WHITE
+				prebuffer[frame][index][12] = prebuffer[frame][index][12] or colors.WHITE
 				love.graphics.setColor(prebuffer[frame][index][12]) -- 12 is RGB table
 				love.graphics.draw(unpack(prebuffer[frame][index]))
 			end
@@ -145,7 +130,7 @@ function drawSprites()
 		love.graphics.push("all")
 
 			-- Ground shadow for sprites
-			love.graphics.setColor(COLOR.SHADOW)
+			love.graphics.setColor(colors.SHADOW)
 			love.graphics.ellipse("fill", side:getCenter(), stage.floor - 5, 50, 20)
 
 			-- Sprites
@@ -174,7 +159,7 @@ function drawPostbuffer()
 	if postbuffer[frame] then
 		love.graphics.push("all")
 			for index, _ in pairs(postbuffer[frame]) do
-				postbuffer[frame][index][12] = postbuffer[frame][index][12] or COLOR.WHITE
+				postbuffer[frame][index][12] = postbuffer[frame][index][12] or colors.WHITE
 				love.graphics.setColor(postbuffer[frame][index][12]) -- 12 is RGB table
 				love.graphics.draw(unpack(postbuffer[frame][index]))
 			end
@@ -196,7 +181,7 @@ function _drawOverlayTimer()
 	-- timer
 	love.graphics.push("all")
 		local displayed_time = math.ceil(round_timer * min_dt)
-		love.graphics.setColor(COLOR.DARK_ORANGE)
+		love.graphics.setColor(colors.DARK_ORANGE)
 		love.graphics.setFont(fonts.timer)
 		love.graphics.printf(displayed_time, 0, 6, window.width, "center")
 	love.graphics.pop()
@@ -210,7 +195,7 @@ function _drawOverlayHPbars(side, op)
 	if side.life > pos then
 		h_loc = window.center + (op.move * 53) + (op.move * pos)
 		love.graphics.push("all")
-			love.graphics.setColor(COLOR.OFF_WHITE)
+			love.graphics.setColor(colors.OFF_WHITE)
 			love.graphics.setLineWidth(1)
 			love.graphics.line(h_loc, 22, h_loc, 44)
 		love.graphics.pop()
@@ -218,7 +203,7 @@ function _drawOverlayHPbars(side, op)
 	-- life depleted
 	if side.life < 280 then
 		love.graphics.push("all")
-			love.graphics.setColor(COLOR.RED)
+			love.graphics.setColor(colors.RED)
 			love.graphics.setLineWidth(23)
 			love.graphics.line(window.center + (op.move * 333), 34, window.center + (op.move * 333) - op.move * (280 - side.life), 34)
 		love.graphics.pop()
@@ -242,7 +227,7 @@ function _drawOverlaySuperBars(side, op)
 	love.graphics.push("all")
 		if not side.isSupering then
 			-- super bar base
-			love.graphics.setColor(COLOR.OFF_WHITE)
+			love.graphics.setColor(colors.OFF_WHITE)
 			love.graphics.draw(SuperBarBase.image, window.center + (op.move * 375), window.height - 35,
 				0, 1, 1, op.offset * SuperBarBase.width)
 
@@ -266,7 +251,7 @@ function _drawOverlaySuperBars(side, op)
 			local Quad = love.graphics.newQuad(index * FrogFactor.width, 0,
 				FrogFactor.width * (side.super / 96), FrogFactor.height,
 				FrogFactor.image_size[1], FrogFactor.image_size[2])
-			love.graphics.setColor(COLOR.WHITE)
+			love.graphics.setColor(colors.WHITE)
 			love.graphics.draw(FrogFactor.image, Quad, window.center + (op.move * 390),
 				window.height - FrogFactor.height - 10, 0, op.flip, 1, 0)
 		end
@@ -318,7 +303,7 @@ function drawRoundStart() -- start of round overlays
 
 	if frames_elapsed > 15 and frames_elapsed <= 90 then
 		love.graphics.push("all")
-			love.graphics.setColor(COLOR.ORANGE)
+			love.graphics.setColor(colors.ORANGE)
 
 			-- round
 			love.graphics.setFont(fonts.round_start)
@@ -334,7 +319,7 @@ function drawRoundStart() -- start of round overlays
 
 			-- flavor text
 			love.graphics.setFont(fonts.round_start_flavor)
-			love.graphics.setColor(COLOR.WHITE)
+			love.graphics.setColor(colors.WHITE)
 			if frames_elapsed > 80 then
 				local transparency = 1 - (frames_elapsed - 81) * 0.1
 				love.graphics.setColor(255, 255, 255, transparency)
@@ -360,7 +345,7 @@ function drawRoundEnd() -- end of round overlays
 		if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
 			love.graphics.push("all")
 				love.graphics.setFont(fonts.round_end)
-				love.graphics.setColor(COLOR.ORANGE)
+				love.graphics.setColor(colors.ORANGE)
 				if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins!", 0, 200, window.width, "center")
 				elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins!", 0, 200, window.width, "center")
 				else love.graphics.printf("Double K.O. !!", 0, 200, window.width, "center")
@@ -383,7 +368,7 @@ function drawCharSelect()
 	love.graphics.draw(images.charselectscreen, 0, 0, 0) -- background
 	love.graphics.draw(images.portraits, portraitsQuad, 473, 130) -- character portrait
 	love.graphics.push("all")
-		love.graphics.setColor(COLOR.BLACK)
+		love.graphics.setColor(colors.BLACK)
 		love.graphics.setFont(fonts.char_info)
 		love.graphics.print(char_text[p1_char][1], 516, 350) -- character movelist
 		love.graphics.print(char_text[p1_char][2], 516, 384)
@@ -393,18 +378,18 @@ function drawCharSelect()
 		--p1 rectangle
 		love.graphics.setFont(fonts.char_selector)
 		love.graphics.setLineWidth(2)
-		love.graphics.setColor(COLOR.BLUE)
+		love.graphics.setColor(colors.BLUE)
 		love.graphics.print("P1", 42, 20 + (p1_char * 70)) -- helptext
 		if frame % 60 < 7 then 
-			love.graphics.setColor(COLOR.PALE_BLUE) -- flashing rectangle
+			love.graphics.setColor(colors.PALE_BLUE) -- flashing rectangle
 		end
 		love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
 		
 		--p2 rectangle
-		love.graphics.setColor(COLOR.GREEN)
+		love.graphics.setColor(colors.GREEN)
 		love.graphics.print("P2", 355, 20 + (p2_char * 70))
 		if (frame + 45) % 60 < 7 then
-			love.graphics.setColor(COLOR.PALE_GREEN)
+			love.graphics.setColor(colors.PALE_GREEN)
 		end
 		love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
 	love.graphics.pop()
@@ -416,7 +401,7 @@ function drawMatchEnd() -- end of the match (not end of the round)
 	love.graphics.push("all")
 		love.graphics.setFont(fonts.game_over)
 		love.graphics.draw(game.match_winner.win_portrait, 100, 50)
-		love.graphics.setColor(COLOR.BLACK)
+		love.graphics.setColor(colors.BLACK)
 		love.graphics.printf(game.match_winner.win_quote, 0, 470, window.width, "center")
 		love.graphics.setFont(fonts.game_over_help)
 		love.graphics.setColor(0, 0, 0, (frame / 128) % 1)

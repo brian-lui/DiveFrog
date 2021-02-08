@@ -1,5 +1,6 @@
 local love = _G.love
 
+local colors = require 'colors'
 local images = require 'images'
 require 'settings'
 
@@ -39,18 +40,18 @@ function drawTitle()
 	love.graphics.draw(images.title.screen, 0, 0)
 	love.graphics.draw(images.title.logo, 165, 30)
 
-	love.graphics.setColor(COLOR.OFF_WHITE)
+	love.graphics.setColor(colors.OFF_WHITE)
 	  love.graphics.draw(images.title.select_background, 100, 385)
 	  love.graphics.draw(images.title.controls_background, 400, 380)
 
 	love.graphics.setLineWidth(3)
-	love.graphics.setColor(COLOR.ORANGE)
+	love.graphics.setColor(colors.ORANGE)
 	if frame % 60 > 50 then
-	  love.graphics.setColor(COLOR.WHITE)
+	  love.graphics.setColor(colors.WHITE)
 	end
 	love.graphics.rectangle("line", 120, 375 + 35 * title_choices.option, 110, 35)
 
-	love.graphics.setColor(COLOR.ORANGE)
+	love.graphics.setColor(colors.ORANGE)
 	love.graphics.setFont(titleFont)
 	  local toprint = {
 		{"P1 Jump:", buttons.p1jump},
@@ -62,7 +63,7 @@ function drawTitle()
 	  for i = 1, #toprint do
 		love.graphics.push("all")
 		  love.graphics.print(toprint[i][1], 410, 370 + (30 * i))
-		  love.graphics.setColor(COLOR.LIGHT_GREEN)
+		  love.graphics.setColor(colors.LIGHT_GREEN)
 			love.graphics.print(toprint[i][2], 540, 370 + (30 * i))
 		love.graphics.pop()
 	  end

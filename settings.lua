@@ -1,5 +1,6 @@
 local love = _G.love
 
+local colors = require 'colors'
 local images = require 'images'
 local json = require 'dkjson'
 
@@ -204,24 +205,24 @@ function drawSettingsMain()
 	love.graphics.draw(unpack(DRAW_ITEM.BACKGROUND))
 	love.graphics.draw(unpack(DRAW_ITEM.LOGO))
 
-	love.graphics.setColor(COLOR.OFF_WHITE)
+	love.graphics.setColor(colors.OFF_WHITE)
 	love.graphics.draw(unpack(DRAW_ITEM.TEXTURE))
 
 	love.graphics.setLineWidth(3)
 	if settings_popup_window == "" then
-	  love.graphics.setColor(COLOR.ORANGE)
+	  love.graphics.setColor(colors.ORANGE)
 	  if frame % 60 > 50 then
-		love.graphics.setColor(COLOR.WHITE)
+		love.graphics.setColor(colors.WHITE)
 	  end
 	else
-	  love.graphics.setColor(COLOR.DULL_ORANGE)
+	  love.graphics.setColor(colors.DULL_ORANGE)
 	end
 	love.graphics.rectangle("line", 290, 238 + 35 * settings_choices.option, 200, 34)
 
 	if settings_popup_window == "" then
-	  love.graphics.setColor(COLOR.ORANGE)
+	  love.graphics.setColor(colors.ORANGE)
 	else
-	  love.graphics.setColor(COLOR.DULL_ORANGE)
+	  love.graphics.setColor(colors.DULL_ORANGE)
 	end
 	love.graphics.setFont(settingsFont)
 	  for i = 1, #settings_choices.menu do
@@ -237,10 +238,10 @@ function drawSettingsPopup()
 	local toprint = settings_table.Rounds[settings_options.Rounds][1]
 
 	love.graphics.push("all")
-	  love.graphics.setColor(COLOR.OFF_WHITE)
+	  love.graphics.setColor(colors.OFF_WHITE)
 	  love.graphics.draw(images.settings.texture, settings_rounds_background, 510, 260)
 
-	  love.graphics.setColor(COLOR.ORANGE)
+	  love.graphics.setColor(colors.ORANGE)
 	  love.graphics.setFont(settingsOptionsFontBig)
 	  love.graphics.printf(toprint, 508, 252, 60, "center")
 	love.graphics.pop()
@@ -248,10 +249,10 @@ function drawSettingsPopup()
   elseif settings_popup_window == "Timer" then
 	local toprint = settings_table.Timer[settings_options.Timer][1]
 	love.graphics.push("all")
-	  love.graphics.setColor(COLOR.OFF_WHITE)
+	  love.graphics.setColor(colors.OFF_WHITE)
 	  love.graphics.draw(images.settings.texture, settings_timer_background, 510, 295)
 
-	  love.graphics.setColor(COLOR.ORANGE)
+	  love.graphics.setColor(colors.ORANGE)
 	  love .graphics.setFont(settingsOptionsFontBig)
 	  love.graphics.printf(toprint, 510, 290, 70, "center")
 	love.graphics.pop()
@@ -259,10 +260,10 @@ function drawSettingsPopup()
   elseif settings_popup_window == "Speed" then
 	local toprint = settings_table.Speed[settings_options.Speed][1]
 	love.graphics.push("all")
-	  love.graphics.setColor(COLOR.OFF_WHITE)
+	  love.graphics.setColor(colors.OFF_WHITE)
 	  love.graphics.draw(images.settings.texture, settings_speed_background, 510, 330)
 
-	  love.graphics.setColor(COLOR.ORANGE)
+	  love.graphics.setColor(colors.ORANGE)
 	  love.graphics.setFont(settingsOptionsFontSmall)
 	  love.graphics.printf(toprint, 510, 333, 130, "center")
 	love.graphics.pop()
@@ -270,10 +271,10 @@ function drawSettingsPopup()
   elseif settings_popup_window == "Music" then
 	local toprint = settings_table.Music[settings_options.Music][1]
 	love.graphics.push("all")
-	  love.graphics.setColor(COLOR.OFF_WHITE)
+	  love.graphics.setColor(colors.OFF_WHITE)
 	  love.graphics.draw(images.settings.texture, settings_music_background, 510, 365)
 
-	  love.graphics.setColor(COLOR.ORANGE)
+	  love.graphics.setColor(colors.ORANGE)
 	  love.graphics.setFont(settingsOptionsFontSmall)
 	  love.graphics.printf(toprint, 510, 368, 90, "center")
 	love.graphics.pop()
@@ -281,16 +282,16 @@ function drawSettingsPopup()
   elseif settings_popup_window == "Sound" then
 	local toprint = settings_table.Sound[settings_options.Sound][1]
 	love.graphics.push("all")
-	  love.graphics.setColor(COLOR.OFF_WHITE)
+	  love.graphics.setColor(colors.OFF_WHITE)
 	  love.graphics.draw(images.settings.texture, settings_sound_background, 510, 400)
 
-	  love.graphics.setColor(COLOR.ORANGE)
+	  love.graphics.setColor(colors.ORANGE)
 	  love.graphics.setFont(settingsOptionsFontSmall)
 	  love.graphics.printf(toprint, 510, 403, 90, "center")
 	love.graphics.pop()
   elseif settings_popup_window == "Controls" then
 	love.graphics.push("all")
-	  love.graphics.setColor(COLOR.OFF_WHITE)
+	  love.graphics.setColor(colors.OFF_WHITE)
 	  love.graphics.draw(images.settings.texture, settings_controls_background, 510, 245)
 	  
 	  local toprint = {
@@ -309,15 +310,15 @@ function drawSettingsPopup()
 	  love.graphics.setFont(settingsFont)
 
 	  for i = 1, #toprint do
-		love.graphics.setColor(COLOR.ORANGE)
+		love.graphics.setColor(colors.ORANGE)
 		love.graphics.print(toprint[i][1], 525, 220 + 35 * i)
 
-		love.graphics.setColor(COLOR.GREEN)
+		love.graphics.setColor(colors.GREEN)
 		love.graphics.print(toprint[i][2], 640, 220 + 35 * i)
 	  end
 
 	  love.graphics.setLineWidth(3)
-	  love.graphics.setColor(COLOR.ORANGE)
+	  love.graphics.setColor(colors.ORANGE)
 	  love.graphics.rectangle("line", 520, 220 + 35 * controls_choices.option, 190, 34)
 	  
 	love.graphics.pop()
