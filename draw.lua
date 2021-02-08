@@ -1,25 +1,13 @@
 local love = _G.love
 
+local fonts = require 'fonts'
 local images = require 'images'
 local stage = require 'stage'
 particles = require 'particles'
 
--- load images
 portraitsQuad = love.graphics.newQuad(0, 0, 200, 140, images.portraits:getDimensions())
 
-FONT = {
-	ROUND_START = love.graphics.newFont('/fonts/Comic.otf', 60),
-	ROUND_START_COUNTDOWN = love.graphics.newFont('/fonts/Comic.otf', 20),
-	ROUND_START_FLAVOR = love.graphics.newFont('/fonts/Comic.otf', 20),
-	ROUND_END = love.graphics.newFont('/fonts/ComicItalic.otf', 42),
-	CHAR_INFO = love.graphics.newFont('/fonts/CharSelect.ttf', 21),
-	CHAR_SELECTOR = love.graphics.newFont('/fonts/GoodDog.otf', 18),
-	TIMER = love.graphics.newFont('/fonts/Comic.otf', 40),
-	GAME_OVER = love.graphics.newFont('/fonts/ComicItalic.otf', 24),
-	GAME_OVER_HELP = love.graphics.newFont('/fonts/ComicItalic.otf', 16)
-}
-
-ROUND_START_FLAVOR = {
+local ROUND_START_FLAVOR = {
 	{TOP = "Kill each other,", BOTTOM = "But it's good [INVERSES]"},
 	{TOP = "Heaven or hell!", BOTTOM = "Let's ROCK!"},
 	{TOP = "This battle is about to explode", BOTTOM = "Fight!"},
@@ -36,7 +24,7 @@ ROUND_START_FLAVOR = {
 	{TOP = "Let the madness begin!", BOTTOM = "It's all or nothing!"}
 }
 
-flavor_rand = {top = 1, bottom = 1}
+local flavor_rand = {top = 1, bottom = 1}
 
 COLOR = {
 	WHITE = {255, 255, 255, 1},
@@ -209,7 +197,7 @@ function _drawOverlayTimer()
 	love.graphics.push("all")
 		local displayed_time = math.ceil(round_timer * min_dt)
 		love.graphics.setColor(COLOR.DARK_ORANGE)
-		love.graphics.setFont(FONT.TIMER)
+		love.graphics.setFont(fonts.timer)
 		love.graphics.printf(displayed_time, 0, 6, window.width, "center")
 	love.graphics.pop()
 end
@@ -333,7 +321,7 @@ function drawRoundStart() -- start of round overlays
 			love.graphics.setColor(COLOR.ORANGE)
 
 			-- round
-			love.graphics.setFont(FONT.ROUND_START)
+			love.graphics.setFont(fonts.round_start)
 			if frames_elapsed > 80 then
 				local transparency = 1 - (frames_elapsed - 81) * 0.1
 				love.graphics.setColor(255, 215, 0, transparency)
@@ -345,7 +333,7 @@ function drawRoundStart() -- start of round overlays
 			end
 
 			-- flavor text
-			love.graphics.setFont(FONT.ROUND_START_FLAVOR)
+			love.graphics.setFont(fonts.round_start_flavor)
 			love.graphics.setColor(COLOR.WHITE)
 			if frames_elapsed > 80 then
 				local transparency = 1 - (frames_elapsed - 81) * 0.1
@@ -361,7 +349,7 @@ function drawRoundStart() -- start of round overlays
 			local bottom_text = ROUND_START_FLAVOR[flavor_rand.bottom].BOTTOM
 			love.graphics.printf(top_text, h_text1, 205, window.width, "center")
 			love.graphics.printf(bottom_text, h_text2, 290, window.width, "center")
-			
+
 		love.graphics.pop()
 	end
 end
@@ -371,7 +359,7 @@ function drawRoundEnd() -- end of round overlays
 		-- end of round win message
 		if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
 			love.graphics.push("all")
-				love.graphics.setFont(FONT.ROUND_END)
+				love.graphics.setFont(fonts.round_end)
 				love.graphics.setColor(COLOR.ORANGE)
 				if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins!", 0, 200, window.width, "center")
 				elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins!", 0, 200, window.width, "center")
@@ -396,14 +384,14 @@ function drawCharSelect()
 	love.graphics.draw(images.portraits, portraitsQuad, 473, 130) -- character portrait
 	love.graphics.push("all")
 		love.graphics.setColor(COLOR.BLACK)
-		love.graphics.setFont(FONT.CHAR_INFO)
+		love.graphics.setFont(fonts.char_info)
 		love.graphics.print(char_text[p1_char][1], 516, 350) -- character movelist
 		love.graphics.print(char_text[p1_char][2], 516, 384)
 		love.graphics.print(char_text[p1_char][3], 513, 425)
 		love.graphics.print(char_text[p1_char][4], 430, 469)
 
 		--p1 rectangle
-		love.graphics.setFont(FONT.CHAR_SELECTOR)
+		love.graphics.setFont(fonts.char_selector)
 		love.graphics.setLineWidth(2)
 		love.graphics.setColor(COLOR.BLUE)
 		love.graphics.print("P1", 42, 20 + (p1_char * 70)) -- helptext
@@ -426,11 +414,11 @@ function drawMatchEnd() -- end of the match (not end of the round)
 	love.graphics.draw(images.bkmatchend, 0, 0) -- background
 
 	love.graphics.push("all")
-		love.graphics.setFont(FONT.GAME_OVER)
+		love.graphics.setFont(fonts.game_over)
 		love.graphics.draw(game.match_winner.win_portrait, 100, 50)
 		love.graphics.setColor(COLOR.BLACK)
 		love.graphics.printf(game.match_winner.win_quote, 0, 470, window.width, "center")
-		love.graphics.setFont(FONT.GAME_OVER_HELP)
+		love.graphics.setFont(fonts.game_over_help)
 		love.graphics.setColor(0, 0, 0, (frame / 128) % 1)
 		love.graphics.print("Press enter", 650, 540)
 	love.graphics.pop()
