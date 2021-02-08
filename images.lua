@@ -1,3 +1,5 @@
+local love = _G.love
+
 local images = {}
 
 images.replaysscreen = love.graphics.newImage('images/Replays.jpg')
@@ -16,7 +18,7 @@ images.characters = {
 		image = love.graphics.newImage('images/Konrad/KonradTiles.png'),
 		super_face = love.graphics.newImage('images/Konrad/KonradSuperface.png'),
 
-		hyperkick_flames = love.graphics.newImage('images/Konrad/HyperKickFlames.png'), 
+		hyperkick_flames = love.graphics.newImage('images/Konrad/HyperKickFlames.png'),
 		doublejump_dust = love.graphics.newImage('images/Konrad/DoubleJumpDust.png'),
 	},
 	jean = {
@@ -24,7 +26,7 @@ images.characters = {
 		win_portrait = love.graphics.newImage('images/Jean/JeanPortrait.png'),
 		stage_background = love.graphics.newImage('images/Jean/JeanBackground.jpg'),
 		image = love.graphics.newImage('images/Jean/JeanTiles.png'),
-		super_face = love.graphics.newImage('images/Jean/JeanSuperface.png'), 
+		super_face = love.graphics.newImage('images/Jean/JeanSuperface.png'),
 	},
 	sun = {
 		icon = love.graphics.newImage('images/Sun/SunIcon.png'),
@@ -94,11 +96,4 @@ images.title = {
 	controls_background = love.graphics.newImage('images/Title/TitleControlsBk.png'),
 }
 
-
-
-
-
-
-
 return images
-

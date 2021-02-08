@@ -1,4 +1,5 @@
 local class = require 'middleclass'
+local images = require 'images'
 local stage = require 'stage' -- for checking floor/walls
 local window = require 'window'
 local music = require 'music' -- background music
@@ -9,14 +10,14 @@ require 'character'
 Jean = class('Jean', Fighter)
 function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
-  self.icon = love.graphics.newImage('images/Jean/JeanIcon.png')
+  self.icon = images.characters.jean.icon
   self.superface = JeanSuperface
-  self.win_portrait = love.graphics.newImage('images/Jean/JeanPortrait.png')
+  self.win_portrait = images.characters.jean.win_portrait
   self.win_quote = 'You must defeat "Wampire" to stand a chance.'
   self.fighter_name = "Mustachioed Jean"
   self.BGM = "JeanTheme.ogg"
-  self.stage_background = love.graphics.newImage('images/Jean/JeanBackground.jpg')
-  self.image = love.graphics.newImage('images/Jean/JeanTiles.png')
+  self.stage_background = images.characters.jean.stage_background
+  self.image = images.characters.jean.image
   self.image_size = {1200, 200}
   self.vel_multiple_super = 1.3
   self.sprite_size = {150, 200}

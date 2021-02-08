@@ -1,13 +1,14 @@
+local images = require 'images'
 local stage = require 'stage'
 particles = require 'particles'
 
 -- load images
-replaysscreen = love.graphics.newImage('images/Replays.jpg')
-charselectscreen = love.graphics.newImage('images/CharSelect.jpg')
-bkmatchend = love.graphics.newImage('images/MatchEndBackground.png')
-hpbar = love.graphics.newImage('images/HPBar.png')
-portraits = love.graphics.newImage('images/Portraits.png')
-greenlight = love.graphics.newImage('images/GreenLight.png')
+replaysscreen = images.replaysscreen
+charselectscreen = images.charselectscreen
+bkmatchend = images.bkmatchend
+hpbar = images.hpbar
+portraits = images.portraits
+greenlight = images.greenlight
 portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
 
 FONT = {

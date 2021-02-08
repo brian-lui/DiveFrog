@@ -1,3 +1,4 @@
+local images = require 'images'
 local stage = require 'stage'
 local utilities = require 'utilities'
 
@@ -37,7 +38,7 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
                               NO NEED TO MODIFY THESE
   ---------------------------------------------------------------------------]]
 
-  dummypic = love.graphics.newImage('images/dummy.png')
+  dummypic = images.dummy
   self.player = init_player
   self.foe = init_foe
   self.frozenFrames = 90
