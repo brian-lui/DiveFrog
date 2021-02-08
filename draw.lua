@@ -1,15 +1,11 @@
+local love = _G.love
+
 local images = require 'images'
 local stage = require 'stage'
 particles = require 'particles'
 
 -- load images
-replaysscreen = images.replaysscreen
-charselectscreen = images.charselectscreen
-bkmatchend = images.bkmatchend
-hpbar = images.hpbar
-portraits = images.portraits
-greenlight = images.greenlight
-portraitsQuad = love.graphics.newQuad(0, 0, 200, 140,portraits:getDimensions())
+portraitsQuad = love.graphics.newQuad(0, 0, 200, 140, images.portraits:getDimensions())
 
 FONT = {
 	ROUND_START = love.graphics.newFont('/fonts/Comic.otf', 60),
@@ -220,7 +216,7 @@ end
 
 function _drawOverlayHPbars(side, op)
 	-- HP bars
-	love.graphics.draw(hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
+	love.graphics.draw(images.hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
 	-- ornament
 	local pos = (frame % 180) * 8
 	if side.life > pos then
@@ -244,8 +240,8 @@ end
 function _drawOverlayWinPoints(side, op)
 	for i = 1, game.best_to_x do
 		if side.score >= i then
-			love.graphics.draw(greenlight, window.center + (op.move * 354) - op.move * (20 * i),
-			52, 0, 1, 1, op.offset * greenlight:getWidth())
+			love.graphics.draw(images.greenlight, window.center + (op.move * 354) - op.move * (20 * i),
+			52, 0, 1, 1, op.offset * images.greenlight:getWidth())
 		end
 	end
 end
@@ -396,8 +392,8 @@ function drawRoundEnd() -- end of round overlays
 end
 
 function drawCharSelect()
-	love.graphics.draw(charselectscreen, 0, 0, 0) -- background
-	love.graphics.draw(portraits, portraitsQuad, 473, 130) -- character portrait
+	love.graphics.draw(images.charselectscreen, 0, 0, 0) -- background
+	love.graphics.draw(images.portraits, portraitsQuad, 473, 130) -- character portrait
 	love.graphics.push("all")
 		love.graphics.setColor(COLOR.BLACK)
 		love.graphics.setFont(FONT.CHAR_INFO)
@@ -427,7 +423,7 @@ function drawCharSelect()
 end
 
 function drawMatchEnd() -- end of the match (not end of the round)
-	love.graphics.draw(bkmatchend, 0, 0) -- background
+	love.graphics.draw(images.bkmatchend, 0, 0) -- background
 
 	love.graphics.push("all")
 		love.graphics.setFont(FONT.GAME_OVER)

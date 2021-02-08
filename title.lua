@@ -3,10 +3,6 @@ local love = _G.love
 local images = require 'images'
 require 'settings'
 
-title_screen = images.title.screen
-title_select_background = images.title.select_background
-title_logo = images.title.logo
-title_controls_background = images.title.controls_background
 
 titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
 
@@ -40,12 +36,12 @@ title_choices = {
 
 function drawTitle()
   love.graphics.push("all")
-	love.graphics.draw(title_screen, 0, 0)
-	love.graphics.draw(title_logo, 165, 30)
+	love.graphics.draw(images.title.screen, 0, 0)
+	love.graphics.draw(images.title.logo, 165, 30)
 
 	love.graphics.setColor(COLOR.OFF_WHITE)
-	  love.graphics.draw(title_select_background, 100, 385)
-	  love.graphics.draw(title_controls_background, 400, 380)
+	  love.graphics.draw(images.title.select_background, 100, 385)
+	  love.graphics.draw(images.title.controls_background, 400, 380)
 
 	love.graphics.setLineWidth(3)
 	love.graphics.setColor(COLOR.ORANGE)

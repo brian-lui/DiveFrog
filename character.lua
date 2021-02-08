@@ -38,7 +38,6 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
                               NO NEED TO MODIFY THESE
   ---------------------------------------------------------------------------]]
 
-  dummypic = images.dummy
   self.player = init_player
   self.foe = init_foe
   self.frozenFrames = 90
@@ -79,11 +78,11 @@ function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_
   self.fighter_name = "Dummy"
   self.win_quote = "Win Quote"
   -- images
-  self.icon = dummypic -- corner portrait icon
-  self.win_portrait = dummypic -- win stage large portrait
-  self.superface = dummypic
-  self.stage_background = dummypic
-  self.image = dummypic -- Entire tiled image
+  self.icon = images.dummy -- corner portrait icon
+  self.win_portrait = images.dummy -- win stage large portrait
+  self.superface = images.dummy
+  self.stage_background = images.dummy
+  self.image = images.dummy -- Entire tiled image
   self.image_size = {2, 2}
   self.image_index = 0 -- Horizontal offset starting at 0
   self.sprite_size = {1, 1}

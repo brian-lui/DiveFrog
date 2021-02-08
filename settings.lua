@@ -3,26 +3,23 @@ local love = _G.love
 local images = require 'images'
 local json = require 'dkjson'
 
-settings_background = images.settings.background
-settings_logo = images.settings.logo
-settings_texture = images.settings.texture
 settingsFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
 settingsOptionsFontBig = love.graphics.newFont('/fonts/GoodDog.otf', 60)
 settingsOptionsFontSmall = love.graphics.newFont('/fonts/GoodDog.otf', 45)
 settings_popup_window = ""
 
 settings_rounds_background = love.graphics.newQuad(0, 0, 60, 60,
-  love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
+  love.graphics.getWidth(images.settings.texture), love.graphics.getHeight(images.settings.texture))
 settings_timer_background = love.graphics.newQuad(0, 0, 70, 60,
-  love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
+  love.graphics.getWidth(images.settings.texture), love.graphics.getHeight(images.settings.texture))
 settings_speed_background = love.graphics.newQuad(0, 0, 130, 60,
-  love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
+  love.graphics.getWidth(images.settings.texture), love.graphics.getHeight(images.settings.texture))
 settings_music_background = love.graphics.newQuad(0, 0, 90, 60,
-  love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
+  love.graphics.getWidth(images.settings.texture), love.graphics.getHeight(images.settings.texture))
 settings_sound_background = love.graphics.newQuad(0, 0, 90, 60,
-  love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
+  love.graphics.getWidth(images.settings.texture), love.graphics.getHeight(images.settings.texture))
 settings_controls_background = love.graphics.newQuad(0, 0, 210, 225,
-  love.graphics.getWidth(settings_texture), love.graphics.getHeight(settings_texture))
+  love.graphics.getWidth(images.settings.texture), love.graphics.getHeight(images.settings.texture))
 
 settings_table = {
   Rounds = {{1, 1}, {3, 3}, {5, 5}, {7, 7}, {9, 9}},
@@ -197,9 +194,9 @@ function settingsMenu()
 end
 
 DRAW_ITEM = {
-  BACKGROUND = {settings_background, 0, 0, 0},
-  LOGO = {settings_logo, 232, 60},
-  TEXTURE = {settings_texture, 280, 260}
+  BACKGROUND = {images.settings.background, 0, 0, 0},
+  LOGO = {images.settings.logo, 232, 60},
+  TEXTURE = {images.settings.texture, 280, 260}
 }
 
 function drawSettingsMain()
@@ -241,7 +238,7 @@ function drawSettingsPopup()
 
 	love.graphics.push("all")
 	  love.graphics.setColor(COLOR.OFF_WHITE)
-	  love.graphics.draw(settings_texture, settings_rounds_background, 510, 260)
+	  love.graphics.draw(images.settings.texture, settings_rounds_background, 510, 260)
 
 	  love.graphics.setColor(COLOR.ORANGE)
 	  love.graphics.setFont(settingsOptionsFontBig)
@@ -252,7 +249,7 @@ function drawSettingsPopup()
 	local toprint = settings_table.Timer[settings_options.Timer][1]
 	love.graphics.push("all")
 	  love.graphics.setColor(COLOR.OFF_WHITE)
-	  love.graphics.draw(settings_texture, settings_timer_background, 510, 295)
+	  love.graphics.draw(images.settings.texture, settings_timer_background, 510, 295)
 
 	  love.graphics.setColor(COLOR.ORANGE)
 	  love .graphics.setFont(settingsOptionsFontBig)
@@ -263,7 +260,7 @@ function drawSettingsPopup()
 	local toprint = settings_table.Speed[settings_options.Speed][1]
 	love.graphics.push("all")
 	  love.graphics.setColor(COLOR.OFF_WHITE)
-	  love.graphics.draw(settings_texture, settings_speed_background, 510, 330)
+	  love.graphics.draw(images.settings.texture, settings_speed_background, 510, 330)
 
 	  love.graphics.setColor(COLOR.ORANGE)
 	  love.graphics.setFont(settingsOptionsFontSmall)
@@ -274,7 +271,7 @@ function drawSettingsPopup()
 	local toprint = settings_table.Music[settings_options.Music][1]
 	love.graphics.push("all")
 	  love.graphics.setColor(COLOR.OFF_WHITE)
-	  love.graphics.draw(settings_texture, settings_music_background, 510, 365)
+	  love.graphics.draw(images.settings.texture, settings_music_background, 510, 365)
 
 	  love.graphics.setColor(COLOR.ORANGE)
 	  love.graphics.setFont(settingsOptionsFontSmall)
@@ -285,7 +282,7 @@ function drawSettingsPopup()
 	local toprint = settings_table.Sound[settings_options.Sound][1]
 	love.graphics.push("all")
 	  love.graphics.setColor(COLOR.OFF_WHITE)
-	  love.graphics.draw(settings_texture, settings_sound_background, 510, 400)
+	  love.graphics.draw(images.settings.texture, settings_sound_background, 510, 400)
 
 	  love.graphics.setColor(COLOR.ORANGE)
 	  love.graphics.setFont(settingsOptionsFontSmall)
@@ -294,7 +291,7 @@ function drawSettingsPopup()
   elseif settings_popup_window == "Controls" then
 	love.graphics.push("all")
 	  love.graphics.setColor(COLOR.OFF_WHITE)
-	  love.graphics.draw(settings_texture, settings_controls_background, 510, 245)
+	  love.graphics.draw(images.settings.texture, settings_controls_background, 510, 245)
 	  
 	  local toprint = {
 		{"P1 Jump", buttons.p1jump},

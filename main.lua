@@ -1,3 +1,6 @@
+local love = _G.love
+
+local images = require 'images'
 require 'lovedebug'
 local utilities = require 'utilities' -- helper functions
 require 'camera'
@@ -129,7 +132,7 @@ function love.draw()
 		drawSettingsPopup()
 
 	elseif game.current_screen == "replays" then
-		love.graphics.draw(replaysscreen, 0, 0, 0)
+		love.graphics.draw(images.replaysscreen, 0, 0, 0)
 
   end
 
@@ -362,7 +365,7 @@ function love.keypressed(key)
 
 	if key == buttons.p1jump then
 		p1_char = p1_char % #available_chars + 1
-	  portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, portraits:getDimensions())
+	  portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, images.portraits:getDimensions())
 	  sound.playCharSelectSFX()
 	end
 
