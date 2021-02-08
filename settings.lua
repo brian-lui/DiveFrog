@@ -59,15 +59,15 @@ Params = {
 function setupReceiveKeypress(key)
   if settings_popup_window == "" then
 	if key == buttons.p1attack or key == "right" or key == "return" then
-	  sound.playCharSelectSFX()
+	  sounds.playCharSelectSFX()
 	  settings_choices.action[settings_choices.option]()
 
 	elseif key == buttons.p1jump or key == "down" then
-	  sound.playCharSelectSFX()
+	  sounds.playCharSelectSFX()
 	  settings_choices.option = settings_choices.option % #settings_choices.menu + 1
 
 	elseif key == "up" then
-	  sound.playCharSelectSFX()
+	  sounds.playCharSelectSFX()
 	  settings_choices.option = (settings_choices.option - 2) % #settings_choices.menu + 1
 	end
 
@@ -82,7 +82,7 @@ function setupReceiveKeypress(key)
 
 	else  
 	  if key == buttons.p1attack or key == "right" or key == "return" then
-		sound.playCharSelectSFX()
+		sounds.playCharSelectSFX()
 
 		if controls_choices.key[controls_choices.option] == "Back" then
 		  settings_popup_window = ""
@@ -91,11 +91,11 @@ function setupReceiveKeypress(key)
 		end
 
 	  elseif key == buttons.p1jump or key == "down" then
-		sound.playCharSelectSFX()
+		sounds.playCharSelectSFX()
 		controls_choices.option = controls_choices.option % #controls_choices.key + 1
 
 	  elseif key == "up" then
-		sound.playCharSelectSFX()
+		sounds.playCharSelectSFX()
 		controls_choices.option = (controls_choices.option - 2) % #controls_choices.key + 1        
 
 	  elseif key == "left" then
@@ -108,15 +108,15 @@ function setupReceiveKeypress(key)
 	for k, v in pairs(settings_table) do
 	  if settings_popup_window == k then
 		if key == buttons.p1attack or key == "return" then
-		  sound.playCharSelectSFX()
+		  sounds.playCharSelectSFX()
 		  settings_popup_window = ""
 
 		elseif key == buttons.p1jump or key == "down" then
-		  sound.playCharSelectSFX()
+		  sounds.playCharSelectSFX()
 		  settings_options[k] = settings_options[k] % #settings_table[k] + 1 
 
 		elseif key == "up" then
-		  sound.playCharSelectSFX()
+		  sounds.playCharSelectSFX()
 		  settings_options[k] = (settings_options[k] - 2) % #settings_table[k] + 1 
 		end
 	  end

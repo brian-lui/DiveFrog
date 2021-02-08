@@ -21,7 +21,7 @@ require 'settings'
 require 'title'
 
 
-sound = require 'sound'
+sounds = require 'sounds'
 
 math.randomseed(os.time())
 math.random(); math.random(); math.random()
@@ -258,7 +258,7 @@ function love.update(dt)
 	  end 
 	end  
 
-	sound.update()
+	sounds.update()
 
 	-- after round ended and displayed round end stuff, start new round
 	if frame - round_end_frame == 144 then
@@ -306,7 +306,7 @@ function newRound()
   postbuffer = {}
   post2buffer = {}
   post3buffer = {}
-  sound.reset()
+  sounds.reset()
 	camera_xy_temp = nil
 	camera_scale_factor = 1
   if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
@@ -345,33 +345,33 @@ function love.keypressed(key)
 
   if game.current_screen == "title" then
 	if key == buttons.p1attack or key == buttons.start then
-		sound.playCharSelectedSFX()
+		sounds.playCharSelectedSFX()
 		title_choices.action[title_choices.option]()
 
 	elseif key == buttons.p1jump or key == "down" then
-		sound.playCharSelectSFX()
+		sounds.playCharSelectSFX()
 		title_choices.option = title_choices.option % #title_choices.menu + 1
 
 	elseif key == "up" then
-	  sound.playCharSelectSFX()
+	  sounds.playCharSelectSFX()
 	  title_choices.option = (title_choices.option - 2) % #title_choices.menu + 1
 	end
 
   elseif game.current_screen == "charselect" then
 	if key == buttons.p1attack or key == buttons.p2attack then
-	  sound.playCharSelectedSFX()
+	  sounds.playCharSelectedSFX()
 	  startGame()
 	end
 
 	if key == buttons.p1jump then
 		p1_char = p1_char % #available_chars + 1
 	  portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, images.portraits:getDimensions())
-	  sound.playCharSelectSFX()
+	  sounds.playCharSelectSFX()
 	end
 
 	if key == buttons.p2jump then
 		p2_char = p2_char % #available_chars + 1
-	  sound.playCharSelectSFX()
+	  sounds.playCharSelectSFX()
 	end
 
   elseif game.current_screen == "settings" then
@@ -379,7 +379,7 @@ function love.keypressed(key)
 
   elseif game.current_screen == "replays" then
 	if key == buttons.start then
-		sound.playCharSelectSFX()
+		sounds.playCharSelectSFX()
 		game.current_screen = "title"
 	end
 

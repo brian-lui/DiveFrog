@@ -118,7 +118,7 @@ end
 	if self.super >= 16 and not self.isSupering then
 	  self.super = self.super - 16
 	  self.waiting_state = ""
-	  sound.writeSound(self.ground_special_sfx)
+	  sounds.writeSound(self.ground_special_sfx)
 	  self:jump(0, 29, 1.2)
 	end
   end
@@ -149,7 +149,7 @@ end
 	  if self.waiting == 0 and self.waiting_state == "Jump" then
 		self.waiting_state = ""
 		self:jump(0, 14, self.default_gravity)
-		sound.writeSound(self.jump_sfx)
+		sounds.writeSound(self.jump_sfx)
 		JumpDust:singleLoad(self.center, self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
 	  end
 	  if self.waiting == 0 and self.waiting_state == "DoubleJump" then
@@ -161,12 +161,12 @@ end
 	  if self.waiting == 0 and self.waiting_state == "Attack" then 
 		self.waiting_state = ""
 		self:attack(7.2, 9.6)
-		sound.writeSound(self.attack_sfx)
+		sounds.writeSound(self.attack_sfx)
 	  end
 	  if self.waiting == 0 and self.waiting_state == "Kickback" then
 		self.waiting_state = ""
 		self:kickback(-7.2, 7.2)
-		sound.writeSound(self.jump_sfx)
+		sounds.writeSound(self.jump_sfx)
 	  end
 	end
   end

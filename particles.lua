@@ -1,7 +1,8 @@
 local class = require 'middleclass'
 local images = require 'images'
 require 'utilities'
-draw_count = 0 -- each object gets a new index number, to prevent overwriting
+
+local draw_count = 0 -- each object gets a new index number, to prevent overwriting
 
 --[[Crazy Love2D! So confusing!
 	Example:repeatLoad(
@@ -24,7 +25,6 @@ function Particle:initialize(image, image_size, sprite_size, time_per_frame, sou
   self.width = sprite_size[1]
   self.height = sprite_size[2]
   self.center = sprite_size[1] / 2
-  self.hitbox = hitbox_table
   self.sound = sound
   self.total_frames = image_size[1] / sprite_size[1]
   self.time_per_frame = time_per_frame
@@ -36,21 +36,21 @@ function Particle:_getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBT
   local quad = love.graphics.newQuad(image_index * self.width, 0,
 	self.width, self.height, self.image_size[1], self.image_size[2])
   return {self.image,
-	quad, 
+	quad,
 	pos_h + self.center,
 	pos_v,
 	0,
 	scale_x, -- scale_x: 1 is default, -1 for flip
 	scale_y,
 	self.center, -- anchor_x
-	sprite_v_mid, -- anchor_y
+	0, -- anchor_y
 	0,
 	0,
 	RGBTable or self.color}
 end
 
 function Particle:playSound(delay_time)
-  sound.writeSound(self.sound, delay_time)
+  sounds.writeSound(self.sound, delay_time)
 end
 
 -- called each frame while condition is valid

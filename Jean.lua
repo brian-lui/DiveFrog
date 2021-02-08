@@ -156,12 +156,12 @@ end
   function Jean:air_special()
     if self.isSupering then
       self.waiting_state = ""
-      sound.writeSound(self.air_special_sfx)
+      sounds.writeSound(self.air_special_sfx)
       self:jump(0, -36)
     elseif self.super >= 8 and not self.isAttacking then
       self.super = self.super - 8
       self.waiting_state = ""
-      sound.writeSound(self.air_special_sfx)
+      sounds.writeSound(self.air_special_sfx)
       self:jump(0, -36)
     end
   end    
@@ -192,22 +192,22 @@ end
       if self.waiting == 0 and self.waiting_state == "Attack" then 
       self.waiting_state = ""
         self:attack(9.6, 9.6)
-        sound.writeSound(self.attack_sfx)
+        sounds.writeSound(self.attack_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Dandy" then
         self.waiting_state = ""
         self:dandyStep(-36 / game.speed)        
-        sound.writeSound(self.dandy_sfx)
+        sounds.writeSound(self.dandy_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Pilebunker" then
         self.waiting_state = ""
         self:pilebunk(56 / game.speed)
-        sound.writeSound(self.pilebunker_sfx)
+        sounds.writeSound(self.pilebunker_sfx)
       end
       if self.waiting == 0 and self.waiting_state == "Jump" then
         self.waiting_state = ""
         self:jump(0, 14)
-        sound.writeSound(self.jump_sfx)
+        sounds.writeSound(self.jump_sfx)
       end      
     end
   end
