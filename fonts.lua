@@ -8,7 +8,11 @@ local fonts = {
 	char_selector = love.graphics.newFont('/fonts/GoodDog.otf', 18),
 	timer = love.graphics.newFont('/fonts/Comic.otf', 40),
 	game_over = love.graphics.newFont('/fonts/ComicItalic.otf', 24),
-	game_over_help = love.graphics.newFont('/fonts/ComicItalic.otf', 16)
+	game_over_help = love.graphics.newFont('/fonts/ComicItalic.otf', 16),
+	settings = love.graphics.newFont('/fonts/GoodDog.otf', 30),
+	settings_options_big = love.graphics.newFont('/fonts/GoodDog.otf', 60),
+	settings_options_small = love.graphics.newFont('/fonts/GoodDog.otf', 45),
+	title = love.graphics.newFont('/fonts/GoodDog.otf', 30),
 }
 
 return fonts

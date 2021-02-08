@@ -1,11 +1,9 @@
 local love = _G.love
 
 local colors = require 'colors'
+local fonts = require 'fonts'
 local images = require 'images'
 require 'settings'
-
-
-titleFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
 
 default_selections = {title = 1, player1P = 1, AI1P = 1, player12P = 1, player22P = 2}
 if love.filesystem.getInfo("choices.txt") then
@@ -52,7 +50,7 @@ function drawTitle()
 	love.graphics.rectangle("line", 120, 375 + 35 * title_choices.option, 110, 35)
 
 	love.graphics.setColor(colors.ORANGE)
-	love.graphics.setFont(titleFont)
+	love.graphics.setFont(fonts.title)
 	  local toprint = {
 		{"P1 Jump:", buttons.p1jump},
 		{"P1 Attack:", buttons.p1attack},

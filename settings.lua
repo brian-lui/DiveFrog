@@ -1,12 +1,11 @@
 local love = _G.love
 
 local colors = require 'colors'
+local fonts = require 'fonts'
 local images = require 'images'
 local json = require 'dkjson'
 
-settingsFont = love.graphics.newFont('/fonts/GoodDog.otf', 30)
-settingsOptionsFontBig = love.graphics.newFont('/fonts/GoodDog.otf', 60)
-settingsOptionsFontSmall = love.graphics.newFont('/fonts/GoodDog.otf', 45)
+
 settings_popup_window = ""
 
 settings_rounds_background = love.graphics.newQuad(0, 0, 60, 60,
@@ -224,7 +223,7 @@ function drawSettingsMain()
 	else
 	  love.graphics.setColor(colors.DULL_ORANGE)
 	end
-	love.graphics.setFont(settingsFont)
+	love.graphics.setFont(fonts.settings)
 	  for i = 1, #settings_choices.menu do
 		love.graphics.print(settings_choices.menu[i], 300, 240 + (35 * i))
 	  end
@@ -242,7 +241,7 @@ function drawSettingsPopup()
 	  love.graphics.draw(images.settings.texture, settings_rounds_background, 510, 260)
 
 	  love.graphics.setColor(colors.ORANGE)
-	  love.graphics.setFont(settingsOptionsFontBig)
+	  love.graphics.setFont(fonts.settings_options_big)
 	  love.graphics.printf(toprint, 508, 252, 60, "center")
 	love.graphics.pop()
 
@@ -253,7 +252,7 @@ function drawSettingsPopup()
 	  love.graphics.draw(images.settings.texture, settings_timer_background, 510, 295)
 
 	  love.graphics.setColor(colors.ORANGE)
-	  love .graphics.setFont(settingsOptionsFontBig)
+	  love .graphics.setFont(fonts.settings_options_big)
 	  love.graphics.printf(toprint, 510, 290, 70, "center")
 	love.graphics.pop()
 
@@ -264,7 +263,7 @@ function drawSettingsPopup()
 	  love.graphics.draw(images.settings.texture, settings_speed_background, 510, 330)
 
 	  love.graphics.setColor(colors.ORANGE)
-	  love.graphics.setFont(settingsOptionsFontSmall)
+	  love.graphics.setFont(fonts.settings_options_small)
 	  love.graphics.printf(toprint, 510, 333, 130, "center")
 	love.graphics.pop()
 
@@ -275,7 +274,7 @@ function drawSettingsPopup()
 	  love.graphics.draw(images.settings.texture, settings_music_background, 510, 365)
 
 	  love.graphics.setColor(colors.ORANGE)
-	  love.graphics.setFont(settingsOptionsFontSmall)
+	  love.graphics.setFont(fonts.settings_options_small)
 	  love.graphics.printf(toprint, 510, 368, 90, "center")
 	love.graphics.pop()
 
@@ -286,7 +285,7 @@ function drawSettingsPopup()
 	  love.graphics.draw(images.settings.texture, settings_sound_background, 510, 400)
 
 	  love.graphics.setColor(colors.ORANGE)
-	  love.graphics.setFont(settingsOptionsFontSmall)
+	  love.graphics.setFont(fonts.settings_options_small)
 	  love.graphics.printf(toprint, 510, 403, 90, "center")
 	love.graphics.pop()
   elseif settings_popup_window == "Controls" then
@@ -307,7 +306,7 @@ function drawSettingsPopup()
 		toprint[controls_choices.option][2] = "[      ]"
 	  end
 		
-	  love.graphics.setFont(settingsFont)
+	  love.graphics.setFont(fonts.settings)
 
 	  for i = 1, #toprint do
 		love.graphics.setColor(colors.ORANGE)
