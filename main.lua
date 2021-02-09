@@ -309,8 +309,13 @@ function newRound()
   sounds.reset()
 	camera_xy_temp = nil
 	camera_scale_factor = 1
+
+
+	if not music.currentBGM:isPlaying() then music.currentBGM:play() end
+	if music.currentBGM2:isPlaying() then music.currentBGM2:pause() end
+
   if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
-	setBGMspeed(2 ^ (4/12))
+	music.setBGMspeed(2 ^ (4/12))
   end
 end
 
