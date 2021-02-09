@@ -3,6 +3,7 @@ local love = _G.love
 local colors = require 'colors'
 local fonts = require 'fonts'
 local images = require 'images'
+local music = require 'music'
 local json = require 'dkjson'
 
 
@@ -160,7 +161,7 @@ function backToTitle()
   game.best_to_x = Params.Rounds
   init_round_timer = Params.Timer * 60
   game.speed = Params.Speed
-  currentBGM:setVolume(0.9 * Params.Music)
+  music.currentBGM:setVolume(0.9 * Params.Music)
 
   love.filesystem.write("settings.txt", json.encode(settings_options))  
   love.filesystem.write("controls.txt", json.encode(buttons))  

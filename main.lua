@@ -9,7 +9,7 @@ json = require 'dkjson'
 class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
 window = require 'window'  -- current view of stage
-music = require 'music'
+local music = require 'music'
 character = require 'character'
 particles = require 'particles'
 require 'Konrad'
@@ -54,7 +54,7 @@ function love.load()
 	identical_players = false,
 	format = ""
 	}
-  setBGM("Intro.ogg")
+  music.setBGM("Intro.ogg")
   min_dt = 1/60 -- frames per second
   next_time = love.timer.getTime()
   frame = 0 -- framecount
@@ -271,7 +271,7 @@ function love.update(dt)
 	  else -- match end
 		frame = 0
 		frame0 = 0
-		setBGM("GameOver.ogg")
+		music.setBGM("GameOver.ogg")
 		game.current_screen = "match_end" 
 		keybuffer = {}
 	  end
@@ -328,7 +328,7 @@ function startGame()
 	default_selections.player12P = p1_char
 	default_selections.player22P = p2_char
   end
-  love.filesystem.write("choices.txt", json.encode(default_selections)) 
+  love.filesystem.write("choices.txt", json.encode(default_selections))
 
   game.current_screen = "maingame"
 
@@ -339,7 +339,7 @@ function startGame()
   Players = { [p1] = {move = -1, flip = 1, offset = 0},
 			  [p2] = {move = 1, flip = -1, offset = 1}}
   game.BGM = p2.BGM
-  setBGM(game.BGM)
+  music.setBGM(game.BGM)
   newRound()
 end
 

@@ -3,6 +3,7 @@ local love = _G.love
 local colors = require 'colors'
 local fonts = require 'fonts'
 local images = require 'images'
+local music = require 'music' -- background music
 require 'settings'
 
 default_selections = {title = 1, player1P = 1, AI1P = 1, player12P = 1, player22P = 2}
@@ -13,14 +14,35 @@ else
   love.filesystem.write("choices.txt", json.encode(default_selections))
 end
 
-function select1P()
+local function charSelect()
+  music.setBGM("CharSelect.ogg")
+  available_chars = {Konrad, Jean, Sun, Frogson}
+  char_text = {
+	{"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},
+	{"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"},
+	{"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"},
+	{"Anti-Gravity Frog", "Wow!", "+40%", "Jackson/Bison Stances"}
+	}
+  if game.format == "1P" then
+	p1_char = default_selections.player1P 
+	p2_char = default_selections.AI1P
+  elseif game.format == "2P" then
+	p1_char = default_selections.player12P
+	p2_char = default_selections.player22P
+  else
+	print("Invalid game mode selected.")
+  end
+  game.current_screen = "charselect"
+end
+
+local function select1P()
   game.format = "1P"
   default_selections.title = 1
   love.filesystem.write("choices.txt", json.encode(default_selections))
   charSelect()
 end
 
-function select2P()
+local function select2P()
   game.format = "2P"
   default_selections.title = 2
   love.filesystem.write("choices.txt", json.encode(default_selections))
@@ -71,26 +93,7 @@ function drawTitle()
 	love.graphics.pop()
 end
 
-function charSelect()
-  setBGM("CharSelect.ogg")
-  available_chars = {Konrad, Jean, Sun, Frogson}
-  char_text = {
-	{"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},
-	{"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"},
-	{"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"},
-	{"Anti-Gravity Frog", "Wow!", "+40%", "Jackson/Bison Stances"}
-	}
-  if game.format == "1P" then
-	p1_char = default_selections.player1P 
-	p2_char = default_selections.AI1P
-  elseif game.format == "2P" then
-	p1_char = default_selections.player12P
-	p2_char = default_selections.player22P
-  else
-	print("Invalid game mode selected.")
-  end
-  game.current_screen = "charselect"
-end
+
 
 function replays()
   game.current_screen = "replays"

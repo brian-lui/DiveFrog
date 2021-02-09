@@ -10,8 +10,8 @@ require 'character'
 Sun = class('Sun', Fighter)
 function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   if self.isSupering then -- if super was still on during previous round
-	stopBGM2()
-	resumeBGM()
+	music.stopBGM2()
+	music.resumeBGM()
   end
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
 
@@ -372,8 +372,8 @@ function Sun:updateSuper()
 	game.superfreeze_player = self
 	p1:setFrozen(game.superfreeze_time)
 	p2:setFrozen(game.superfreeze_time)
-	pauseBGM()
-	setBGM2(self.aura_BGM)
+	music.pauseBGM()
+	music.setBGM2(self.aura_BGM)
 	sounds.writeSound(self.radio_sfx, 10)
 	drawSuperOverlays(self.facing, self.superface)
 	game.background_color = {255, 100, 100, 255}
@@ -399,10 +399,10 @@ function Sun:updateSuper()
 	self.super = 0
 	self.isSupering = false
 	self.vel_multiple = 1.0
-	stopBGM2()
-	resumeBGM()
+	music.stopBGM2()
+	music.resumeBGM()
 	game.background_color = {255, 128, 128, 255}
-  end  
+  end
 end
 
 

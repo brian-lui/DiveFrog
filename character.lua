@@ -1,4 +1,5 @@
 local images = require 'images'
+local music = require 'music'
 local stage = require 'stage'
 local utilities = require 'utilities'
 
@@ -381,8 +382,8 @@ function Fighter:hitOpponent() -- execute this one time, when you hit the oppone
   self.vel_multiple = 1.0
   self.hasWon = true
   self.isAttacking = false -- stops calling hitOpponent, since the hitbox check is now false
-  currentBGM:pause()
-	if currentBGM2:isPlaying() then currentBGM2:pause() end
+  music.currentBGM:pause()
+	if music.currentBGM2:isPlaying() then music.currentBGM2:pause() end
 
 	if round_timer == 0 then -- multiple speechbubbles if timeout
 		local h_pos = self.foe.center
@@ -418,7 +419,7 @@ function Fighter:victoryPose() -- keep calling this if self.hasWon is true
   end
 
   if frame - round_end_frame == 60 then
-	if not currentBGM2:isPlaying() then currentBGM2:play() else currentBGM:play() end
+	if not music.currentBGM2:isPlaying() then music.currentBGM2:play() else music.currentBGM:play() end
   end
 
   if frame - round_end_frame > 60 then
@@ -635,7 +636,7 @@ end
 
 --[[---------------------------------------------------------------------------
 									  BEDFROG
------------------------------------------------------------------------------]]   
+-----------------------------------------------------------------------------]]
 
 --[[A large sprite character to test the particle offsets to make sure that they're coded well
 Air Special: Has Vlad's jetpack, which costs a lot of meter to use

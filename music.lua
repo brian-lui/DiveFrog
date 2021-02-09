@@ -1,53 +1,58 @@
-currentBGM = love.audio.newSource("sounds/dummy.ogg", "stream")
-currentBGM2 = love.audio.newSource("sounds/dummy.ogg", "stream")
+local love = _G.love
 
-function setBGM(filename)
-  if currentBGM then currentBGM:stop() end
-  currentBGM = love.audio.newSource("music/" .. filename, "stream")
-  currentBGM:setVolume(0.9 * Params.Music)
-  currentBGM:setLooping(true)
-  currentBGM:stop()
-  currentBGM:play()
+local music = {}
+
+music.currentBGM = love.audio.newSource("sounds/dummy.ogg", "stream")
+music.currentBGM2 = love.audio.newSource("sounds/dummy.ogg", "stream")
+
+function music.setBGM(filename)
+  if music.currentBGM then music.currentBGM:stop() end
+  music.currentBGM = love.audio.newSource("music/" .. filename, "stream")
+  music.currentBGM:setVolume(0.9 * Params.Music)
+  music.currentBGM:setLooping(true)
+  music.currentBGM:stop()
+  music.currentBGM:play()
 end
 
-function pauseBGM()
-  currentBGM:pause()
+function music.pauseBGM()
+  music.currentBGM:pause()
 end
 
-function stopBGM()
-  currentBGM:stop()
+function music.stopBGM()
+  music.currentBGM:stop()
 end
 
-function resumeBGM()
-  currentBGM:play()
+function music.resumeBGM()
+  music.currentBGM:play()
 end
 
-function setBGMspeed(speed)
-	currentBGM:setPitch(speed)
+function music.setBGMspeed(speed)
+  music.currentBGM:setPitch(speed)
 end
 
-
-function setBGM2(filename)
-  if currentBGM2 then currentBGM2:stop() end
-  currentBGM2 = love.audio.newSource("music/" .. filename, "stream")
-  currentBGM2:setVolume(0.9 * Params.Music)
-  currentBGM2:setLooping(true)
-  currentBGM2:stop()
-  currentBGM2:play()
+function music.setBGM2(filename)
+  if music.currentBGM2 then music.currentBGM2:stop() end
+  music.currentBGM2 = love.audio.newSource("music/" .. filename, "stream")
+  music.currentBGM2:setVolume(0.9 * Params.Music)
+  music.currentBGM2:setLooping(true)
+  music.currentBGM2:stop()
+  music.currentBGM2:play()
 end
 
-function pauseBGM2()
-  currentBGM2:pause()
+function music.pauseBGM2()
+  music.currentBGM2:pause()
 end
 
-function stopBGM2()
-  currentBGM2:stop()
+function music.stopBGM2()
+  music.currentBGM2:stop()
 end
 
-function resumeBGM2()
-  currentBGM2:resume()
+function music.resumeBGM2()
+  music.currentBGM2:resume()
 end
 
-function setBGM2speed(speed)
-  currentBGM2:setPitch(speed)
+function music.setBGM2speed(speed)
+  music.currentBGM2:setPitch(speed)
 end
+
+return music
