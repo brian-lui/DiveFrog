@@ -1,5 +1,6 @@
 local images = require 'images'
 local music = require 'music'
+local particles = require 'particles'
 local stage = require 'stage'
 local utilities = require 'utilities'
 
@@ -152,7 +153,7 @@ function Fighter:attack_key_press()
 	  local p2_frame_jump = keybuffer[frame - bufferframe][3]
 	  local p2_prev_frame_jump = keybuffer[frame - bufferframe - 1][3]
 	  if p2_frame_jump and not p2_prev_frame_jump then both_keys_down = true end
-	end      
+	end
   end
 
   if both_keys_down and self.isInAir then
@@ -162,14 +163,14 @@ function Fighter:attack_key_press()
   end
 
   --[[ Default attack action. Replace with character-specific attack/kickback actions
-  
+
   -- attack if in air and not already attacking and going up and more than 50 pixels above the ground.
-  if self.isInAir and not selfhitflag and self.recovery == 0 and 
+  if self.isInAir and not selfhitflag and self.recovery == 0 and
 	(self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
 	(self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
 	  self.waiting = 3
 	  self.waiting_state = "Attack"
-	  
+
   -- If on ground, kickback
   elseif not self.isInAir and self.recovery == 0 then
 	self.waiting = 3
@@ -184,8 +185,8 @@ function Fighter:jump(h_vel, v_vel)
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(1)
   self.current_hurtboxes = self.hurtboxes_jumping
-  JumpDust:singleLoad(self.center,
-   self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
+  particles.common.jump_dust:singleLoad(self.center,
+   self.pos[2], 0, self.sprite_size[2] - particles.common.jump_dust.height, self.facing)
 end
 
 function Fighter:kickback(h_vel, v_vel)
@@ -242,8 +243,8 @@ end
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
   if type_table.Mugshot and not type_table.Projectile then
 	self.hitflag.Mugshot = true
-	Mugshot:singleLoad(camera_xy[1], camera_xy[2], 400, 200, 1, 20)
-	Mugshot:playSound(20)
+	particles.common.mugshot:singleLoad(camera_xy[1], camera_xy[2], 400, 200, 1, 20)
+	particles.common.mugshot:playSound(20)
 	game.isScreenShaking = true
   end
 
@@ -304,7 +305,13 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
 
   if frame - round_end_frame > 60 then
 	if self.hitflag.Fire then
-	  OnFire:repeatLoad(self.center, self.pos[2] - 50, 0, 0, self.facing * 1.5)
+	  particles.common.on_fire:repeatLoad(
+      self.center,
+      self.pos[2] - 50,
+      0,
+      0,
+      self.facing * 1.5
+    )
 	  local burn = math.max(255 - (frame - round_end_frame - 40) * 6, 0)
 	  local fade = math.max(255 - (frame - round_end_frame - 82) * 10, 0) / 256
 	  self.color = {burn, burn, burn, math.min(fade, 1)}
@@ -325,22 +332,22 @@ function Fighter:gotKOed() -- keep calling this until self.isKO is false
 
 	  if frame % 4 == 0 then
 		local i = math.floor((frame % (12 * 4)) / 4) + 1
-		Explosion1:singleLoad(self.center,
+		particles.common.explosion1:singleLoad(self.center,
 		  self.pos[2],
 		  self.facing * (self.vel[1] + (i - 6) * 4),
 		  self.vel[2] + (i - 6) * 12,
 		  self.facing * 4, 0)
-		Explosion2:singleLoad(self.center,
+		particles.common.explosion2:singleLoad(self.center,
 		  self.pos[2],
 		  self.facing * (self.vel[1] / 2 + (i - 6) * 8),
 		  self.vel[2] + (i - 6) * 4,
 		  self.facing * 3, 2)
-		Explosion3:singleLoad(self.center,
+		particles.common.explosion3:singleLoad(self.center,
 		  self.pos[2],
 		  self.facing * ((i - 6) * 12),
 		  self.vel[2] + (i - 6) * 8,
 		  self.facing * 2, 4)
-		Explosion2:playSound()
+		particles.common.explosion2:playSound()
 	  end
 	else
 	  self.isFrictionOn = true
@@ -516,7 +523,7 @@ function Fighter:updatePos()
   if self.mugshotFrames > 0 then
 	self.vel_multiple = 0.7
 	self.mugshotFrames = self.mugshotFrames - 1
-	Dizzy:repeatLoad(self.center, self.pos[2] - 32, 0, 0, 1)
+	particles.common.dizzy:repeatLoad(self.center, self.pos[2] - 32, 0, 0, 1)
 	if self.mugshotFrames == 0 then self.vel_multiple = 1.0 end
   end
 
@@ -616,7 +623,7 @@ function Fighter:stateCheck()
 	  self:jump(0, 12)
 	  sounds.writeSound(self.jump_sfx)
 	end
-	if self.waiting == 0 and self.waiting_state == "Attack" then 
+	if self.waiting == 0 and self.waiting_state == "Attack" then
 	  self.waiting_state = ""
 	  self:attack(6, 8)
 	  sounds.writeSound(self.attack_sfx)

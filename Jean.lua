@@ -1,5 +1,6 @@
 local class = require 'middleclass'
 local images = require 'images'
+local particles = require 'particles'
 local stage = require 'stage' -- for checking floor/walls
 local window = require 'window'
 local music = require 'music' -- background music
@@ -136,15 +137,15 @@ end
     self.pilebunking = true -- to prevent dandy step or pilebunker while pilebunking
     self.isAttacking = true -- needed to activate hitboxes
 
-    Explosion1:singleLoad(self.center, self.pos[2], 60, 50, self.facing * 2, 0)
-    Explosion2:singleLoad(self.center, self.pos[2], 50, 70, self.facing * 2, 5, "pre")
-    Explosion3:singleLoad(self.center, self.pos[2], 100, 30, self.facing * 2, 10)
-    Explosion1:singleLoad(self.center, self.pos[2], 40, 20, self.facing * 2, 13, "pre")
-    Explosion2:singleLoad(self.center, self.pos[2], 70, 80, self.facing * 2, 15)
-    Explosion3:singleLoad(self.center, self.pos[2], 90, 5, self.facing * 2, 17, "pre")
-    Explosion1:playSound(0)
-    Explosion2:playSound(5)
-    Explosion3:playSound(15)
+    particles.common.explosion1:singleLoad(self.center, self.pos[2], 60, 50, self.facing * 2, 0)
+    particles.common.explosion2:singleLoad(self.center, self.pos[2], 50, 70, self.facing * 2, 5, "pre")
+    particles.common.explosion3:singleLoad(self.center, self.pos[2], 100, 30, self.facing * 2, 10)
+    particles.common.explosion1:singleLoad(self.center, self.pos[2], 40, 20, self.facing * 2, 13, "pre")
+    particles.common.explosion2:singleLoad(self.center, self.pos[2], 70, 80, self.facing * 2, 15)
+    particles.common.explosion3:singleLoad(self.center, self.pos[2], 90, 5, self.facing * 2, 17, "pre")
+    particles.common.explosion1:playSound(0)
+    particles.common.explosion2:playSound(5)
+    particles.common.explosion3:playSound(15)
 
     self.vel[1] = h_vel * self.facing
     self:updateImage(6)

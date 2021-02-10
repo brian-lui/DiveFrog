@@ -4,7 +4,7 @@ local colors = require 'colors'
 local fonts = require 'fonts'
 local images = require 'images'
 local stage = require 'stage'
-particles = require 'particles'
+local particles = require 'particles'
 
 portraitsQuad = love.graphics.newQuad(0, 0, 200, 140, images.portraits:getDimensions())
 
@@ -228,14 +228,26 @@ function _drawOverlaySuperBars(side, op)
 		if not side.isSupering then
 			-- super bar base
 			love.graphics.setColor(colors.OFF_WHITE)
-			love.graphics.draw(SuperBarBase.image, window.center + (op.move * 375), window.height - 35,
-				0, 1, 1, op.offset * SuperBarBase.width)
+			love.graphics.draw(
+				particles.overlays.super_bar_base.image,
+				window.center + (op.move * 375),
+				window.height - 35,
+				0,
+				1,
+				1,
+				op.offset * particles.overlays.super_bar_base.width
+			)
 
 			-- super meter
 			local index = math.floor((frame % 64) / 8)
-			local Quad = love.graphics.newQuad(0, index * SuperMeter.height,
-				SuperMeter.width * (side.super / 96), SuperMeter.height,
-				SuperMeter.image_size[1], SuperMeter.image_size[2])
+			local Quad = love.graphics.newQuad(
+				0,
+				index * particles.overlays.super_meter.height,
+				particles.overlays.super_meter.width * (side.super / 96),
+				particles.overlays.super_meter.height,
+				particles.overlays.super_meter.image_size[1],
+				particles.overlays.super_meter.image_size[2]
+			)
 			local supermeterColor = {0, 32 + side.super * 2, 0, 1}
 			if side.super >= 32 and side.super < 64 then
 				supermeterColor = {80 + side.super, 80 + side.super, 160 + side.super, 255}
@@ -243,17 +255,41 @@ function _drawOverlaySuperBars(side, op)
 				supermeterColor = {159 + side.super, 159 + side.super, 0, 255}
 			end
 			love.graphics.setColor(supermeterColor)
-			love.graphics.draw(SuperMeter.image, Quad, window.center + (op.move * 373),
-				window.height - 33, 0, op.flip, 1, 0)
+			love.graphics.draw(
+				particles.overlays.super_meter.image,
+				Quad,
+				window.center + (op.move * 373),
+				window.height - 33,
+				0,
+				op.flip,
+				1,
+				0
+			)
 
 		else -- if super full, draw frog factor
-			local index = math.floor((frame % FrogFactor.total_time) / FrogFactor.time_per_frame)
-			local Quad = love.graphics.newQuad(index * FrogFactor.width, 0,
-				FrogFactor.width * (side.super / 96), FrogFactor.height,
-				FrogFactor.image_size[1], FrogFactor.image_size[2])
+			local index = math.floor(
+				(frame % particles.overlays.frog_factor.total_time) /
+				particles.overlays.frog_factor.time_per_frame
+			)
+			local Quad = love.graphics.newQuad(
+				index * particles.overlays.frog_factor.width,
+				0,
+				particles.overlays.frog_factor.width * (side.super / 96),
+				particles.overlays.frog_factor.height,
+				particles.overlays.frog_factor.image_size[1],
+				particles.overlays.frog_factor.image_size[2]
+			)
 			love.graphics.setColor(colors.WHITE)
-			love.graphics.draw(FrogFactor.image, Quad, window.center + (op.move * 390),
-				window.height - FrogFactor.height - 10, 0, op.flip, 1, 0)
+			love.graphics.draw(
+				particles.overlays.frog_factor.image,
+				Quad,
+				window.center + (op.move * 390),
+				window.height - particles.overlays.frog_factor.height - 10,
+				0,
+				op.flip,
+				1,
+				0
+			)
 		end
 	love.graphics.pop()
 end
@@ -421,7 +457,7 @@ end
 function drawSuperOverlays(facing, frogface)
 	for i = 0, 44 do
 		local h_shift = -200 + math.sin(i / 38) * 400
-		SuperProfile:repeatLoad(window.center, 200, h_shift, 0, facing, i, "post2")
+		particles.overlays.super_profile:repeatLoad(window.center, 200, h_shift, 0, facing, i, "post2")
 		local frog_shift = -400 + math.sin(i / 38) * 400
 		frogface:repeatLoad(window.center, 200, frog_shift, 0, facing, i, "post3")
 	end

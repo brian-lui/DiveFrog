@@ -1,5 +1,6 @@
 local class = require 'middleclass'
 local images = require 'images'
+local particles = require 'particles'
 local stage = require 'stage' -- for checking floor/walls
 local window = require 'window'
 local music = require 'music' -- background music
@@ -85,7 +86,7 @@ end
 
   function Konrad:attack_key_press()
 	-- attack if in air and not already attacking and either: >50 above floor, or landing and >30 above.
-	if self.isInAir and not self.isAttacking and 
+	if self.isInAir and not self.isAttacking and
 	  (self.pos[2] + self.sprite_size[2] < stage.floor - 50 or
 	  (self.vel[2] > 0 and self.pos[2] + self.sprite_size[2] < stage.floor - 30)) then
 		self.waiting = 3
@@ -105,7 +106,7 @@ end
 	  self.waiting_state = ""
 	  HyperKickFlames:playSound()
 	  self.vel = {14 * self.facing, 19}
-	  self.isAttacking = true  
+	  self.isAttacking = true
 	  self.hyperkicking = true
 	  self:updateImage(4)
 	  self.gravity = 0
@@ -150,7 +151,13 @@ end
 		self.waiting_state = ""
 		self:jump(0, 14, self.default_gravity)
 		sounds.writeSound(self.jump_sfx)
-		JumpDust:singleLoad(self.center, self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
+		particles.common.jump_dust:singleLoad(
+			self.center,
+			self.pos[2],
+			0,
+			self.sprite_size[2] - particles.common.jump_dust.height,
+			self.facing
+		)
 	  end
 	  if self.waiting == 0 and self.waiting_state == "DoubleJump" then
 		self.waiting_state = ""

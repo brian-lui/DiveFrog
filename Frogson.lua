@@ -1,5 +1,6 @@
 local class = require 'middleclass'
 local images = require 'images'
+local particles = require 'particles'
 local stage = require 'stage' -- for checking floor/walls
 local window = require 'window'
 local music = require 'music' -- background music
@@ -159,8 +160,13 @@ end
 	  if self.waiting == 0 and self.waiting_state == "Jump" then
 		self.waiting_state = ""
 		sounds.writeSound(self.jump_sfx)
-		JumpDust:singleLoad(self.center, self.pos[2], 0, self.sprite_size[2] - JumpDust.height, self.facing)
-
+		particles.common.jump_dust:singleLoad(
+			self.center,
+			self.pos[2],
+			0,
+			self.sprite_size[2] - particles.common.jump_dust.height,
+			self.facing
+		)
 		if self.jackson_stance then
 			self:jump(0, 9, self.default_gravity * 0.6)
 		else
@@ -232,8 +238,13 @@ end
 		self.vel = {-h_vel * self.facing, 0}
 		self:updateImage(3)
 		self.current_hurtboxes = self.hurtboxes_moonwalk
-		KickbackDust:singleLoad(self.center,
-	self.pos[2], 0, self.sprite_size[2] - KickbackDust.height, self.facing)
+		particles.common.kickback_dust:singleLoad(
+			self.center,
+			self.pos[2],
+			0,
+			self.sprite_size[2] - particles.common.kickback_dust.height,
+			self.facing
+		)
 	end
 
   function Frogson:extraStuff()
