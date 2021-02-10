@@ -3,7 +3,7 @@ local love = _G.love
 local images = require 'images'
 require 'lovedebug'
 local utilities = require 'utilities' -- helper functions
-require 'camera'
+local camera = require 'camera'
 require 'draw'
 json = require 'dkjson'
 class = require 'middleclass' -- class support

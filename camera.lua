@@ -1,7 +1,7 @@
 require 'utilities'
 local stage = require 'stage'
 
-camera = {}
+local camera = {}
 camera.x = 0
 camera.y = 0
 camera.scaleX = 1
@@ -43,3 +43,5 @@ function camera:setScale(sx, sy)
   self.scaleX = sx or self.scaleX
   self.scaleY = sy or self.scaleY
 end
+
+return camera
