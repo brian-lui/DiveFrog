@@ -2,6 +2,7 @@ local love = _G.love
 
 local class = require 'middleclass'
 local images = require 'images'
+local sounds = require 'sounds'
 require 'utilities'
 
 --[[
