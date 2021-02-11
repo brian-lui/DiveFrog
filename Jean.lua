@@ -142,9 +142,9 @@ end
     particles.common.explosion1:singleLoad(self.center, self.pos[2], 40, 20, self.facing * 2, 13, "pre")
     particles.common.explosion2:singleLoad(self.center, self.pos[2], 70, 80, self.facing * 2, 15)
     particles.common.explosion3:singleLoad(self.center, self.pos[2], 90, 5, self.facing * 2, 17, "pre")
-    particles.common.explosion1:playSound(0)
-    particles.common.explosion2:playSound(5)
-    particles.common.explosion3:playSound(15)
+    particles.common.explosion1:playSound(5)
+    particles.common.explosion2:playSound(15)
+    particles.common.explosion3:playSound(0)
 
     self.vel[1] = h_vel * self.facing
     self:updateImage(6)

@@ -203,14 +203,14 @@ particles.common = {
 		{880, 80},
 		{80, 80},
 		3,
-		"Explosion.ogg"
+		"Explosion2.ogg"
 	),
 	explosion3 = Particle:new(
 		images.particles.common.explosion3,
 		{880, 80},
 		{80, 80},
 		3,
-		"Explosion.ogg"
+		"Explosion3.ogg"
 	),
 	wire_sea = Particle:new(
 		images.particles.common.wire_sea,
