@@ -100,12 +100,8 @@ function Particle:singleLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing
 end
 
 
-
-
---[[---------------------------------------------------------------------------
-							AFTERIMAGES SUB-CLASS
------------------------------------------------------------------------------]]
-AfterImage = class('AfterImage', Particle)
+-- when super is active
+local AfterImage = class('AfterImage', Particle)
 function AfterImage:initialize(image, image_size, sprite_size, time_per_frame, sound)
 	Particle.initialize(self, image, image_size, sprite_size, time_per_frame, sound)
 end
@@ -124,10 +120,11 @@ function AfterImage:loadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing)
 		sprite_v + v_shift,
 		facing, math.abs(facing), color)
 	end
-
 end
 
 local particles = {}
+
+particles.AfterImage = AfterImage
 
 particles.overlays = {
 	frog_factor = Particle:new(

@@ -610,7 +610,7 @@ function Fighter:updateSuper()
 	if self.isSupering and not (self.isKO or self.hasWon) then
 	self.super = self.super - self.super_drainspeed
 	-- after-images
-	local shadow = AfterImage(self.image, self.image_size, self.sprite_size, 1)
+	local shadow = particles.AfterImage(self.image, self.image_size, self.sprite_size, 1)
 	shadow:loadFX(self.center, self.pos[2], 0, 0, self.facing)
 	end
 
