@@ -13,7 +13,7 @@ function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.fighter_name = "M. Frogson"
   self.icon = images.characters.frogson.icon
-  self.superface = FrogsonSuperface
+  self.superface = particles.frogson.super_face
   self.win_portrait = images.characters.frogson.win_portrait
   self.win_quote = "Thanks."
   self.stage_background = images.characters.frogson.stage_background
@@ -269,7 +269,14 @@ end
 			self.gravity = self.default_gravity
 			self:setFrozen(10)
 			self.foe:setFrozen(10)
-			ScreenFlash:singleLoad(camera_xy[1], camera_xy[2], 600, 0, 1, 0)
+			particles.frogson.screen_flash:singleLoad(
+				camera_xy[1],
+				camera_xy[2],
+				600,
+				0,
+				1,
+				0
+			)
 		end
 	end
   end

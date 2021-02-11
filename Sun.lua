@@ -180,8 +180,8 @@ function Sun:ground_special()
 	end
 	self.recovery = 0
 	self.waiting_state = ""
-	WireSea:singleLoad(self.center, self.pos[2], 0, 0, self.facing)
-	WireSea:playSound()
+	particles.common.wire_sea:singleLoad(self.center, self.pos[2], 0, 0, self.facing)
+	particles.common.wire_sea:playSound()
 	self:land()
 	self:setFrozen(10)
 	self.foe:setFrozen(10)

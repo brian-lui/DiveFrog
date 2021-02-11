@@ -12,7 +12,7 @@ Jean = class('Jean', Fighter)
 function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.icon = images.characters.jean.icon
-  self.superface = JeanSuperface
+  self.superface = particles.jean.super_face
   self.win_portrait = images.characters.jean.win_portrait
   self.win_quote = 'You must defeat "Wampire" to stand a chance.'
   self.fighter_name = "Mustachioed Jean"
@@ -165,22 +165,22 @@ end
       sounds.writeSound(self.air_special_sfx)
       self:jump(0, -36)
     end
-  end    
+  end
 
   function Jean:ground_special()
     if self.isSupering and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 8
       self.waiting_state = ""
-      WireSea:singleLoad(self.center, self.pos[2], 0, 0, self.facing, 0)
-      WireSea:playSound()
+      particles.common.wire_sea:singleLoad(self.center, self.pos[2], 0, 0, self.facing, 0)
+      particles.common.wire_sea:playSound()
       self:land()
       self:setFrozen(10)
       self.foe:setFrozen(10)
     elseif self.super >= 16 and (self.dandy or self.pilebunking) and math.abs(self.vel[1]) < 18 then
       self.super = self.super - 16
       self.waiting_state = ""
-      WireSea:singleLoad(self.center, self.pos[2], 0, 0, self.facing, 0)
-      WireSea:playSound()
+      particles.common.wire_sea:singleLoad(self.center, self.pos[2], 0, 0, self.facing, 0)
+      particles.common.wire_sea:playSound()
       self:land()
       self:setFrozen(10)
       self.foe:setFrozen(10)

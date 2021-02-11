@@ -356,15 +356,28 @@ particles.sun = {
 	),
 }
 
---------------------------------- M. FROGSON ----------------------------------
-FrogsonSuperface = Particle:new(images.characters.frogson.super_face,
-	{275, 200}, {275, 200}, 1)
-ScreenFlash = Particle:new(images.characters.frogson.screen_flash,
-	{1200, 800}, {1200, 800}, 4)
+particles.frogson = {
+	super_face = Particle:new(
+		images.characters.frogson.super_face,
+		{275, 200},
+		{275, 200},
+		1
+	),
+	screen_flash = Particle:new(
+		images.characters.frogson.screen_flash,
+		{1200, 800},
+		{1200, 800},
+		4
+	),
+}
 
------------------------------- MUSTACHIOED JEAN -------------------------------
-JeanSuperface = Particle:new(images.characters.jean.super_face,
-	{275, 200}, {275, 200}, 1)
-WireSea = Particle:new(images.particles.common.wire_sea,
-	{1600, 220}, {200, 220}, 2, "WireSea.ogg")
+particles.jean = {
+	super_face = Particle:new(
+		images.characters.jean.super_face,
+		{275, 200},
+		{275, 200},
+		1
+	),
+}
+
 return particles
