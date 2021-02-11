@@ -29,17 +29,17 @@ local flavor_rand = {top = 1, bottom = 1}
 
 
 speechbubbles = {
-	SpeechBubblePow,
-	SpeechBubbleBiff,
-	SpeechBubbleWham,
-	SpeechBubbleZap,
-	SpeechBubbleJeb,
-	SpeechBubbleBath,
-	SpeechBubbleBop,
-	SpeechBubbleSmack,
-	SpeechBubbleThump,
-	SpeechBubbleZwapp,
-	SpeechBubbleClunk
+	particles.speech_bubbles.pow,
+	particles.speech_bubbles.biff,
+	particles.speech_bubbles.wham,
+	particles.speech_bubbles.zap,
+	particles.speech_bubbles.jeb,
+	particles.speech_bubbles.bath,
+	particles.speech_bubbles.bop,
+	particles.speech_bubbles.smack,
+	particles.speech_bubbles.thump,
+	particles.speech_bubbles.zwapp,
+	particles.speech_bubbles.clunk,
 }
 
 function drawBackground()

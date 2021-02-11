@@ -216,37 +216,109 @@ particles.common = {
 	),
 }
 
-------------------------------- SPEECH BUBBLES --------------------------------
-SpeechBubblePow = Particle:new(images.particles.speech_bubbles.pow,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleBiff = Particle:new(images.particles.speech_bubbles.biff,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleWham = Particle:new(images.particles.speech_bubbles.wham,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleZap = Particle:new(images.particles.speech_bubbles.zap,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleJeb = Particle:new(images.particles.speech_bubbles.jeb,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleBath = Particle:new(images.particles.speech_bubbles.bath,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleBop = Particle:new(images.particles.speech_bubbles.bop,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleSmack = Particle:new(images.particles.speech_bubbles.smack,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleThump = Particle:new(images.particles.speech_bubbles.thump,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleZwapp = Particle:new(images.particles.speech_bubbles.zwapp,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
-SpeechBubbleClunk = Particle:new(images.particles.speech_bubbles.clunk,
-	{160, 120}, {160, 120}, 1, "SpeechBubble.ogg")
+particles.speech_bubbles = {
+	pow = Particle:new(
+		images.particles.speech_bubbles.pow,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	biff = Particle:new(
+		images.particles.speech_bubbles.biff,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	wham = Particle:new(
+		images.particles.speech_bubbles.wham,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	zap = Particle:new(
+		images.particles.speech_bubbles.zap,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	jeb = Particle:new(
+		images.particles.speech_bubbles.jeb,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	bath = Particle:new(
+		images.particles.speech_bubbles.bath,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	bop = Particle:new(
+		images.particles.speech_bubbles.bop,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	smack = Particle:new(
+		images.particles.speech_bubbles.smack,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	thump = Particle:new(
+		images.particles.speech_bubbles.thump,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	zwapp = Particle:new(
+		images.particles.speech_bubbles.zwapp,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+	clunk = Particle:new(
+		images.particles.speech_bubbles.clunk,
+		{160, 120},
+		{160, 120},
+		1,
+		"SpeechBubble.ogg"
+	),
+}
 
------------------------------------ KONRAD ------------------------------------
-KonradSuperface = Particle:new(images.characters.konrad.super_face,
-	{275, 200}, {275, 200}, 1)
-HyperKickFlames = Particle:new(images.characters.konrad.hyperkick_flames,
-	{800, 200}, {200, 200}, 2, "Konrad/KonradHyperKick.ogg")
-DoubleJumpDust = Particle:new(images.characters.konrad.doublejump_dust,
-	{162, 43}, {54, 43}, 4, "Konrad/KonradDoubleJump.ogg", {255, 255, 255, 0.76})
+particles.konrad = {
+	super_face = Particle:new(
+		images.characters.konrad.super_face,
+		{275, 200},
+		{275, 200},
+		1
+	),
+	hyperkick_flames = Particle:new(
+		images.characters.konrad.hyperkick_flames,
+		{800, 200},
+		{200, 200},
+		2,
+		"Konrad/KonradHyperKick.ogg"
+	),
+	doublejump_dust = Particle:new(
+		images.characters.konrad.doublejump_dust,
+		{162, 43},
+		{54, 43},
+		4,
+		"Konrad/KonradDoubleJump.ogg",
+		{255, 255, 255, 0.76}
+	),
+}
 
 -------------------------------- SUN BADFROG ----------------------------------
 SunSuperface = Particle:new(images.characters.sun.super_face,

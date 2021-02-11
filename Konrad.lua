@@ -13,7 +13,7 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.fighter_name = "Konrad"
   self.icon = images.characters.konrad.icon
-  self.superface = KonradSuperface
+  self.superface = particles.konrad.super_face
   self.win_portrait = images.characters.konrad.win_portrait
   self.win_quote = "You have been defeated by Konrad the \ntalking frog with a cape who plays poker."
   self.stage_background = images.characters.konrad.stage_background
@@ -104,7 +104,7 @@ end
 	self.pos[2] + self.sprite_size[2] < stage.floor - 50 then
 	  self.super = self.super - 16
 	  self.waiting_state = ""
-	  HyperKickFlames:playSound()
+	  particles.konrad.hyperkick_flames:playSound()
 	  self.vel = {14 * self.facing, 19}
 	  self.isAttacking = true
 	  self.hyperkicking = true
@@ -162,8 +162,14 @@ end
 	  if self.waiting == 0 and self.waiting_state == "DoubleJump" then
 		self.waiting_state = ""
 		self:jump(4.8, 4.8, self.default_gravity)
-		DoubleJumpDust:singleLoad(self.center, self.pos[2], -30, self.sprite_size[2] - DoubleJumpDust.height, self.facing)
-		DoubleJumpDust:playSound()
+		particles.konrad.doublejump_dust:singleLoad(
+			self.center,
+			self.pos[2],
+			-30,
+			self.sprite_size[2] - particles.konrad.doublejump_dust.height,
+			self.facing
+		)
+		particles.konrad.doublejump_dust:playSound()
 	  end
 	  if self.waiting == 0 and self.waiting_state == "Attack" then 
 		self.waiting_state = ""
@@ -189,7 +195,13 @@ end
 
   function Konrad:extraStuff()
 	if self.hyperkicking and not self.isKO then
-	  HyperKickFlames:repeatLoad(self.center, self.pos[2], 0, 0, self.facing)
+	  particles.konrad.hyperkick_flames:repeatLoad(
+	  	self.center,
+	  	self.pos[2],
+	  	0,
+	  	0,
+	  	self.facing
+	  )
 	end
   end
 
