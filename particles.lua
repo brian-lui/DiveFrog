@@ -214,6 +214,13 @@ particles.common = {
 		3,
 		"Explosion.ogg"
 	),
+	wire_sea = Particle:new(
+		images.particles.common.wire_sea,
+		{1600, 220},
+		{200, 220},
+		2,
+		"WireSea.ogg"
+	),
 }
 
 particles.speech_bubbles = {
@@ -320,15 +327,34 @@ particles.konrad = {
 	),
 }
 
--------------------------------- SUN BADFROG ----------------------------------
-SunSuperface = Particle:new(images.characters.sun.super_face,
-	{275, 200}, {275, 200}, 1)
-SunAura = Particle:new(images.characters.sun.aura,
-	{800, 250}, {200, 250}, 6)
-Hotflame = Particle:new(images.characters.sun.hotflame,
-	{120, 195}, {60, 195}, 4, "Sun/Hotflame.ogg")
-Hotterflame = Particle:new(images.characters.sun.hotterflame,
-	{300, 252}, {150, 252}, 4, "Sun/Hotterflame.ogg")
+particles.sun = {
+	super_face = Particle:new(
+		images.characters.sun.super_face,
+		{275, 200},
+		{275, 200},
+		1
+	),
+	aura = Particle:new(
+		images.characters.sun.aura,
+		{800, 250},
+		{200, 250},
+		6
+	),
+	hotflame = Particle:new(
+		images.characters.sun.hotflame,
+		{120, 195},
+		{60, 195},
+		4,
+		"Sun/Hotflame.ogg"
+	),
+	hotterflame = Particle:new(
+		images.characters.sun.hotterflame,
+		{300, 252},
+		{150, 252},
+		4,
+		"Sun/Hotterflame.ogg"
+	),
+}
 
 --------------------------------- M. FROGSON ----------------------------------
 FrogsonSuperface = Particle:new(images.characters.frogson.super_face,

@@ -1,10 +1,10 @@
 local class = require 'middleclass'
 local images = require 'images'
+local particles = require 'particles'
 local stage = require 'stage' -- for checking floor/walls
 local window = require 'window'
 local music = require 'music' -- background music
 require 'utilities'
-require 'particles'
 require 'character'
 
 Sun = class('Sun', Fighter)
@@ -21,7 +21,7 @@ function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_scor
 
   -- images
   self.icon = images.characters.sun.icon
-  self.superface = SunSuperface
+  self.superface = particles.sun.super_face
   self.win_portrait = images.characters.sun.win_portrait
   self.stage_background = images.characters.sun.stage_background
   self.image = images.characters.sun.image
@@ -159,13 +159,13 @@ function Sun:ground_special()
 	if not self.isSupering then
 	  self.super = self.super - 8
 	  self.hotflametime = {50, 0, 0, 0, 0} -- "low quality" way to implement (50 - 30) frame delay
-	  Hotflame:playSound() -- flamey sounds
+	  particles.sun.hotflame:playSound() -- flamey sounds
 	  sounds.writeSound(self.hotflame_sfx)
 	  self.recovery = 45
 	elseif self.isSupering and self.life > 25 then
 	  self.life = self.life - 20
 	  self.hotterflametime = 40
-	  Hotterflame:playSound() -- big flamey sound
+	  particles.sun.hotterflame:playSound() -- big flamey sound
 	  sounds.writeSound(self.hotterflame_sfx)
 	  self.recovery = 15
 	end
@@ -236,7 +236,7 @@ function Sun:extraStuff()
 
 		if self.hotflametime[i] < 15 and self.hotflametime[i] > 13 then
 		  self.hotflametime[i + 1] = 30
-		  Hotflame:playSound()
+		  particles.sun.hotflame:playSound()
 		end
 		if self.hotflametime[i] <= 30 then -- low quality way to implement startup
 		  self.hitboxes_hotflame[#self.hitboxes_hotflame + 1] = {
@@ -246,16 +246,15 @@ function Sun:extraStuff()
 			R = (self.sprite_size[1] + (45 * (i - 1)) - 10) * self.facing * self.hotflaming_facing, 
 			D = self.sprite_size[2],
 			Flag1 = "Fire",
-			Flag2 = "Projectile"} 
-			
+			Flag2 = "Projectile"}
 		end
 	  end
 
 	  if self.hotflametime[i] <= 35 then -- low quality way to implmement startup
-		Hotflame:repeatLoad(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
+		particles.sun.hotflame:repeatLoad(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
 		  self.hotflaming_pos[2],
 		  self.sprite_size[1] / 2 + 45 * (i - 1) - 20,
-		  self.sprite_size[2] - Hotflame.sprite_size[2],
+		  self.sprite_size[2] - particles.sun.hotflame.sprite_size[2],
 		  self.hotflaming_facing, 0, false)
 	  end
 	end
@@ -264,15 +263,17 @@ function Sun:extraStuff()
   if self.hotterflametime > 0 then
 	self.isAttacking = true
 
-	Hotterflame:singleLoad(self.hotflaming_pos[1] + self.sprite_size[1] / 2,
-	  self.hotflaming_pos[2],
-	  self.sprite_size[1] / 2,
-	  self.sprite_size[2] - Hotterflame.sprite_size[2],
-	  self.hotflaming_facing)
+	particles.sun.hotterflame:singleLoad(
+		self.hotflaming_pos[1] + self.sprite_size[1] / 2,
+		self.hotflaming_pos[2],
+		self.sprite_size[1] / 2,
+		self.sprite_size[2] - particles.sun.hotterflame.sprite_size[2],
+		self.hotflaming_facing
+	)
 
 	if self.frozenFrames == 0 and not self.foe.hitflag.Projectile then
 	  self.hotterflametime = math.max(self.hotterflametime - (1 * game.speed), 0)
-			
+
 	  self.hitboxes_hotflame[1] = {
 		-- still slightly buggy but whatevs it won't come up in a real match
 		L = (self.sprite_size[1] - 50) * self.facing * self.hotflaming_facing,
@@ -282,7 +283,7 @@ function Sun:extraStuff()
 		Flag1 = "Fire",
 		Flag2 = "Projectile"}
 	end
-  end  
+  end
 
   local temp_hotflame = {}
   for i = 1, #self.hitboxes_hotflame do
@@ -380,8 +381,16 @@ function Sun:updateSuper()
   end
 
   if self.isSupering then
-	SunAura:repeatLoad(self.center, self.pos[2], 0, self.sprite_size[2] - SunAura.sprite_size[2],
-	  self.facing, 0, "pre", {255, 255, 255, 196})
+	particles.sun.aura:repeatLoad(
+		self.center,
+		self.pos[2],
+		0,
+		self.sprite_size[2] - particles.sun.aura.sprite_size[2],
+		self.facing,
+		0,
+		"pre",
+		{255, 255, 255, 196}
+	)
 
 	if not (self.isKO or self.hasWon) then
 	  self.super = self.super - self.super_drainspeed

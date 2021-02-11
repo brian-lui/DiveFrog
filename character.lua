@@ -195,8 +195,13 @@ function Fighter:kickback(h_vel, v_vel)
   self.vel = {h_vel * self.facing, -v_vel}
   self:updateImage(3)
   self.current_hurtboxes = self.hurtboxes_kickback
-  KickbackDust:singleLoad(self.center,
-	self.pos[2], 0, self.sprite_size[2] - KickbackDust.height, self.facing)
+  particles.common.kickback_dust:singleLoad(
+    self.center,
+    self.pos[2],
+    0,
+    self.sprite_size[2] - particles.common.kickback_dust.height,
+    self.facing
+  )
 end
 
 function Fighter:land()
