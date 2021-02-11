@@ -5,7 +5,6 @@ local stage = require 'stage' -- for checking floor/walls
 local window = require 'window'
 local music = require 'music' -- background music
 require 'utilities'
-require 'particles'
 require 'character'
 
 Jean = class('Jean', Fighter)

@@ -3,6 +3,7 @@ local love = _G.love
 local colors = require 'colors'
 local fonts = require 'fonts'
 local images = require 'images'
+local json = require 'dkjson'
 local music = require 'music' -- background music
 require 'settings'
 

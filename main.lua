@@ -5,13 +5,12 @@ require 'lovedebug'
 local utilities = require 'utilities' -- helper functions
 local camera = require 'camera'
 require 'draw'
-json = require 'dkjson'
+local json = require 'dkjson'
 class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
 window = require 'window'  -- current view of stage
 local music = require 'music'
 character = require 'character'
-particles = require 'particles'
 require 'Konrad'
 require 'Jean'
 require 'Sun'

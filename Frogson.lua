@@ -6,7 +6,6 @@ local window = require 'window'
 local music = require 'music' -- background music
 require 'character'
 require 'utilities'
-require 'particles'
 
 Frogson = class('Frogson', Fighter)
 function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
