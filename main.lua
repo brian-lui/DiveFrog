@@ -76,10 +76,10 @@ function love.draw()
 		draw.draw_main()
 
 	elseif game.current_screen == "charselect" then
-	drawCharSelect()
+		draw.draw_charselect()
 
 	elseif game.current_screen == "match_end" then
-	drawMatchEnd()
+		draw.draw_matchend()
 
 	elseif game.current_screen == "title" then
 	drawTitle()
@@ -323,7 +323,7 @@ function love.keypressed(key)
 
 	if key == buttons.p1jump then
 		p1_char = p1_char % #available_chars + 1
-		portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, images.portraits:getDimensions())
+		draw.portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, images.portraits:getDimensions())
 		sounds.playCharSelectSFX()
 	end
 

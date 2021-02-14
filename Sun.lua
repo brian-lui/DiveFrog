@@ -1,4 +1,5 @@
 local class = require 'middleclass'
+local draw = require 'draw'
 local images = require 'images'
 local particles = require 'particles'
 local stage = require 'stage' -- for checking floor/walls
@@ -376,7 +377,7 @@ function Sun:updateSuper()
 	music.pauseBGM()
 	music.setBGM2(self.aura_BGM)
 	sounds.writeSound(self.radio_sfx, 10)
-	drawSuperOverlays(self.facing, self.superface)
+	draw.draw_super_overlays(self.facing, self.superface)
 	game.background_color = {255, 100, 100, 255}
   end
 

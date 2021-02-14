@@ -1,3 +1,4 @@
+local draw = require 'draw'
 local images = require 'images'
 local music = require 'music'
 local particles = require 'particles'
@@ -611,7 +612,7 @@ end
 function Fighter:updateSuper()
 	if self.super >= 96 then
 	self.super = 95.999
-	drawSuperOverlays(self.facing, self.superface)
+	draw.draw_super_overlays(self.facing, self.superface)
 	sounds.writeSound(super_sfx)
 	self.isSupering = true
 	self.vel_multiple = self.vel_multiple_super
