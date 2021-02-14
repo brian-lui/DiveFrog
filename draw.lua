@@ -1,5 +1,6 @@
 local love = _G.love
 
+local camera = require 'camera'
 local colors = require 'colors'
 local fonts = require 'fonts'
 local images = require 'images'
@@ -27,7 +28,91 @@ local ROUND_START_FLAVOR = {
 
 local flavor_rand = {top = 1, bottom = 1}
 
-function drawMain()
+
+
+function drawCharSelect()
+	love.graphics.draw(images.charselectscreen, 0, 0, 0) -- background
+	love.graphics.draw(images.portraits, portraitsQuad, 473, 130) -- character portrait
+	love.graphics.push("all")
+		love.graphics.setColor(colors.BLACK)
+		love.graphics.setFont(fonts.char_info)
+		love.graphics.print(char_text[p1_char][1], 516, 350) -- character movelist
+		love.graphics.print(char_text[p1_char][2], 516, 384)
+		love.graphics.print(char_text[p1_char][3], 513, 425)
+		love.graphics.print(char_text[p1_char][4], 430, 469)
+
+		--p1 rectangle
+		love.graphics.setFont(fonts.char_selector)
+		love.graphics.setLineWidth(2)
+		love.graphics.setColor(colors.BLUE)
+		love.graphics.print("P1", 42, 20 + (p1_char * 70)) -- helptext
+		if frame % 60 < 7 then 
+			love.graphics.setColor(colors.PALE_BLUE) -- flashing rectangle
+		end
+		love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
+		
+		--p2 rectangle
+		love.graphics.setColor(colors.GREEN)
+		love.graphics.print("P2", 355, 20 + (p2_char * 70))
+		if (frame + 45) % 60 < 7 then
+			love.graphics.setColor(colors.PALE_GREEN)
+		end
+		love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
+	love.graphics.pop()
+end
+
+function drawMatchEnd() -- end of the match (not end of the round)
+	love.graphics.draw(images.bkmatchend, 0, 0) -- background
+
+	love.graphics.push("all")
+		love.graphics.setFont(fonts.game_over)
+		love.graphics.draw(game.match_winner.win_portrait, 100, 50)
+		love.graphics.setColor(colors.BLACK)
+		love.graphics.printf(game.match_winner.win_quote, 0, 470, window.width, "center")
+		love.graphics.setFont(fonts.game_over_help)
+		love.graphics.setColor(0, 0, 0, (frame / 128) % 1)
+		love.graphics.print("Press enter", 650, 540)
+	love.graphics.pop()
+
+	-- fade in for match end
+	local fadein = 1 - (frame - frame0)/ 60
+	if frame - frame0 < 60 then
+		love.graphics.push("all") 
+			love.graphics.setColor(0, 0, 0, fadein)
+			love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
+		love.graphics.pop()
+	end
+end
+
+function drawSuperOverlays(facing, frogface)
+	for i = 0, 44 do
+		local h_shift = -200 + math.sin(i / 38) * 400
+		particles.overlays.super_profile:repeatLoad(window.center, 200, h_shift, 0, facing, i, "post2")
+		local frog_shift = -400 + math.sin(i / 38) * 400
+		frogface:repeatLoad(window.center, 200, frog_shift, 0, facing, i, "post3")
+	end
+end
+
+local function main_background()
+	love.graphics.clear()
+
+	local temp_color = colors.WHITE
+
+	if game.background_color then
+		temp_color = game.background_color
+	elseif game.superfreeze_time > 0 then
+		temp_color = colors.GRAY
+	elseif p1.frozenFrames > 0 and p2.frozenFrames > 0 and frame > 90 then
+		temp_color = colors.BLACK
+	end
+
+	love.graphics.push("all")
+		love.graphics.setColor(temp_color)
+		love.graphics.draw(p2.stage_background, 0, 0)
+	love.graphics.pop()
+end
+
+local function main_items()
 	love.graphics.clear()
 
 	-- draw midline
@@ -108,102 +193,8 @@ function drawMain()
 	postbuffer[frame] = nil
 end
 
-
-
-
-
-
-
-
-
-
-
-function drawCharSelect()
-	love.graphics.draw(images.charselectscreen, 0, 0, 0) -- background
-	love.graphics.draw(images.portraits, portraitsQuad, 473, 130) -- character portrait
-	love.graphics.push("all")
-		love.graphics.setColor(colors.BLACK)
-		love.graphics.setFont(fonts.char_info)
-		love.graphics.print(char_text[p1_char][1], 516, 350) -- character movelist
-		love.graphics.print(char_text[p1_char][2], 516, 384)
-		love.graphics.print(char_text[p1_char][3], 513, 425)
-		love.graphics.print(char_text[p1_char][4], 430, 469)
-
-		--p1 rectangle
-		love.graphics.setFont(fonts.char_selector)
-		love.graphics.setLineWidth(2)
-		love.graphics.setColor(colors.BLUE)
-		love.graphics.print("P1", 42, 20 + (p1_char * 70)) -- helptext
-		if frame % 60 < 7 then 
-			love.graphics.setColor(colors.PALE_BLUE) -- flashing rectangle
-		end
-		love.graphics.rectangle("line", 60, 30 + (p1_char * 70), 290, 40)
-		
-		--p2 rectangle
-		love.graphics.setColor(colors.GREEN)
-		love.graphics.print("P2", 355, 20 + (p2_char * 70))
-		if (frame + 45) % 60 < 7 then
-			love.graphics.setColor(colors.PALE_GREEN)
-		end
-		love.graphics.rectangle("line", 61, 31 + (p2_char * 70), 289, 39)
-	love.graphics.pop()
-end
-
-function drawMatchEnd() -- end of the match (not end of the round)
-	love.graphics.draw(images.bkmatchend, 0, 0) -- background
-
-	love.graphics.push("all")
-		love.graphics.setFont(fonts.game_over)
-		love.graphics.draw(game.match_winner.win_portrait, 100, 50)
-		love.graphics.setColor(colors.BLACK)
-		love.graphics.printf(game.match_winner.win_quote, 0, 470, window.width, "center")
-		love.graphics.setFont(fonts.game_over_help)
-		love.graphics.setColor(0, 0, 0, (frame / 128) % 1)
-		love.graphics.print("Press enter", 650, 540)
-	love.graphics.pop()
-
-	-- fade in for match end
-	local fadein = 1 - (frame - frame0)/ 60
-	if frame - frame0 < 60 then
-		love.graphics.push("all") 
-			love.graphics.setColor(0, 0, 0, fadein)
-			love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
-		love.graphics.pop()
-	end
-end
-
-function drawSuperOverlays(facing, frogface)
-	for i = 0, 44 do
-		local h_shift = -200 + math.sin(i / 38) * 400
-		particles.overlays.super_profile:repeatLoad(window.center, 200, h_shift, 0, facing, i, "post2")
-		local frog_shift = -400 + math.sin(i / 38) * 400
-		frogface:repeatLoad(window.center, 200, frog_shift, 0, facing, i, "post3")
-	end
-end
-
-local draw = {}
-
-function draw.draw_background()
-	love.graphics.clear()
-
-	local temp_color = colors.WHITE
-
-	if game.background_color then
-		temp_color = game.background_color
-	elseif game.superfreeze_time > 0 then
-		temp_color = colors.GRAY
-	elseif p1.frozenFrames > 0 and p2.frozenFrames > 0 and frame > 90 then
-		temp_color = colors.BLACK
-	end
-
-	love.graphics.push("all")
-		love.graphics.setColor(temp_color)
-		love.graphics.draw(p2.stage_background, 0, 0)
-	love.graphics.pop()
-end
-
 -- draw the main screen overlay items
-function draw.draw_overlays()
+local function main_overlays()
 	love.graphics.clear()
 
 	-- timer
@@ -321,7 +312,7 @@ function draw.draw_overlays()
 	end
 end
 
-function draw.draw_round_start_items()
+local function main_roundstart_items()
 	local frames_elapsed = frame - frame0
 
 	if frames_elapsed == 10 then -- select which quote text to show
@@ -380,7 +371,7 @@ function draw.draw_round_start_items()
 	end
 end
 
-function draw.draw_round_end_items()
+local function main_roundend_items()
 	if round_end_frame > 0 then
 
 		-- end of round win message
@@ -406,7 +397,7 @@ function draw.draw_round_end_items()
 	end
 end
 
-function draw.draw_overlays2()
+local function main_overlays2()
 	love.graphics.clear()
 
 	if post2buffer[frame] then
@@ -430,6 +421,35 @@ function draw.draw_overlays2()
 		love.graphics.pop()
 	end
 	post3buffer[frame] = nil
+end
+
+
+local draw = {}
+
+function draw.draw_main()
+	canvas_background:renderTo(main_background)
+	canvas_sprites:renderTo(main_items)
+	canvas_overlays:renderTo(main_overlays)
+	canvas_overlays:renderTo(main_roundstart_items)
+	canvas_overlays:renderTo(main_roundend_items)
+	canvas_super:renderTo(main_overlays2)
+
+	camera:set(0.5, 1)
+	love.graphics.draw(canvas_background)
+	camera:unset()
+	camera:set(1, 1)
+	love.graphics.draw(canvas_sprites)
+
+	if debug.boxes then utilities.drawDebugHurtboxes(p1, p2) end
+	if debug.sprites then utilities.drawDebugSprites() end
+	camera:unset()
+	camera:set(0, 0)
+	love.graphics.draw(canvas_overlays)
+	love.graphics.draw(canvas_super)
+	if debug.midpoints then utilities.drawMidPoints() end
+	camera:unset()
+	if debug.camera then print(unpack(camera_xy)) end
+	if debug.keybuffer then print(unpack(keybuffer[frame])) end
 end
 
 return draw
