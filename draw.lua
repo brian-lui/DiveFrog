@@ -27,41 +27,10 @@ local ROUND_START_FLAVOR = {
 
 local flavor_rand = {top = 1, bottom = 1}
 
-
-speechbubbles = {
-	particles.speech_bubbles.pow,
-	particles.speech_bubbles.biff,
-	particles.speech_bubbles.wham,
-	particles.speech_bubbles.zap,
-	particles.speech_bubbles.jeb,
-	particles.speech_bubbles.bath,
-	particles.speech_bubbles.bop,
-	particles.speech_bubbles.smack,
-	particles.speech_bubbles.thump,
-	particles.speech_bubbles.zwapp,
-	particles.speech_bubbles.clunk,
-}
-
-function drawBackground()
+function drawMain()
 	love.graphics.clear()
 
-	local temp_color = colors.WHITE
-
-	if game.background_color then
-		temp_color = game.background_color
-	elseif game.superfreeze_time > 0 then
-		temp_color = colors.GRAY
-	elseif p1.frozenFrames > 0 and p2.frozenFrames > 0 and frame > 90 then
-		temp_color = colors.BLACK
-	end
-
-	love.graphics.push("all")
-		love.graphics.setColor(temp_color)
-		love.graphics.draw(p2.stage_background, 0, 0)
-	love.graphics.pop()
-end
-
-function drawMidline() -- when low on time
+	-- draw midline
 	if round_timer <= 180 and round_timer > 0 and not round_ended then
 		love.graphics.push("all")
 			love.graphics.setColor(100 + (180 - round_timer) / 2, 0, 0, 0.78)
@@ -84,35 +53,8 @@ function drawMidline() -- when low on time
 			end
 		love.graphics.pop()
 	end
-end
 
-function drawPost2Buffer()
-	if post2buffer[frame] then
-		love.graphics.push("all")
-			for index, _ in pairs(post2buffer[frame]) do
-				post2buffer[frame][index][12] = post2buffer[frame][index][12] or colors.WHITE
-				love.graphics.setColor(post2buffer[frame][index][12]) -- 12 is RGB table
-				love.graphics.draw(unpack(post2buffer[frame][index]))
-			end
-		love.graphics.pop()
-	end
-	post2buffer[frame] = nil
-end
-
-function drawPost3Buffer()
-	if post3buffer[frame] then
-		love.graphics.push("all")
-			for index, _ in pairs(post3buffer[frame]) do
-				post3buffer[frame][index][12] = post3buffer[frame][index][12] or colors.WHITE
-				love.graphics.setColor(post3buffer[frame][index][12]) -- 12 is RGB table
-				love.graphics.draw(unpack(post3buffer[frame][index]))
-			end
-		love.graphics.pop()
-	end
-	post2buffer[frame] = nil
-end
-
-function drawPrebuffer()
+	-- draw prebuffer
 	if prebuffer[frame] then
 		love.graphics.push("all")
 			for index, _ in pairs(prebuffer[frame]) do
@@ -123,9 +65,8 @@ function drawPrebuffer()
 		love.graphics.pop()
 	end
 	prebuffer[frame] = nil
-end
 
-function drawSprites()
+	-- draw sprites
 	for side, op in pairs(Players) do
 		love.graphics.push("all")
 
@@ -153,9 +94,8 @@ function drawSprites()
 
 		love.graphics.pop()
 	end
-end
 
-function drawPostbuffer()
+	-- draw postbuffer
 	if postbuffer[frame] then
 		love.graphics.push("all")
 			for index, _ in pairs(postbuffer[frame]) do
@@ -168,237 +108,15 @@ function drawPostbuffer()
 	postbuffer[frame] = nil
 end
 
-function drawMain()
-	love.graphics.clear()
-
-	drawMidline()
-	drawPrebuffer()
-	drawSprites()
-	drawPostbuffer()
-end
-
-function _drawOverlayTimer()
-	-- timer
-	love.graphics.push("all")
-		local displayed_time = math.ceil(round_timer * min_dt)
-		love.graphics.setColor(colors.DARK_ORANGE)
-		love.graphics.setFont(fonts.timer)
-		love.graphics.printf(displayed_time, 0, 6, window.width, "center")
-	love.graphics.pop()
-end
-
-function _drawOverlayHPbars(side, op)
-	-- HP bars
-	love.graphics.draw(images.hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
-	-- ornament
-	local pos = (frame % 180) * 8
-	if side.life > pos then
-		h_loc = window.center + (op.move * 53) + (op.move * pos)
-		love.graphics.push("all")
-			love.graphics.setColor(colors.OFF_WHITE)
-			love.graphics.setLineWidth(1)
-			love.graphics.line(h_loc, 22, h_loc, 44)
-		love.graphics.pop()
-	end
-	-- life depleted
-	if side.life < 280 then
-		love.graphics.push("all")
-			love.graphics.setColor(colors.RED)
-			love.graphics.setLineWidth(23)
-			love.graphics.line(window.center + (op.move * 333), 34, window.center + (op.move * 333) - op.move * (280 - side.life), 34)
-		love.graphics.pop()
-	end
-end
-
-function _drawOverlayWinPoints(side, op)
-	for i = 1, game.best_to_x do
-		if side.score >= i then
-			love.graphics.draw(images.greenlight, window.center + (op.move * 354) - op.move * (20 * i),
-			52, 0, 1, 1, op.offset * images.greenlight:getWidth())
-		end
-	end
-end
-
-function _drawOverlayPlayerIcons(side, op)
-	love.graphics.draw(side.icon, window.center + (op.move * 390), 10, 0, op.flip, 1, 0)
-end
-
-function _drawOverlaySuperBars(side, op)
-	love.graphics.push("all")
-		if not side.isSupering then
-			-- super bar base
-			love.graphics.setColor(colors.OFF_WHITE)
-			love.graphics.draw(
-				particles.overlays.super_bar_base.image,
-				window.center + (op.move * 375),
-				window.height - 35,
-				0,
-				1,
-				1,
-				op.offset * particles.overlays.super_bar_base.width
-			)
-
-			-- super meter
-			local index = math.floor((frame % 64) / 8)
-			local Quad = love.graphics.newQuad(
-				0,
-				index * particles.overlays.super_meter.height,
-				particles.overlays.super_meter.width * (side.super / 96),
-				particles.overlays.super_meter.height,
-				particles.overlays.super_meter.image_size[1],
-				particles.overlays.super_meter.image_size[2]
-			)
-			local supermeterColor = {0, 32 + side.super * 2, 0, 1}
-			if side.super >= 32 and side.super < 64 then
-				supermeterColor = {80 + side.super, 80 + side.super, 160 + side.super, 255}
-			elseif side.super >= 64 then
-				supermeterColor = {159 + side.super, 159 + side.super, 0, 255}
-			end
-			love.graphics.setColor(supermeterColor)
-			love.graphics.draw(
-				particles.overlays.super_meter.image,
-				Quad,
-				window.center + (op.move * 373),
-				window.height - 33,
-				0,
-				op.flip,
-				1,
-				0
-			)
-
-		else -- if super full, draw frog factor
-			local index = math.floor(
-				(frame % particles.overlays.frog_factor.total_time) /
-				particles.overlays.frog_factor.time_per_frame
-			)
-			local Quad = love.graphics.newQuad(
-				index * particles.overlays.frog_factor.width,
-				0,
-				particles.overlays.frog_factor.width * (side.super / 96),
-				particles.overlays.frog_factor.height,
-				particles.overlays.frog_factor.image_size[1],
-				particles.overlays.frog_factor.image_size[2]
-			)
-			love.graphics.setColor(colors.WHITE)
-			love.graphics.draw(
-				particles.overlays.frog_factor.image,
-				Quad,
-				window.center + (op.move * 390),
-				window.height - particles.overlays.frog_factor.height - 10,
-				0,
-				op.flip,
-				1,
-				0
-			)
-		end
-	love.graphics.pop()
-end
-
-function drawOverlays()
-	love.graphics.clear()
-
-	_drawOverlayTimer()
-
-	for side, op in pairs(Players) do
-		_drawOverlayHPbars(side, op)
-		_drawOverlayWinPoints(side, op)
-		_drawOverlayPlayerIcons(side, op)
-		_drawOverlaySuperBars(side, op)
-	end
-
-end
-
-function drawOverlays2()
-	love.graphics.clear()
-
-	drawPost2Buffer()
-	drawPost3Buffer()
-end
 
 
-function drawRoundStart() -- start of round overlays
-	local frames_elapsed = frame - frame0
-
-	if frames_elapsed == 10 then -- select which quote text to show
-		flavor_rand.top = math.random(#ROUND_START_FLAVOR)
-		flavor_rand.bottom = math.random(#ROUND_START_FLAVOR)
-		if flavor_rand.top == flavor_rand.bottom then -- don't match quotes
-			flavor_rand.bottom = math.random(#ROUND_START_FLAVOR - 1)
-			if flavor_rand.bottom >= flavor_rand.top then
-				flavor_rand.bottom = flavor_rand.bottom + 1
-			end
-		end
-	end
-
-	if frames_elapsed < 60 then
-		love.graphics.push("all") 
-			love.graphics.setColor(0, 0, 0, (1 - frames_elapsed / 60))
-			love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
-		love.graphics.pop()
-	end
-
-	if frames_elapsed > 15 and frames_elapsed <= 90 then
-		love.graphics.push("all")
-			love.graphics.setColor(colors.ORANGE)
-
-			-- round
-			love.graphics.setFont(fonts.round_start)
-			if frames_elapsed > 80 then
-				local transparency = 1 - (frames_elapsed - 81) * 0.1
-				love.graphics.setColor(255, 215, 0, transparency)
-			end
-			if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
-				love.graphics.printf("FINAL", 0, 220, window.width, "center")
-			else
-				love.graphics.printf("Round " .. game.current_round, 0, 220, window.width, "center")
-			end
-
-			-- flavor text
-			love.graphics.setFont(fonts.round_start_flavor)
-			love.graphics.setColor(colors.WHITE)
-			if frames_elapsed > 80 then
-				local transparency = 1 - (frames_elapsed - 81) * 0.1
-				love.graphics.setColor(255, 255, 255, transparency)
-			end
-
-			local h_offset = math.tan((frames_elapsed - 53) / 24) -- tangent from -1.5 to 1.5
-			local h_text1 = h_offset * 12
-			local h_text2 = -h_offset * 12
 
 
-			local top_text = ROUND_START_FLAVOR[flavor_rand.top].TOP
-			local bottom_text = ROUND_START_FLAVOR[flavor_rand.bottom].BOTTOM
-			love.graphics.printf(top_text, h_text1, 205, window.width, "center")
-			love.graphics.printf(bottom_text, h_text2, 290, window.width, "center")
 
-		love.graphics.pop()
-	end
-end
 
-function drawRoundEnd() -- end of round overlays
-	if round_end_frame > 0 then
-		-- end of round win message
-		if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
-			love.graphics.push("all")
-				love.graphics.setFont(fonts.round_end)
-				love.graphics.setColor(colors.ORANGE)
-				if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins!", 0, 200, window.width, "center")
-				elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins!", 0, 200, window.width, "center")
-				else love.graphics.printf("Double K.O. !!", 0, 200, window.width, "center")
-				end
-			love.graphics.pop()
-		end
 
-		-- end of round fade out
-		if frame - round_end_frame > 120 and frame - round_end_frame < 150 then
-			local light = 1 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 1 at 150
-			love.graphics.push("all")
-				love.graphics.setColor(0, 0, 0, light)
-				love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
-			love.graphics.pop()
-		end
-	end
-end
+
+
 
 function drawCharSelect()
 	love.graphics.draw(images.charselectscreen, 0, 0, 0) -- background
@@ -462,3 +180,256 @@ function drawSuperOverlays(facing, frogface)
 		frogface:repeatLoad(window.center, 200, frog_shift, 0, facing, i, "post3")
 	end
 end
+
+local draw = {}
+
+function draw.draw_background()
+	love.graphics.clear()
+
+	local temp_color = colors.WHITE
+
+	if game.background_color then
+		temp_color = game.background_color
+	elseif game.superfreeze_time > 0 then
+		temp_color = colors.GRAY
+	elseif p1.frozenFrames > 0 and p2.frozenFrames > 0 and frame > 90 then
+		temp_color = colors.BLACK
+	end
+
+	love.graphics.push("all")
+		love.graphics.setColor(temp_color)
+		love.graphics.draw(p2.stage_background, 0, 0)
+	love.graphics.pop()
+end
+
+-- draw the main screen overlay items
+function draw.draw_overlays()
+	love.graphics.clear()
+
+	-- timer
+	love.graphics.push("all")
+		local displayed_time = math.ceil(round_timer * min_dt)
+		love.graphics.setColor(colors.DARK_ORANGE)
+		love.graphics.setFont(fonts.timer)
+		love.graphics.printf(displayed_time, 0, 6, window.width, "center")
+	love.graphics.pop()
+
+	for side, op in pairs(Players) do
+		-- HP bar
+		love.graphics.draw(images.hpbar, window.center + (op.move * 337), 18, 0, op.flip, 1)
+
+		-- HP bar ornamental vertical line
+		local pos = (frame % 180) * 8
+		if side.life > pos then
+			h_loc = window.center + (op.move * 53) + (op.move * pos)
+			love.graphics.push("all")
+				love.graphics.setColor(colors.OFF_WHITE)
+				love.graphics.setLineWidth(1)
+				love.graphics.line(h_loc, 22, h_loc, 44)
+			love.graphics.pop()
+		end
+
+		-- HP bar life depleted
+		if side.life < 280 then
+			love.graphics.push("all")
+				love.graphics.setColor(colors.RED)
+				love.graphics.setLineWidth(23)
+				love.graphics.line(window.center + (op.move * 333), 34, window.center + (op.move * 333) - op.move * (280 - side.life), 34)
+			love.graphics.pop()
+		end
+
+		-- Win points
+		for i = 1, game.best_to_x do
+			if side.score >= i then
+				love.graphics.draw(images.greenlight, window.center + (op.move * 354) - op.move * (20 * i),
+				52, 0, 1, 1, op.offset * images.greenlight:getWidth())
+			end
+		end
+
+		-- Player icon
+		love.graphics.draw(side.icon, window.center + (op.move * 390), 10, 0, op.flip, 1, 0)
+
+		-- Super bars
+		love.graphics.push("all")
+			if not side.isSupering then
+				-- super bar base
+				love.graphics.setColor(colors.OFF_WHITE)
+				love.graphics.draw(
+					particles.overlays.super_bar_base.image,
+					window.center + (op.move * 375),
+					window.height - 35,
+					0,
+					1,
+					1,
+					op.offset * particles.overlays.super_bar_base.width
+				)
+
+				-- super meter
+				local index = math.floor((frame % 64) / 8)
+				local Quad = love.graphics.newQuad(
+					0,
+					index * particles.overlays.super_meter.height,
+					particles.overlays.super_meter.width * (side.super / 96),
+					particles.overlays.super_meter.height,
+					particles.overlays.super_meter.image_size[1],
+					particles.overlays.super_meter.image_size[2]
+				)
+				local supermeterColor = {0, 32 + side.super * 2, 0, 1}
+				if side.super >= 32 and side.super < 64 then
+					supermeterColor = {80 + side.super, 80 + side.super, 160 + side.super, 255}
+				elseif side.super >= 64 then
+					supermeterColor = {159 + side.super, 159 + side.super, 0, 255}
+				end
+				love.graphics.setColor(supermeterColor)
+				love.graphics.draw(
+					particles.overlays.super_meter.image,
+					Quad,
+					window.center + (op.move * 373),
+					window.height - 33,
+					0,
+					op.flip,
+					1,
+					0
+				)
+
+			else -- if super full, draw frog factor
+				local index = math.floor(
+					(frame % particles.overlays.frog_factor.total_time) /
+					particles.overlays.frog_factor.time_per_frame
+				)
+				local Quad = love.graphics.newQuad(
+					index * particles.overlays.frog_factor.width,
+					0,
+					particles.overlays.frog_factor.width * (side.super / 96),
+					particles.overlays.frog_factor.height,
+					particles.overlays.frog_factor.image_size[1],
+					particles.overlays.frog_factor.image_size[2]
+				)
+				love.graphics.setColor(colors.WHITE)
+				love.graphics.draw(
+					particles.overlays.frog_factor.image,
+					Quad,
+					window.center + (op.move * 390),
+					window.height - particles.overlays.frog_factor.height - 10,
+					0,
+					op.flip,
+					1,
+					0
+				)
+			end
+		love.graphics.pop()
+	end
+end
+
+function draw.draw_round_start_items()
+	local frames_elapsed = frame - frame0
+
+	if frames_elapsed == 10 then -- select which quote text to show
+		flavor_rand.top = math.random(#ROUND_START_FLAVOR)
+		flavor_rand.bottom = math.random(#ROUND_START_FLAVOR)
+		if flavor_rand.top == flavor_rand.bottom then -- don't match quotes
+			flavor_rand.bottom = math.random(#ROUND_START_FLAVOR - 1)
+			if flavor_rand.bottom >= flavor_rand.top then
+				flavor_rand.bottom = flavor_rand.bottom + 1
+			end
+		end
+	end
+
+	if frames_elapsed < 60 then
+		love.graphics.push("all") 
+			love.graphics.setColor(0, 0, 0, (1 - frames_elapsed / 60))
+			love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
+		love.graphics.pop()
+	end
+
+	if frames_elapsed > 15 and frames_elapsed <= 90 then
+		love.graphics.push("all")
+			love.graphics.setColor(colors.ORANGE)
+
+			-- round
+			love.graphics.setFont(fonts.round_start)
+			if frames_elapsed > 80 then
+				local transparency = 1 - (frames_elapsed - 81) * 0.1
+				love.graphics.setColor(255, 215, 0, transparency)
+			end
+			if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
+				love.graphics.printf("FINAL", 0, 220, window.width, "center")
+			else
+				love.graphics.printf("Round " .. game.current_round, 0, 220, window.width, "center")
+			end
+
+			-- flavor text
+			love.graphics.setFont(fonts.round_start_flavor)
+			love.graphics.setColor(colors.WHITE)
+			if frames_elapsed > 80 then
+				local transparency = 1 - (frames_elapsed - 81) * 0.1
+				love.graphics.setColor(255, 255, 255, transparency)
+			end
+
+			local h_offset = math.tan((frames_elapsed - 53) / 24) -- tangent from -1.5 to 1.5
+			local h_text1 = h_offset * 12
+			local h_text2 = -h_offset * 12
+
+
+			local top_text = ROUND_START_FLAVOR[flavor_rand.top].TOP
+			local bottom_text = ROUND_START_FLAVOR[flavor_rand.bottom].BOTTOM
+			love.graphics.printf(top_text, h_text1, 205, window.width, "center")
+			love.graphics.printf(bottom_text, h_text2, 290, window.width, "center")
+
+		love.graphics.pop()
+	end
+end
+
+function draw.draw_round_end_items()
+	if round_end_frame > 0 then
+
+		-- end of round win message
+		if frame - round_end_frame > 60 and frame - round_end_frame < 150 then
+			love.graphics.push("all")
+				love.graphics.setFont(fonts.round_end)
+				love.graphics.setColor(colors.ORANGE)
+				if p1.hasWon then love.graphics.printf(p1.fighter_name .. " wins!", 0, 200, window.width, "center")
+				elseif p2.hasWon then love.graphics.printf(p2.fighter_name .. " wins!", 0, 200, window.width, "center")
+				else love.graphics.printf("Double K.O. !!", 0, 200, window.width, "center")
+				end
+			love.graphics.pop()
+		end
+
+		-- end of round fade out
+		if frame - round_end_frame > 120 and frame - round_end_frame < 150 then
+			local light = 1 / 30 * (frame - round_end_frame - 120) -- 0 at 120 frames, 1 at 150
+			love.graphics.push("all")
+				love.graphics.setColor(0, 0, 0, light)
+				love.graphics.rectangle("fill", 0, 0, stage.width, stage.height)
+			love.graphics.pop()
+		end
+	end
+end
+
+function draw.draw_overlays2()
+	love.graphics.clear()
+
+	if post2buffer[frame] then
+		love.graphics.push("all")
+			for index, _ in pairs(post2buffer[frame]) do
+				post2buffer[frame][index][12] = post2buffer[frame][index][12] or colors.WHITE
+				love.graphics.setColor(post2buffer[frame][index][12]) -- 12 is RGB table
+				love.graphics.draw(unpack(post2buffer[frame][index]))
+			end
+		love.graphics.pop()
+	end
+	post2buffer[frame] = nil
+
+	if post3buffer[frame] then
+		love.graphics.push("all")
+			for index, _ in pairs(post3buffer[frame]) do
+				post3buffer[frame][index][12] = post3buffer[frame][index][12] or colors.WHITE
+				love.graphics.setColor(post3buffer[frame][index][12]) -- 12 is RGB table
+				love.graphics.draw(unpack(post3buffer[frame][index]))
+			end
+		love.graphics.pop()
+	end
+	post3buffer[frame] = nil
+end
+
+return draw

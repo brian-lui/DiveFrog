@@ -369,6 +369,20 @@ local function placeBubble(h_pos, v_pos, h_move, v_move, delay)
 	local h_offset = h_move or 0
 	local v_offset = v_move or -50
 
+	local speechbubbles = {
+		particles.speech_bubbles.pow,
+		particles.speech_bubbles.biff,
+		particles.speech_bubbles.wham,
+		particles.speech_bubbles.zap,
+		particles.speech_bubbles.jeb,
+		particles.speech_bubbles.bath,
+		particles.speech_bubbles.bop,
+		particles.speech_bubbles.smack,
+		particles.speech_bubbles.thump,
+		particles.speech_bubbles.zwapp,
+		particles.speech_bubbles.clunk,
+	}
+
 	local bubble_to_use = speechbubbles[(frame + delay + math.ceil(p1.pos[1] + p2.pos[1])) % #speechbubbles + 1]
 	bubble_to_use:playSound(delay)
 

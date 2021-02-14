@@ -4,7 +4,7 @@ local images = require 'images'
 require 'lovedebug'
 local utilities = require 'utilities' -- helper functions
 local camera = require 'camera'
-require 'draw'
+local draw = require 'draw'
 local json = require 'dkjson'
 class = require 'middleclass' -- class support
 local stage = require 'stage'  -- total playing field area
@@ -74,17 +74,17 @@ end
 function love.draw()
   if game.current_screen == "maingame" then
 		test.t0 = love.timer.getTime()
-	canvas_background:renderTo(drawBackground)
+	canvas_background:renderTo(draw.draw_background)
 
 		test.t1 = love.timer.getTime()
 	canvas_sprites:renderTo(drawMain)
 
 		test.t2 = love.timer.getTime()
-	canvas_overlays:renderTo(drawOverlays)
-	canvas_overlays:renderTo(drawRoundStart)
-	canvas_overlays:renderTo(drawRoundEnd)
+	canvas_overlays:renderTo(draw.draw_overlays)
+	canvas_overlays:renderTo(draw.draw_round_start_items)
+	canvas_overlays:renderTo(draw.draw_round_end_items)
 
-	canvas_super:renderTo(drawOverlays2)
+	canvas_super:renderTo(draw.draw_overlays2)
 
 		test.t3 = love.timer.getTime()
 	--camera:scale(1 / camera_scale_factor, 1 / camera_scale_factor)
