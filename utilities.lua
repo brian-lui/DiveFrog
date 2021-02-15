@@ -1,3 +1,4 @@
+local camera = require 'camera'
 local stage = require 'stage'
 local window = require 'window'
 
@@ -14,11 +15,11 @@ function utilities.clamp(x, min, max)
 end
 
 function utilities.leftEdge() -- get temp left edge based on camera and window position
-  return math.max(window.left + camera_xy[1], stage.left)
+  return math.max(window.left + camera.camera_xy[1], stage.left)
 end
 
 function utilities.rightEdge() -- get temp right edge based on camera and window position
-  return math.min(window.right + camera_xy[1], stage.right)
+  return math.min(window.right + camera.camera_xy[1], stage.right)
 end
 
 local function quadOverlap(q1, q2)

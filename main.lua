@@ -56,7 +56,6 @@ function love.load()
 	postbuffer = {} -- pre-load draw instructions into future frames over sprite
 	post2buffer = {}
 	post3buffer = {}
-	camera_xy = {} -- top left window corner for camera and window drawing
 	debug = {boxes = false, sprites = false, midpoints = false, camera = false,	keybuffer = false}
 end
 
@@ -100,7 +99,7 @@ function love.update(dt)
 			local highest_sprite = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2])
 			local screen_bottom = stage.height - window.height
 
-			camera_xy = {utilities.clamp(h_midpoint - window.center, 0, stage.width - window.width),
+			camera.camera_xy = {utilities.clamp(h_midpoint - window.center, 0, stage.width - window.width),
 			screen_bottom - (stage.floor - highest_sprite) / 8 }
 
 				-- screen shake
@@ -111,7 +110,7 @@ function love.update(dt)
 				h_displacement = (frame % 7 * 6 + frame % 13 * 3 + frame % 23 * 2 - 60) / 2
 				v_displacement = (frame % 5 * 8 + frame % 11 * 3 + frame % 17 * 2 - 30) / 2
 			end
-			camera:setPosition(camera_xy[1] + h_displacement, camera_xy[2] - v_displacement)
+			camera:setPosition(camera.camera_xy[1] + h_displacement, camera.camera_xy[2] - v_displacement)
 
 		-- tweening for scale and camera position
 		else
@@ -255,7 +254,6 @@ function newRound()
 	post2buffer = {}
 	post3buffer = {}
 	sounds.reset()
-	camera_xy_temp = nil
 	camera_scale_factor = 1
 
 

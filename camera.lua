@@ -1,5 +1,4 @@
-require 'utilities'
-local stage = require 'stage'
+local love = _G.love
 
 local camera = {}
 camera.x = 0
@@ -7,6 +6,7 @@ camera.y = 0
 camera.scaleX = 1
 camera.scaleY = 1
 camera.rotation = 0
+camera.camera_xy = {} -- top left window corner for camera and window drawing
 
 function camera:set(parallax_x, parallax_y)
   love.graphics.push()

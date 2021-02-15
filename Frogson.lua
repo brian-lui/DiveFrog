@@ -1,11 +1,12 @@
+local love = _G.love
+
+local camera = require 'camera'
 local class = require 'middleclass'
 local images = require 'images'
 local particles = require 'particles'
 local sounds = require 'sounds'
 local stage = require 'stage' -- for checking floor/walls
 local Fighter = require 'fighter'
-
-require 'utilities'
 
 local Frogson = class('Frogson', Fighter)
 function Frogson:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
@@ -218,7 +219,7 @@ function Frogson:attack_bison(h_vel, v_vel)
 	self.current_hitboxes = self.hitboxes_attacking_bison
 	if self.super < 96 and not self.isSupering then
 		self.super = math.min(self.super + 8, 96)
-		if self.super == 96 then sounds.writeSound(super_sfx) end
+		if self.super == 96 then sounds.playSuperSFX() end
 	end
 end
 
@@ -231,7 +232,7 @@ function Frogson:attack_jackson(h_vel, v_vel)
 	self.current_hitboxes = self.hitboxes_attacking_jackson
 	if self.super < 96 and not self.isSupering then
 		self.super = math.min(self.super + 12, 96)
-		if self.super == 96 then sounds.writeSound(super_sfx) end
+		if self.super == 96 then sounds.playSuperSFX() end
 	end
 end
 
@@ -272,8 +273,8 @@ function Frogson:extraStuff()
 			self:setFrozen(10)
 			self.foe:setFrozen(10)
 			particles.frogson.screen_flash:singleLoad(
-				camera_xy[1],
-				camera_xy[2],
+				camera.camera_xy[1],
+				camera.camera_xy[2],
 				600,
 				0,
 				1,

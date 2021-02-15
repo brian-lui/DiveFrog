@@ -368,7 +368,7 @@ end
 function Sun:updateSuper()
   if self.super >= 96 then
 	self.super = 95.999
-	sounds.writeSound(super_sfx)
+	sounds.playSuperSFX()
 	self.isSupering = true
 	self.vel_multiple = self.vel_multiple_super
 	game.superfreeze_time = 45

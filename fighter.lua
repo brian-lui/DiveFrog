@@ -1,3 +1,4 @@
+local camera = require 'camera'
 local class = require 'middleclass'
 local draw = require 'draw'
 local images = require 'images'
@@ -252,7 +253,7 @@ end
 function Fighter:gotHit(type_table) -- execute this one time, when character gets hit
 	if type_table.Mugshot and not type_table.Projectile then
 	self.hitflag.Mugshot = true
-	particles.common.mugshot:singleLoad(camera_xy[1], camera_xy[2], 400, 200, 1, 20)
+	particles.common.mugshot:singleLoad(camera.camera_xy[1], camera.camera_xy[2], 400, 200, 1, 20)
 	particles.common.mugshot:playSound(20)
 	game.isScreenShaking = true
 	end
@@ -615,7 +616,7 @@ function Fighter:updateSuper()
 	if self.super >= 96 then
 	self.super = 95.999
 	draw.draw_super_overlays(self.facing, self.superface)
-	sounds.writeSound(super_sfx)
+	sounds.playSuperSFX()
 	self.isSupering = true
 	self.vel_multiple = self.vel_multiple_super
 	game.superfreeze_time = 45

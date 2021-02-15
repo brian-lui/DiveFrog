@@ -388,7 +388,7 @@ function draw.draw_main()
 	love.graphics.draw(canvas_super)
 	if debug.midpoints then utilities.drawMidPoints() end
 	camera:unset()
-	if debug.camera then print(unpack(camera_xy)) end
+	if debug.camera then print(unpack(camera.camera_xy)) end
 	if debug.keybuffer then print(unpack(keybuffer[frame])) end
 end
 
