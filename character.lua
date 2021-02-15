@@ -5,6 +5,7 @@ local particles = require 'particles'
 local sounds = require 'sounds'
 local stage = require 'stage'
 local utilities = require 'utilities'
+local window = require 'window'
 
 
 --[[---------------------------------------------------------------------------

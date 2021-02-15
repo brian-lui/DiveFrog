@@ -9,7 +9,7 @@ local json = require 'dkjson'
 class = require 'middleclass' -- class support
 local sounds = require 'sounds'
 local stage = require 'stage'  -- total playing field area
-window = require 'window'  -- current view of stage
+local window = require 'window'  -- current view of stage
 local music = require 'music'
 character = require 'character'
 require 'Konrad'
