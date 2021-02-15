@@ -1,3 +1,4 @@
+local class = require 'middleclass'
 local draw = require 'draw'
 local images = require 'images'
 local music = require 'music'

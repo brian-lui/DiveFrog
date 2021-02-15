@@ -6,7 +6,6 @@ local utilities = require 'utilities' -- helper functions
 local camera = require 'camera'
 local draw = require 'draw'
 local json = require 'dkjson'
-class = require 'middleclass' -- class support
 local sounds = require 'sounds'
 local stage = require 'stage'  -- total playing field area
 local window = require 'window'  -- current view of stage
