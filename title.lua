@@ -5,6 +5,11 @@ local fonts = require 'fonts'
 local images = require 'images'
 local json = require 'dkjson'
 local music = require 'music' -- background music
+local Konrad = require 'Konrad'
+local Jean = require 'Jean'
+local Sun = require 'Sun'
+local Frogson = require 'Frogson'
+
 require 'settings'
 
 default_selections = {title = 1, player1P = 1, AI1P = 1, player12P = 1, player22P = 2}

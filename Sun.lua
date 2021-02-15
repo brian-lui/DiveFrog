@@ -9,7 +9,7 @@ local Fighter = require 'fighter'
 
 require 'utilities'
 
-Sun = class('Sun', Fighter)
+local Sun = class('Sun', Fighter)
 function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   if self.isSupering then -- if super was still on during previous round
 	music.stopBGM2()
@@ -416,4 +416,4 @@ function Sun:updateSuper()
   end
 end
 
-
+return Sun

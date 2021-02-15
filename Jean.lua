@@ -7,8 +7,7 @@ local Fighter = require 'fighter'
 
 require 'utilities'
 
-
-Jean = class('Jean', Fighter)
+local Jean = class('Jean', Fighter)
 function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.icon = images.characters.jean.icon
@@ -260,3 +259,5 @@ end
 function Jean:getNeutral() -- don't check for facing if in dandy/pilebunker
   return not self.isKO and not self.isAttacking and not self.dandy and not self.pilebunking
 end
+
+return Jean

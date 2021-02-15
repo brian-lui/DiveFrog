@@ -7,7 +7,7 @@ local Fighter = require 'fighter'
 
 require 'utilities'
 
-Konrad = class('Konrad', Fighter)
+local Konrad = class('Konrad', Fighter)
 function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
   Fighter.initialize(self, init_player, init_foe, init_super, init_dizzy, init_score)
   self.fighter_name = "Konrad"
@@ -24,7 +24,8 @@ function Konrad:initialize(init_player, init_foe, init_super, init_dizzy, init_s
   self.default_gravity = 0.36
   self.double_jump = false
 
-  --lists of hitboxes and hurtboxes for the relevant sprites. format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
+  -- lists of hitboxes and hurtboxes for the relevant sprites.
+  -- format is LEFT, TOP, RIGHT, BOTTOM, relative to top left corner of sprite.
   self.hurtboxes_standing = {
 	{L = 78, U = 28, R = 119, D = 50, Flag1 = "Mugshot"},
 	{L = 69, U = 51, R = 124, D = 79, Flag1 = "Mugshot"},
@@ -194,13 +195,14 @@ end
 
   function Konrad:extraStuff()
 	if self.hyperkicking and not self.isKO then
-	  particles.konrad.hyperkick_flames:repeatLoad(
-	  	self.center,
-	  	self.pos[2],
-	  	0,
-	  	0,
-	  	self.facing
-	  )
+		particles.konrad.hyperkick_flames:repeatLoad(
+			self.center,
+			self.pos[2],
+			0,
+			0,
+			self.facing
+		)
 	end
   end
 
+return Konrad
