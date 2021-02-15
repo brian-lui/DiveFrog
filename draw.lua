@@ -356,6 +356,82 @@ local function main_overlays2()
 	post3buffer[frame] = nil
 end
 
+local debug_funcs = {
+	draw_midpoints = function()
+		love.graphics.push("all")
+			love.graphics.setLineWidth(10)
+			love.graphics.line(stage.center - 5, stage.height / 2, stage.center + 5, stage.height / 2)
+			love.graphics.setLineWidth(20)
+			love.graphics.line(window.center - 10, window.height / 2, window.center + 10, window.height / 2)
+		love.graphics.pop()
+	end,
+	draw_hurtboxes = function(p1, p2)
+		love.graphics.push("all")
+			local todraw = {
+				p1.hurtboxes,
+				p1.hitboxes,
+				p2.hurtboxes,
+				p2.hitboxes,
+			}
+			local color = {
+				{255, 255, 255, 192},
+				{255, 0, 0, 255},
+				{255, 255, 255, 192},
+				{255, 0, 0, 255},
+			}
+
+			for num, drawboxes in pairs(todraw) do
+				local dog = drawboxes
+
+				for i = 1, #dog do
+					if dog[i].Flag1 == "Mugshot" then
+						love.graphics.setColor({0, 0, 255, 160/255})
+					else
+						love.graphics.setColor(color[num])
+					end
+
+					love.graphics.rectangle(
+						"fill",
+						dog[i].L,
+						dog[i].U,
+						dog[i].R - dog[i].L,
+						dog[i].D - dog[i].U
+					)
+				end
+			end
+		love.graphics.pop()
+	end,
+	draw_sprites = function()
+		for side, op in pairs(Players) do
+			love.graphics.line(side.center, 0, side.center, stage.height)
+			love.graphics.line(side.center, 200, side.center + op.flip * 30, 200)
+			love.graphics.rectangle(
+				"line",
+				side.pos[1],
+				side.pos[2],
+				side.sprite_size[1],
+				side.sprite_size[2]
+			)
+		end
+
+		-- delete prebuffer[frame] = nil if using this. Draws unflipped, unshifted position.
+		if prebuffer[frame] then
+			for index, _ in pairs(prebuffer[frame]) do
+				local a, b, l, u = unpack(prebuffer[frame][index])
+				love.graphics.line(l + 50, u, l - 50, u)
+				love.graphics.line(l, u + 50, l, u - 50)
+			end
+		end
+		-- delete postbuffer[frame] = nil if using this. Draws unflipped, unshifted position.
+		if postbuffer[frame] then
+			for index, _ in pairs(postbuffer[frame]) do
+				local a, b, l, u = unpack(postbuffer[frame][index])
+				love.graphics.line(l + 50, u, l - 50, u)
+				love.graphics.line(l, u + 50, l, u - 50)
+			end
+		end
+	end,
+}
 
 local canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
 local canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
@@ -380,13 +456,13 @@ function draw.draw_main()
 	camera:set(1, 1)
 	love.graphics.draw(canvas_sprites)
 
-	if debug.boxes then utilities.drawDebugHurtboxes(p1, p2) end
-	if debug.sprites then utilities.drawDebugSprites() end
+	if debug.boxes then debug_funcs.draw_hurtboxes(p1, p2) end
+	if debug.sprites then debug_funcs.draw_sprites() end
 	camera:unset()
 	camera:set(0, 0)
 	love.graphics.draw(canvas_overlays)
 	love.graphics.draw(canvas_super)
-	if debug.midpoints then utilities.drawMidPoints() end
+	if debug.midpoints then debug_funcs.draw_midpoints() end
 	camera:unset()
 	if debug.camera then print(unpack(camera.camera_xy)) end
 	if debug.keybuffer then print(unpack(keybuffer[frame])) end

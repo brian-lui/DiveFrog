@@ -62,11 +62,11 @@ function Particle:repeatLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing
 	local delay = delay_time or 0
 	local buffer = postbuffer
 	if layer == "pre" then
-	buffer = prebuffer
+		buffer = prebuffer
 	elseif layer == "post2" then
-	buffer = post2buffer
+		buffer = post2buffer
 	elseif layer == "post3" then
-	buffer = post3buffer
+		buffer = post3buffer
 	end
 
 	local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
@@ -83,11 +83,11 @@ function Particle:singleLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing
 	local delay = delay_time or 0
 	local buffer = postbuffer
 	if layer == "pre" then
-	buffer = prebuffer
+		buffer = prebuffer
 	elseif layer == "post2" then
-	buffer = post2buffer
+		buffer = post2buffer
 	elseif layer == "post3" then
-	buffer = post3buffer
+		buffer = post3buffer
 	end
 
 	for i = (frame + delay), (frame + delay + self.total_time) do
