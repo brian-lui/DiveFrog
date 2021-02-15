@@ -32,26 +32,20 @@ utilities.checkVersion()
 love.window.setMode(window.width, window.height)
 love.window.setTitle("Divefrog the fighting game sensation")
 
--- build canvas layers
-canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
-canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
-canvas_background = love.graphics.newCanvas(stage.width, stage.height)
-canvas_super = love.graphics.newCanvas(stage.width, stage.height)
-
 function love.load()
 	game = {
-	current_screen = "title",
-	best_to_x = Params.Rounds,
-	speed = Params.Speed,
-	current_round = 0,
-	match_winner = false,
-	superfreeze_time = 0,
-	superfreeze_player = nil,
-	BGM = nil,
-	background_color = nil,
-	isScreenShaking = false,
-	identical_players = false,
-	format = ""
+		current_screen = "title",
+		best_to_x = Params.Rounds,
+		speed = Params.Speed,
+		current_round = 0,
+		match_winner = false,
+		superfreeze_time = 0,
+		superfreeze_player = nil,
+		BGM = nil,
+		background_color = nil,
+		isScreenShaking = false,
+		identical_players = false,
+		format = "",
 	}
 	music.setBGM("Intro.ogg")
 	min_dt = 1/60 -- frames per second
@@ -106,59 +100,63 @@ function love.update(dt)
 	frame = frame + 1
 	if game.current_screen == "maingame" then
 
-	if game.superfreeze_time == 0 then
-		local h_midpoint = (p1:getCenter() + p2:getCenter()) / 2
-		local highest_sprite = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2])
-		local screen_bottom = stage.height - window.height
+		if game.superfreeze_time == 0 then
+			local h_midpoint = (p1:getCenter() + p2:getCenter()) / 2
+			local highest_sprite = math.min(p1.pos[2] + p1.sprite_size[2], p2.pos[2] + p2.sprite_size[2])
+			local screen_bottom = stage.height - window.height
 
-		camera_xy = {utilities.clamp(h_midpoint - window.center, 0, stage.width - window.width),
-		screen_bottom - (stage.floor - highest_sprite) / 8 }
+			camera_xy = {utilities.clamp(h_midpoint - window.center, 0, stage.width - window.width),
+			screen_bottom - (stage.floor - highest_sprite) / 8 }
 
-			-- screen shake
-		local h_displacement = 0
-		local v_displacement = 0
+				-- screen shake
+			local h_displacement = 0
+			local v_displacement = 0
 
-		if game.isScreenShaking then
-			h_displacement = (frame % 7 * 6 + frame % 13 * 3 + frame % 23 * 2 - 60) / 2
-			v_displacement = (frame % 5 * 8 + frame % 11 * 3 + frame % 17 * 2 - 30) / 2
+			if game.isScreenShaking then
+				h_displacement = (frame % 7 * 6 + frame % 13 * 3 + frame % 23 * 2 - 60) / 2
+				v_displacement = (frame % 5 * 8 + frame % 11 * 3 + frame % 17 * 2 - 30) / 2
+			end
+			camera:setPosition(camera_xy[1] + h_displacement, camera_xy[2] - v_displacement)
+
+		-- tweening for scale and camera position
+		else
+			game.superfreeze_time = game.superfreeze_time - 1
 		end
-		camera:setPosition(camera_xy[1] + h_displacement, camera_xy[2] - v_displacement)
 
-	-- tweening for scale and camera position
-	else
-		game.superfreeze_time = game.superfreeze_time - 1
-	end
-
-	if not round_ended and not (p1.frozenFrames > 0 and p2.frozenFrames > 0) then
-		round_timer = math.max(round_timer - (1 * game.speed), 0)
-	end
+		if not round_ended and not (p1.frozenFrames > 0 and p2.frozenFrames > 0) then
+			round_timer = math.max(round_timer - (1 * game.speed), 0)
+		end
 
 	-- get button press state, and write to keybuffer table
 	if game.format == "2P" then
 		keybuffer[frame] = {
-		love.keyboard.isDown(buttons.p1jump),
-		love.keyboard.isDown(buttons.p1attack),
-		love.keyboard.isDown(buttons.p2jump),
-		love.keyboard.isDown(buttons.p2attack)}
+			love.keyboard.isDown(buttons.p1jump),
+			love.keyboard.isDown(buttons.p1attack),
+			love.keyboard.isDown(buttons.p2jump),
+			love.keyboard.isDown(buttons.p2attack),
+		}
 	elseif game.format == "1P" then
 		local AIjump, AIattack = AI.Action(p2, p1)
 		keybuffer[frame] = {
-		love.keyboard.isDown(buttons.p1jump),
-		love.keyboard.isDown(buttons.p1attack),
-		AIjump,
-		AIattack}
+			love.keyboard.isDown(buttons.p1jump),
+			love.keyboard.isDown(buttons.p1attack),
+			AIjump,
+			AIattack,
+		}
 	elseif game.format == "Netplay1P" then
 		keybuffer[frame] = {
-		love.keyboard.isDown(buttons.p1jump),
-		love.keyboard.isDown(buttons.p1attack),
-		love.keyboard.isDown(buttons.p2jump),   -- get netplay data here
-		love.keyboard.isDown(buttons.p2attack)} -- get netplay data here
+			love.keyboard.isDown(buttons.p1jump),
+			love.keyboard.isDown(buttons.p1attack),
+			love.keyboard.isDown(buttons.p2jump),   -- get netplay data here
+			love.keyboard.isDown(buttons.p2attack), -- get netplay data here
+		}
 	elseif game.format == "Netplay2P" then
 		keybuffer[frame] = {
-		love.keyboard.isDown(buttons.p1jump),   -- get netplay data here
-		love.keyboard.isDown(buttons.p1attack), -- get netplay data here
-		love.keyboard.isDown(buttons.p2jump),   
-		love.keyboard.isDown(buttons.p2attack)}
+			love.keyboard.isDown(buttons.p1jump),   -- get netplay data here
+			love.keyboard.isDown(buttons.p1attack), -- get netplay data here
+			love.keyboard.isDown(buttons.p2jump),
+			love.keyboard.isDown(buttons.p2attack),
+		}
 	end
 
 
@@ -201,33 +199,34 @@ function love.update(dt)
 		local p1_from_center = math.abs((stage.center) - p1:getCenter())
 		local p2_from_center = math.abs((stage.center) - p2:getCenter())
 		if p1_from_center < p2_from_center then
-		p2:gotHit(p1.hit_type)
-		p1:hitOpponent()
+			p2:gotHit(p1.hit_type)
+			p1:hitOpponent()
 		elseif p2_from_center < p1_from_center then
-		p1:gotHit(p2.hit_type)
-		p2:hitOpponent()
+			p1:gotHit(p2.hit_type)
+			p2:hitOpponent()
 		else
-		p1:gotHit(p2.hit_type)
-		p2:gotHit(p1.hit_type)
-		end 
-	end  
+			p1:gotHit(p2.hit_type)
+			p2:gotHit(p1.hit_type)
+		end
+	end
 
 	sounds.update()
 
 	-- after round ended and displayed round end stuff, start new round
 	if frame - round_end_frame == 144 then
 		for p, _ in pairs(Players) do
-		if p.hasWon then p:addScore() end
-		if p.score == game.best_to_x then game.match_winner = p end
+			if p.hasWon then p:addScore() end
+			if p.score == game.best_to_x then game.match_winner = p end
 		end
 
-		if not game.match_winner then newRound()
+		if not game.match_winner then
+			newRound()
 		else -- match end
-		frame = 0
-		frame0 = 0
-		music.setBGM("GameOver.ogg")
-		game.current_screen = "match_end" 
-		keybuffer = {}
+			frame = 0
+			frame0 = 0
+			music.setBGM("GameOver.ogg")
+			game.current_screen = "match_end" 
+			keybuffer = {}
 		end
 	end
 
@@ -269,18 +268,17 @@ function newRound()
 	if music.currentBGM2:isPlaying() then music.currentBGM2:pause() end
 
 	if p1.score == game.best_to_x - 1 and p2.score == game.best_to_x - 1 then
-	music.setBGMspeed(2 ^ (4/12))
+		music.setBGMspeed(2 ^ (4/12))
 	end
 end
 
 function startGame()
-
 	if game.format == "1P" then
-	default_selections.player1P = p1_char
-	default_selections.AI1P = p2_char
+		default_selections.player1P = p1_char
+		default_selections.AI1P = p2_char
 	elseif game.format == "2P" then
-	default_selections.player12P = p1_char
-	default_selections.player22P = p2_char
+		default_selections.player12P = p1_char
+		default_selections.player22P = p2_char
 	end
 	love.filesystem.write("choices.txt", json.encode(default_selections))
 
@@ -290,8 +288,10 @@ function startGame()
 	p2 = available_chars[p2_char](2, p1, 0, false, 0)
 	if p1_char == p2_char then game.identical_players = true end
 
-	Players = { [p1] = {move = -1, flip = 1, offset = 0},
-				[p2] = {move = 1, flip = -1, offset = 1}}
+	Players = {
+		[p1] = {move = -1, flip = 1, offset = 0},
+		[p2] = {move = 1, flip = -1, offset = 1},
+	}
 	game.BGM = p2.BGM
 	music.setBGM(game.BGM)
 	newRound()
@@ -302,50 +302,50 @@ function love.keypressed(key)
 	if key == "escape" then love.event.quit() end
 
 	if game.current_screen == "title" then
-	if key == buttons.p1attack or key == buttons.start then
-		sounds.playCharSelectedSFX()
-		title_choices.action[title_choices.option]()
+		if key == buttons.p1attack or key == buttons.start then
+			sounds.playCharSelectedSFX()
+			title_choices.action[title_choices.option]()
 
-	elseif key == buttons.p1jump or key == "down" then
-		sounds.playCharSelectSFX()
-		title_choices.option = title_choices.option % #title_choices.menu + 1
+		elseif key == buttons.p1jump or key == "down" then
+			sounds.playCharSelectSFX()
+			title_choices.option = title_choices.option % #title_choices.menu + 1
 
-	elseif key == "up" then
-		sounds.playCharSelectSFX()
-		title_choices.option = (title_choices.option - 2) % #title_choices.menu + 1
-	end
+		elseif key == "up" then
+			sounds.playCharSelectSFX()
+			title_choices.option = (title_choices.option - 2) % #title_choices.menu + 1
+		end
 
 	elseif game.current_screen == "charselect" then
-	if key == buttons.p1attack or key == buttons.p2attack then
-		sounds.playCharSelectedSFX()
-		startGame()
-	end
+		if key == buttons.p1attack or key == buttons.p2attack then
+			sounds.playCharSelectedSFX()
+			startGame()
+		end
 
-	if key == buttons.p1jump then
-		p1_char = p1_char % #available_chars + 1
-		draw.portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, images.portraits:getDimensions())
-		sounds.playCharSelectSFX()
-	end
+		if key == buttons.p1jump then
+			p1_char = p1_char % #available_chars + 1
+			draw.portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, images.portraits:getDimensions())
+			sounds.playCharSelectSFX()
+		end
 
-	if key == buttons.p2jump then
-		p2_char = p2_char % #available_chars + 1
-		sounds.playCharSelectSFX()
-	end
+		if key == buttons.p2jump then
+			p2_char = p2_char % #available_chars + 1
+			sounds.playCharSelectSFX()
+		end
 
 	elseif game.current_screen == "settings" then
-	setupReceiveKeypress(key)
+		setupReceiveKeypress(key)
 
 	elseif game.current_screen == "replays" then
-	if key == buttons.start then
-		sounds.playCharSelectSFX()
-		game.current_screen = "title"
-	end
+		if key == buttons.start then
+			sounds.playCharSelectSFX()
+			game.current_screen = "title"
+		end
 
 	elseif game.current_screen == "match_end" then
-	if key ==  buttons.start then
-		love.load()
-		game.current_screen = "title"
-	end
+		if key ==  buttons.start then
+			love.load()
+			game.current_screen = "title"
+		end
 	end
 
 	if key == '`' then p1.super = 90 p2.super = 90 end
@@ -356,20 +356,20 @@ function love.keypressed(key)
 	if key == '5' then debug.keybuffer = not debug.keybuffer end
 	if key == '6' then print(love.filesystem.getSaveDirectory()) end
 	if key == '7' then
-	local output_keybuffer = json.encode(keybuffer)
-	local filename = os.date("%Y.%m.%d.%H%M") .. " Keybuffer.txt"
-	success = love.filesystem.write(filename, output_keybuffer)
+		local output_keybuffer = json.encode(keybuffer)
+		local filename = os.date("%Y.%m.%d.%H%M") .. " Keybuffer.txt"
+		success = love.filesystem.write(filename, output_keybuffer)
 	end
 	if key == '9' then
-	local globaltable = {}
-	local num = 1
-	for k, v in pairs(_G) do
-		globaltable[num] = k
-		num = num + 1
-	end
-	local output_globals = json.encode(globaltable)
-	local filename = os.date("%Y.%m.%d.%H%M") .. " globals.txt"
-	love.filesystem.write(filename, output_globals)
-	print("Globals written to file")
+		local globaltable = {}
+		local num = 1
+		for k, v in pairs(_G) do
+			globaltable[num] = k
+			num = num + 1
+		end
+		local output_globals = json.encode(globaltable)
+		local filename = os.date("%Y.%m.%d.%H%M") .. " globals.txt"
+		love.filesystem.write(filename, output_globals)
+		print("Globals written to file")
 	end
 end

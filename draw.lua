@@ -6,6 +6,7 @@ local fonts = require 'fonts'
 local images = require 'images'
 local stage = require 'stage'
 local particles = require 'particles'
+local window = require 'window'
 
 local ROUND_START_FLAVOR = {
 	{TOP = "Kill each other,", BOTTOM = "But it's good [INVERSES]"},
@@ -356,8 +357,14 @@ local function main_overlays2()
 end
 
 
+local canvas_overlays = love.graphics.newCanvas(stage.width, stage.height)
+local canvas_sprites = love.graphics.newCanvas(stage.width, stage.height)
+local canvas_background = love.graphics.newCanvas(stage.width, stage.height)
+local canvas_super = love.graphics.newCanvas(stage.width, stage.height)
+
 local draw = {}
 draw.portraitsQuad = love.graphics.newQuad(0, 0, 200, 140, images.portraits:getDimensions())
+
 
 function draw.draw_main()
 	canvas_background:renderTo(main_background)
