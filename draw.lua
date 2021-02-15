@@ -363,8 +363,8 @@ local canvas_background = love.graphics.newCanvas(stage.width, stage.height)
 local canvas_super = love.graphics.newCanvas(stage.width, stage.height)
 
 local draw = {}
-draw.portraitsQuad = love.graphics.newQuad(0, 0, 200, 140, images.portraits:getDimensions())
 
+draw.portraitsQuad = love.graphics.newQuad(0, 0, 200, 140, images.portraits:getDimensions())
 
 function draw.draw_main()
 	canvas_background:renderTo(main_background)

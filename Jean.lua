@@ -1,9 +1,9 @@
 local class = require 'middleclass'
 local images = require 'images'
 local particles = require 'particles'
+local sounds = require 'sounds'
 local stage = require 'stage' -- for checking floor/walls
-local window = require 'window'
-local music = require 'music' -- background music
+
 require 'utilities'
 require 'character'
 

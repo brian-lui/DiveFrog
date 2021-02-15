@@ -2,6 +2,7 @@ local draw = require 'draw'
 local images = require 'images'
 local music = require 'music'
 local particles = require 'particles'
+local sounds = require 'sounds'
 local stage = require 'stage'
 local utilities = require 'utilities'
 
@@ -226,7 +227,6 @@ function Fighter:attack(h_vel, v_vel)
 	self.current_hitboxes = self.hitboxes_attacking
 	if self.super < 96 and not self.isSupering then
 		self.super = math.min(self.super + 8, 96)
-	 --if self.super == 96 then sounds.writeSound(super_sfx) end
 		if self.super == 96 then sounds.playSuperSFX() end
 	end
 end

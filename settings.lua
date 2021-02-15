@@ -5,6 +5,7 @@ local fonts = require 'fonts'
 local images = require 'images'
 local music = require 'music'
 local json = require 'dkjson'
+local sounds = require 'sounds'
 
 
 settings_popup_window = ""

@@ -7,6 +7,7 @@ local camera = require 'camera'
 local draw = require 'draw'
 local json = require 'dkjson'
 class = require 'middleclass' -- class support
+local sounds = require 'sounds'
 local stage = require 'stage'  -- total playing field area
 window = require 'window'  -- current view of stage
 local music = require 'music'
@@ -20,7 +21,6 @@ require 'settings'
 require 'title'
 
 
-sounds = require 'sounds'
 
 math.randomseed(os.time())
 math.random(); math.random(); math.random()
