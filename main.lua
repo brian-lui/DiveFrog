@@ -10,7 +10,6 @@ local sounds = require 'sounds'
 local stage = require 'stage'  -- total playing field area
 local window = require 'window'  -- current view of stage
 local music = require 'music'
-character = require 'character'
 require 'Konrad'
 require 'Jean'
 require 'Sun'

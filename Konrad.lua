@@ -3,7 +3,8 @@ local images = require 'images'
 local particles = require 'particles'
 local sounds = require 'sounds'
 local stage = require 'stage' -- for checking floor/walls
-require 'character'
+local Fighter = require 'fighter'
+
 require 'utilities'
 
 Konrad = class('Konrad', Fighter)

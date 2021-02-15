@@ -12,7 +12,7 @@ local window = require 'window'
 --[[---------------------------------------------------------------------------
 								FIGHTER SUPERCLASS
 -----------------------------------------------------------------------------]]
-Fighter = class('Fighter')
+local Fighter = class('Fighter')
 function Fighter:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
 	--[[-------------------------------------------------------------------------
 								NO NEED TO MODIFY THESE
@@ -664,6 +664,7 @@ function Fighter:extraStuff()
 	-- character-specific routines
 end
 
+return Fighter
 --[[---------------------------------------------------------------------------
 										BEDFROG
 -----------------------------------------------------------------------------]]

@@ -5,8 +5,9 @@ local particles = require 'particles'
 local sounds = require 'sounds'
 local stage = require 'stage' -- for checking floor/walls
 local music = require 'music' -- background music
+local Fighter = require 'fighter'
+
 require 'utilities'
-require 'character'
 
 Sun = class('Sun', Fighter)
 function Sun:initialize(init_player, init_foe, init_super, init_dizzy, init_score)

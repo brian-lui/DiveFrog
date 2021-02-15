@@ -3,9 +3,10 @@ local images = require 'images'
 local particles = require 'particles'
 local sounds = require 'sounds'
 local stage = require 'stage' -- for checking floor/walls
+local Fighter = require 'fighter'
 
 require 'utilities'
-require 'character'
+
 
 Jean = class('Jean', Fighter)
 function Jean:initialize(init_player, init_foe, init_super, init_dizzy, init_score)
