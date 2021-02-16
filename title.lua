@@ -19,6 +19,7 @@ title.default_selections = {
 	player12P = 1,
 	player22P = 2,
 }
+
 if love.filesystem.getInfo("choices.txt") then
 	local choices_string = love.filesystem.read("choices.txt")
 	title.default_selections = json.decode(choices_string)
@@ -70,46 +71,6 @@ title.choices = {
 	action = {select1P, select2P, settingsMenu},
 	option = title.default_selections.title
 }
-
-
-function drawTitle()
-	love.graphics.push("all")
-	love.graphics.draw(images.title.screen, 0, 0)
-	love.graphics.draw(images.title.logo, 165, 30)
-
-	love.graphics.setColor(colors.OFF_WHITE)
-		love.graphics.draw(images.title.select_background, 100, 385)
-		love.graphics.draw(images.title.controls_background, 400, 380)
-
-	love.graphics.setLineWidth(3)
-	love.graphics.setColor(colors.ORANGE)
-	if frame % 60 > 50 then
-		love.graphics.setColor(colors.WHITE)
-	end
-	love.graphics.rectangle("line", 120, 375 + 35 * title.choices.option, 110, 35)
-
-	love.graphics.setColor(colors.ORANGE)
-	love.graphics.setFont(fonts.title)
-		local toprint = {
-		{"P1 Jump:", buttons.p1jump},
-		{"P1 Attack:", buttons.p1attack},
-		{"P2 Jump:", buttons.p2jump},
-		{"P2 Attack:", buttons.p2attack}
-		}
-
-		for i = 1, #toprint do
-		love.graphics.push("all")
-			love.graphics.print(toprint[i][1], 410, 370 + (30 * i))
-			love.graphics.setColor(colors.LIGHT_GREEN)
-			love.graphics.print(toprint[i][2], 540, 370 + (30 * i))
-		love.graphics.pop()
-		end
-		for i = 1, #title.choices.menu do
-		love.graphics.print(title.choices.menu[i], 130, 375  + (35 * i))
-		end
-	love.graphics.pop()
-end
-
 
 -- Replays
 function replays()
