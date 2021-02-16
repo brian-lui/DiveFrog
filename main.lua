@@ -10,10 +10,14 @@ local sounds = require 'sounds'
 local stage = require 'stage'  -- total playing field area
 local window = require 'window'  -- current view of stage
 local music = require 'music'
+local Konrad = require 'Konrad'
+local Jean = require 'Jean'
+local Sun = require 'Sun'
+local Frogson = require 'Frogson'
 
 require 'AI'
 require 'settings'
-require 'title'
+local title = require 'title'
 
 
 
@@ -42,6 +46,7 @@ function love.load()
 		identical_players = false,
 		format = "",
 	}
+
 	music.setBGM("Intro.ogg")
 	min_dt = 1/60 -- frames per second
 	next_time = love.timer.getTime()
@@ -57,28 +62,24 @@ function love.load()
 	post2buffer = {}
 	post3buffer = {}
 	debug = {boxes = false, sprites = false, midpoints = false, camera = false,	keybuffer = false}
+
+	available_chars = {Konrad, Jean, Sun, Frogson}
 end
 
 function love.draw()
 	if game.current_screen == "maingame" then
 		draw.draw_main()
-
 	elseif game.current_screen == "charselect" then
 		draw.draw_charselect()
-
 	elseif game.current_screen == "match_end" then
 		draw.draw_matchend()
-
 	elseif game.current_screen == "title" then
-	drawTitle()
-
+		draw.draw_title()
 	elseif game.current_screen == "settings" then
 		drawSettingsMain()
 		drawSettingsPopup()
-
 	elseif game.current_screen == "replays" then
 		love.graphics.draw(images.replaysscreen, 0, 0, 0)
-
 	end
 
 	local cur_time = love.timer.getTime() -- time after drawing all the stuff
@@ -267,13 +268,13 @@ end
 
 function startGame()
 	if game.format == "1P" then
-		default_selections.player1P = p1_char
-		default_selections.AI1P = p2_char
+		title.default_selections.player1P = p1_char
+		title.default_selections.AI1P = p2_char
 	elseif game.format == "2P" then
-		default_selections.player12P = p1_char
-		default_selections.player22P = p2_char
+		title.default_selections.player12P = p1_char
+		title.default_selections.player22P = p2_char
 	end
-	love.filesystem.write("choices.txt", json.encode(default_selections))
+	love.filesystem.write("choices.txt", json.encode(title.default_selections))
 
 	game.current_screen = "maingame"
 
@@ -297,15 +298,15 @@ function love.keypressed(key)
 	if game.current_screen == "title" then
 		if key == buttons.p1attack or key == buttons.start then
 			sounds.playCharSelectedSFX()
-			title_choices.action[title_choices.option]()
+			title.choices.action[title.choices.option]()
 
 		elseif key == buttons.p1jump or key == "down" then
 			sounds.playCharSelectSFX()
-			title_choices.option = title_choices.option % #title_choices.menu + 1
+			title.choices.option = title.choices.option % #title.choices.menu + 1
 
 		elseif key == "up" then
 			sounds.playCharSelectSFX()
-			title_choices.option = (title_choices.option - 2) % #title_choices.menu + 1
+			title.choices.option = (title.choices.option - 2) % #title.choices.menu + 1
 		end
 
 	elseif game.current_screen == "charselect" then
@@ -351,7 +352,7 @@ function love.keypressed(key)
 	if key == '7' then
 		local output_keybuffer = json.encode(keybuffer)
 		local filename = os.date("%Y.%m.%d.%H%M") .. " Keybuffer.txt"
-		success = love.filesystem.write(filename, output_keybuffer)
+		love.filesystem.write(filename, output_keybuffer)
 	end
 	if key == '9' then
 		local globaltable = {}

@@ -191,8 +191,7 @@ controls_choices = {
 }
 
 function settingsMenu()
-  title_choices.option = 1
-  game.current_screen = "settings" 
+  game.current_screen = "settings"
 end
 
 DRAW_ITEM = {
