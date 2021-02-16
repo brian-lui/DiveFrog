@@ -363,6 +363,6 @@ function love.keypressed(key)
 		local output_globals = json.encode(globaltable)
 		local filename = os.date("%Y.%m.%d.%H%M") .. " globals.txt"
 		love.filesystem.write(filename, output_globals)
-		print("Globals written to file")
+		print("Globals written to file " .. love.filesystem.getSaveDirectory())
 	end
 end
