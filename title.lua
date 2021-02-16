@@ -31,13 +31,6 @@ end
 local function charSelect()
 	music.setBGM("CharSelect.ogg")
 
-	char_text = {
-		{"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},
-		{"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"},
-		{"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"},
-		{"Anti-Gravity Frog", "Wow!", "+40%", "Jackson/Bison Stances"},
-	}
-
 	if game.format == "1P" then
 		p1_char = title.default_selections.player1P
 		p2_char = title.default_selections.AI1P
@@ -73,9 +66,10 @@ title.choices = {
 }
 
 -- Replays
-function replays()
+--[[
+function title.replays()
 	game.current_screen = "replays"
-	--[[
+
 	Scan folder for all valid folders
 	Output list of all files to a table -- https://love2d.org/wiki/love.filesystem.getDirectoryItems
 	Sort table by filename -- table.sort(table)
@@ -90,8 +84,8 @@ function replays()
 		Allow enter key to popup "return to main menu?" (can continue playing in background for simplicity)
 		For i = 1 to #-1: decode .txt into keybuffer
 	Delete file -- https://love2d.org/wiki/love.filesystem.remove
-	]]
-end
 
+end
+--]]
 
 return title

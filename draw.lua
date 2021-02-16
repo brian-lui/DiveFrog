@@ -469,6 +469,14 @@ function draw.draw_main()
 	if debug.keybuffer then print(unpack(keybuffer[frame])) end
 end
 
+
+local char_text = {
+	{"Hyper Jump", "Hyper Kick", "+40%", "Double Jump"},
+	{"Wire Sea", "Frog On Land", "+20%, Wire Ocean", "Dandy Frog (Wire Sea OK)\n— Pile Bonquer (Wire Sea OK)"},
+	{"Hotflame (Wire Sea OK)", "Riot Kick", "Frog Install", "Small Head"},
+	{"Anti-Gravity Frog", "Wow!", "+40%", "Jackson/Bison Stances"},
+}
+
 function draw.draw_charselect()
 	love.graphics.draw(images.charselectscreen, 0, 0, 0) -- background
 	love.graphics.draw(images.portraits, draw.portraitsQuad, 473, 130) -- character portrait
