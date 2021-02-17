@@ -73,16 +73,17 @@ local function main_items()
 	end
 
 	-- draw prebuffer
-	if prebuffer[frame] then
+
+	local prebuffer_frame = particles.get_frame("pre", frame)
+	if prebuffer_frame then
 		love.graphics.push("all")
-			for index, _ in pairs(prebuffer[frame]) do
-				prebuffer[frame][index][12] = prebuffer[frame][index][12] or colors.WHITE
-				love.graphics.setColor(prebuffer[frame][index][12]) -- 12 is RGB table
-				love.graphics.draw(unpack(prebuffer[frame][index]))
+			for index, _ in pairs(prebuffer_frame) do
+				love.graphics.setColor(prebuffer_frame[index][12] or colors.WHITE) -- 12 is RGB table
+				love.graphics.draw(unpack(prebuffer_frame[index]))
 			end
 		love.graphics.pop()
 	end
-	prebuffer[frame] = nil
+	particles.clear_frame("pre", frame)
 
 	-- draw sprites
 	for side, op in pairs(Players) do
@@ -114,16 +115,16 @@ local function main_items()
 	end
 
 	-- draw postbuffer
-	if postbuffer[frame] then
+	local postbuffer_frame = particles.get_frame("post", frame)
+	if postbuffer_frame then
 		love.graphics.push("all")
-			for index, _ in pairs(postbuffer[frame]) do
-				postbuffer[frame][index][12] = postbuffer[frame][index][12] or colors.WHITE
-				love.graphics.setColor(postbuffer[frame][index][12]) -- 12 is RGB table
-				love.graphics.draw(unpack(postbuffer[frame][index]))
+			for index, _ in pairs(postbuffer_frame) do
+				love.graphics.setColor(postbuffer_frame[index][12] or colors.WHITE) -- 12 is RGB table
+				love.graphics.draw(unpack(postbuffer_frame[index]))
 			end
 		love.graphics.pop()
 	end
-	postbuffer[frame] = nil
+	particles.clear_frame("post", frame)
 end
 
 -- draw the main screen overlay items
@@ -334,27 +335,27 @@ end
 local function main_overlays2()
 	love.graphics.clear()
 
-	if post2buffer[frame] then
+	local post2buffer_frame = particles.get_frame("post2", frame)
+	if post2buffer_frame then
 		love.graphics.push("all")
-			for index, _ in pairs(post2buffer[frame]) do
-				post2buffer[frame][index][12] = post2buffer[frame][index][12] or colors.WHITE
-				love.graphics.setColor(post2buffer[frame][index][12]) -- 12 is RGB table
-				love.graphics.draw(unpack(post2buffer[frame][index]))
+			for index, _ in pairs(post2buffer_frame) do
+				love.graphics.setColor(post2buffer_frame[index][12] or colors.WHITE) -- 12 is RGB table
+				love.graphics.draw(unpack(post2buffer_frame[index]))
 			end
 		love.graphics.pop()
 	end
-	post2buffer[frame] = nil
+	particles.clear_frame("post2", frame)
 
-	if post3buffer[frame] then
+	local post3buffer_frame = particles.get_frame("post3", frame)
+	if post3buffer_frame then
 		love.graphics.push("all")
-			for index, _ in pairs(post3buffer[frame]) do
-				post3buffer[frame][index][12] = post3buffer[frame][index][12] or colors.WHITE
-				love.graphics.setColor(post3buffer[frame][index][12]) -- 12 is RGB table
-				love.graphics.draw(unpack(post3buffer[frame][index]))
+			for index, _ in pairs(post3buffer_frame) do
+				love.graphics.setColor(post3buffer_frame[index][12] or colors.WHITE) -- 12 is RGB table
+				love.graphics.draw(unpack(post3buffer_frame[index]))
 			end
 		love.graphics.pop()
 	end
-	post3buffer[frame] = nil
+	particles.clear_frame("post3", frame)
 end
 
 local debug_funcs = {
@@ -416,17 +417,20 @@ local debug_funcs = {
 		end
 
 		-- delete prebuffer[frame] = nil if using this. Draws unflipped, unshifted position.
-		if prebuffer[frame] then
-			for index, _ in pairs(prebuffer[frame]) do
-				local a, b, l, u = unpack(prebuffer[frame][index])
+		local prebuffer_frame = particles.get_frame("pre", frame)
+		if prebuffer_frame then
+			for index, _ in pairs(prebuffer_frame) do
+				local a, b, l, u = unpack(prebuffer_frame[index])
 				love.graphics.line(l + 50, u, l - 50, u)
 				love.graphics.line(l, u + 50, l, u - 50)
 			end
 		end
-		-- delete postbuffer[frame] = nil if using this. Draws unflipped, unshifted position.
-		if postbuffer[frame] then
-			for index, _ in pairs(postbuffer[frame]) do
-				local a, b, l, u = unpack(postbuffer[frame][index])
+
+		-- delete particles.postbuffer[frame] = nil if using this. Draws unflipped, unshifted position.
+		local postbuffer_frame = particles.get_frame("post", frame)
+		if postbuffer_frame then
+			for index, _ in pairs(postbuffer_frame) do
+				local a, b, l, u = unpack(postbuffer_frame[index])
 				love.graphics.line(l + 50, u, l - 50, u)
 				love.graphics.line(l, u + 50, l, u - 50)
 			end

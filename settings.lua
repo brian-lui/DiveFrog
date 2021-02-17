@@ -128,6 +128,12 @@ local settings_choices = {
 	option = 1
 }
 
+local controls_choices = {
+	key = {{"p1jump"}, {"p1attack"}, {"p2jump"}, {"p2attack"}, {"start"}, "Back"},
+	assigning = false,
+	option = 1
+}
+
 Params = {
 	Rounds = data.Rounds[options.Rounds][2],
 	Timer = data.Timer[options.Timer][2],
@@ -178,7 +184,7 @@ function settings.receive_keypress(key)
 			end
 		end
 	else
-		for k, v in pairs(data) do
+		for k in pairs(data) do
 			if popup_window == k then
 				if key == buttons.p1attack or key == "return" then
 					sounds.playCharSelectSFX()
@@ -195,32 +201,18 @@ function settings.receive_keypress(key)
 	end
 end
 
-
-
-controls_choices = {
-	key = {{"p1jump"}, {"p1attack"}, {"p2jump"}, {"p2attack"}, {"start"}, "Back"},
-	assigning = false,
-	option = 1
-}
-
 function settings.open()
 	settings_choices.option = 1
 	game.current_screen = "settings"
 end
 
-DRAW_ITEM = {
-	BACKGROUND = {images.settings.background, 0, 0, 0},
-	LOGO = {images.settings.logo, 232, 60},
-	TEXTURE = {images.settings.texture, 280, 260}
-}
-
 function drawSettingsMain()
 	love.graphics.push("all")
-	love.graphics.draw(unpack(DRAW_ITEM.BACKGROUND))
-	love.graphics.draw(unpack(DRAW_ITEM.LOGO))
+	love.graphics.draw(images.settings.background, 0, 0, 0)
+	love.graphics.draw(images.settings.logo, 232, 60)
 
 	love.graphics.setColor(colors.OFF_WHITE)
-	love.graphics.draw(unpack(DRAW_ITEM.TEXTURE))
+	love.graphics.draw(images.settings.texture, 280, 260)
 
 	love.graphics.setLineWidth(3)
 	if popup_window == "" then

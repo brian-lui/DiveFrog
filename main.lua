@@ -5,6 +5,7 @@ local draw = require 'draw'
 local images = require 'images'
 local json = require 'dkjson'
 local music = require 'music'
+local particles = require 'particles'
 local settings = require 'settings'
 local sounds = require 'sounds'
 local stage = require 'stage'  -- total playing field area
@@ -57,10 +58,7 @@ function love.load()
 	round_end_frame = 0
 	round_ended = false
 	keybuffer = {false, false, false, false} -- log of all keystates during the round. Useful for netplay!
-	prebuffer = {} -- pre-load draw instruction into future frames behind sprite
-	postbuffer = {} -- pre-load draw instructions into future frames over sprite
-	post2buffer = {}
-	post3buffer = {}
+
 	debug = {boxes = false, sprites = false, midpoints = false, camera = false,	keybuffer = false}
 
 	available_chars = {Konrad, Jean, Sun, Frogson}
@@ -250,10 +248,7 @@ function newRound()
 	game.background_color = nil
 	game.isScreenShaking = false
 	keybuffer = {false, false, false, false}
-	prebuffer = {}
-	postbuffer = {}
-	post2buffer = {}
-	post3buffer = {}
+	particles.clear_buffers()
 	sounds.reset()
 	camera_scale_factor = 1
 

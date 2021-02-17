@@ -14,6 +14,11 @@ require 'utilities'
 	self.facing) -- no need to change
 ]]
 
+local prebuffer = {} -- pre-load draw instruction into future frames behind sprite
+local postbuffer = {} -- above sprite
+local post2buffer = {} -- etc.
+local post3buffer = {}
+
 
 --[[---------------------------------------------------------------------------
 								PARTICLE / FX CLASS
@@ -109,17 +114,20 @@ end
 
 function AfterImage:loadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing)
 	local shadow = {
-	[8] = {255, 180, 0, 200},
-	[16] = {255, 180, 0, 150}, 
-	[24] = {255, 180, 0, 100}
+		[8] = {255, 180, 0, 200},
+		[16] = {255, 180, 0, 150},
+		[24] = {255, 180, 0, 100},
 	}
+
 	for s_frame, color in pairs(shadow) do
-	draw_count = draw_count + 1
-	prebuffer[frame + s_frame] = prebuffer[frame + s_frame] or {}
-	prebuffer[frame + s_frame][draw_count] = self:_getDrawable(0,
-		sprite_center_h - self.center + (facing * h_shift),
-		sprite_v + v_shift,
-		facing, math.abs(facing), color)
+		draw_count = draw_count + 1
+		prebuffer[frame + s_frame] = prebuffer[frame + s_frame] or {}
+		prebuffer[frame + s_frame][draw_count] = self:_getDrawable(
+			0,
+			sprite_center_h - self.center + (facing * h_shift),
+			sprite_v + v_shift,
+			facing, math.abs(facing), color
+		)
 	end
 end
 
@@ -377,5 +385,40 @@ particles.jean = {
 		1
 	),
 }
+
+function particles.clear_buffers()
+	prebuffer = {}
+	postbuffer = {}
+	post2buffer = {}
+	post3buffer = {}
+end
+
+function particles.get_frame(layer, frame)
+	if layer == "pre" then
+		return prebuffer[frame]
+	elseif layer == "post" then
+		return postbuffer[frame]
+	elseif layer == "post2" then
+		return post2buffer[frame]
+	elseif layer == "post3" then
+		return post3buffer[frame]
+	else
+		error("Invalid layer specified for particles.get_frame")
+	end
+end
+
+function particles.clear_frame(layer, frame)
+	if layer == "pre" then
+		prebuffer[frame] = nil
+	elseif layer == "post" then
+		postbuffer[frame] = nil
+	elseif layer == "post2" then
+		post2buffer[frame] = nil
+	elseif layer == "post3" then
+		post3buffer[frame] = nil
+	else
+		error("Invalid layer specified for particles.clear_frame")
+	end
+end
 
 return particles
