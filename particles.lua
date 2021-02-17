@@ -41,20 +41,29 @@ function Particle:initialize(image, image_size, sprite_size, time_per_frame, sou
 end
 
 function Particle:_getDrawable(image_index, pos_h, pos_v, scale_x, scale_y, RGBTable)
-	local quad = love.graphics.newQuad(image_index * self.width, 0,
-	self.width, self.height, self.image_size[1], self.image_size[2])
-	return {self.image,
-	quad,
-	pos_h + self.center,
-	pos_v,
-	0,
-	scale_x, -- scale_x: 1 is default, -1 for flip
-	scale_y,
-	self.center, -- anchor_x
-	0, -- anchor_y
-	0,
-	0,
-	RGBTable or self.color}
+	local quad = love.graphics.newQuad(
+		image_index * self.width,
+		0,
+		self.width,
+		self.height,
+		self.image_size[1],
+		self.image_size[2]
+	)
+
+	return {
+		self.image,
+		quad,
+		pos_h + self.center,
+		pos_v,
+		0,
+		scale_x, -- scale_x: 1 is default, -1 for flip
+		scale_y,
+		self.center, -- anchor_x
+		0, -- anchor_y
+		0,
+		0,
+		RGBTable or self.color,
+	}
 end
 
 function Particle:playSound(delay_time)
@@ -76,10 +85,14 @@ function Particle:repeatLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing
 
 	local current_anim = math.floor((frame + delay) % self.total_time / self.time_per_frame)
 	buffer[frame + delay] = buffer[frame + delay] or {}
-	buffer[frame + delay][draw_count] = self:_getDrawable(current_anim,
-	sprite_center_h - self.center + (facing * h_shift),
-	sprite_v + v_shift,
-	facing, math.abs(facing), RGBTable)
+	buffer[frame + delay][draw_count] = self:_getDrawable(
+		current_anim,
+		sprite_center_h - self.center + (facing * h_shift),
+		sprite_v + v_shift,
+		facing,
+		math.abs(facing),
+		RGBTable
+	)
 end
 
 -- called once, loads entire anim
@@ -96,12 +109,16 @@ function Particle:singleLoad(sprite_center_h, sprite_v, h_shift, v_shift, facing
 	end
 
 	for i = (frame + delay), (frame + delay + self.total_time) do
-	local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
-	buffer[i] = buffer[i] or {}
-	buffer[i][draw_count] = self:_getDrawable(current_anim,
-		sprite_center_h - self.center + (facing * h_shift),
-		sprite_v + v_shift,
-		facing, math.abs(facing), RGBTable)
+		local current_anim = math.floor((i - (frame + delay)) / self.time_per_frame)
+		buffer[i] = buffer[i] or {}
+		buffer[i][draw_count] = self:_getDrawable(
+			current_anim,
+			sprite_center_h - self.center + (facing * h_shift),
+			sprite_v + v_shift,
+			facing,
+			math.abs(facing),
+			RGBTable
+		)
 	end
 end
 
@@ -126,7 +143,9 @@ function AfterImage:loadFX(sprite_center_h, sprite_v, h_shift, v_shift, facing)
 			0,
 			sprite_center_h - self.center + (facing * h_shift),
 			sprite_v + v_shift,
-			facing, math.abs(facing), color
+			facing,
+			math.abs(facing),
+			color
 		)
 	end
 end
