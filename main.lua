@@ -1,23 +1,23 @@
 local love = _G.love
 
-local images = require 'images'
-require 'lovedebug'
-local utilities = require 'utilities' -- helper functions
 local camera = require 'camera'
 local draw = require 'draw'
+local images = require 'images'
 local json = require 'dkjson'
+local music = require 'music'
+local settings = require 'settings'
 local sounds = require 'sounds'
 local stage = require 'stage'  -- total playing field area
+local title = require 'title'
+local utilities = require 'utilities' -- helper functions
 local window = require 'window'  -- current view of stage
-local music = require 'music'
 local Konrad = require 'Konrad'
 local Jean = require 'Jean'
 local Sun = require 'Sun'
 local Frogson = require 'Frogson'
 
+require 'lovedebug'
 require 'AI'
-require 'settings'
-local title = require 'title'
 
 
 
@@ -327,7 +327,7 @@ function love.keypressed(key)
 		end
 
 	elseif game.current_screen == "settings" then
-		setupReceiveKeypress(key)
+		settings.receive_keypress(key)
 
 	elseif game.current_screen == "replays" then
 		if key == buttons.start then

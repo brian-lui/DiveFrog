@@ -1,13 +1,8 @@
 local love = _G.love
 
-local colors = require 'colors'
-local fonts = require 'fonts'
-local images = require 'images'
 local json = require 'dkjson'
 local music = require 'music' -- background music
-
-
-require 'settings'
+local settings = require 'settings'
 
 local title = {}
 
@@ -61,7 +56,7 @@ end
 
 title.choices = {
 	menu = {"1 Player", "2 Player", "Settings"},
-	action = {select1P, select2P, settingsMenu},
+	action = {select1P, select2P, settings.open},
 	option = title.default_selections.title
 }
 

@@ -9,7 +9,7 @@ local sounds = require 'sounds'
 
 local settings = {}
 
-settings.popup_window = ""
+local popup_window = ""
 
 local backgrounds = {
 	rounds = love.graphics.newQuad(
@@ -99,12 +99,12 @@ local settings_choices = {
 		"Back to Title",
 	},
 	action = {
-		function() settings.popup_window = "Rounds" end,
-		function() settings.popup_window = "Timer" end,
-		function() settings.popup_window = "Speed" end,
-		function() settings.popup_window = "Music" end,
-		function() settings.popup_window = "Sound" end,
-		function() settings.popup_window = "Controls" end,
+		function() popup_window = "Rounds" end,
+		function() popup_window = "Timer" end,
+		function() popup_window = "Speed" end,
+		function() popup_window = "Music" end,
+		function() popup_window = "Sound" end,
+		function() popup_window = "Controls" end,
 		function()
 			Params = {
 				Rounds = data.Rounds[options.Rounds][2],
@@ -122,7 +122,6 @@ local settings_choices = {
 			love.filesystem.write("settings.txt", json.encode(options))
 			love.filesystem.write("controls.txt", json.encode(buttons))
 
-			settings_choices.option = 1
 			game.current_screen = 'title'
 		end,
 	},
@@ -138,8 +137,8 @@ Params = {
 	}
 
 
-function setupReceiveKeypress(key)
-	if settings.popup_window == "" then
+function settings.receive_keypress(key)
+	if popup_window == "" then
 		if key == buttons.p1attack or key == "right" or key == "return" then
 			sounds.playCharSelectSFX()
 			settings_choices.action[settings_choices.option]()
@@ -151,7 +150,7 @@ function setupReceiveKeypress(key)
 			settings_choices.option = (settings_choices.option - 2) % #settings_choices.menu + 1
 		end
 
-	elseif settings.popup_window == "Controls" then
+	elseif popup_window == "Controls" then
 		if controls_choices.assigning then
 			if not (key == "left" or key == "right" or key == "up" or key == "down") then
 				for _, v in pairs(controls_choices.key[controls_choices.option]) do
@@ -164,7 +163,7 @@ function setupReceiveKeypress(key)
 				sounds.playCharSelectSFX()
 
 				if controls_choices.key[controls_choices.option] == "Back" then
-					settings.popup_window = ""
+					popup_window = ""
 				else
 					controls_choices.assigning = true
 				end
@@ -175,15 +174,15 @@ function setupReceiveKeypress(key)
 				sounds.playCharSelectSFX()
 				controls_choices.option = (controls_choices.option - 2) % #controls_choices.key + 1
 			elseif key == "left" then
-				settings.popup_window = ""
+				popup_window = ""
 			end
 		end
 	else
 		for k, v in pairs(data) do
-			if settings.popup_window == k then
+			if popup_window == k then
 				if key == buttons.p1attack or key == "return" then
 					sounds.playCharSelectSFX()
-					settings.popup_window = ""
+					popup_window = ""
 				elseif key == buttons.p1jump or key == "down" then
 					sounds.playCharSelectSFX()
 					options[k] = options[k] % #data[k] + 1
@@ -204,7 +203,8 @@ controls_choices = {
 	option = 1
 }
 
-function settingsMenu()
+function settings.open()
+	settings_choices.option = 1
 	game.current_screen = "settings"
 end
 
@@ -223,7 +223,7 @@ function drawSettingsMain()
 	love.graphics.draw(unpack(DRAW_ITEM.TEXTURE))
 
 	love.graphics.setLineWidth(3)
-	if settings.popup_window == "" then
+	if popup_window == "" then
 		love.graphics.setColor(colors.ORANGE)
 		if frame % 60 > 50 then
 		love.graphics.setColor(colors.WHITE)
@@ -233,7 +233,7 @@ function drawSettingsMain()
 	end
 	love.graphics.rectangle("line", 290, 238 + 35 * settings_choices.option, 200, 34)
 
-	if settings.popup_window == "" then
+	if popup_window == "" then
 		love.graphics.setColor(colors.ORANGE)
 	else
 		love.graphics.setColor(colors.DULL_ORANGE)
@@ -248,7 +248,7 @@ end
 
 
 function drawSettingsPopup()
-	if settings.popup_window == "Rounds" then
+	if popup_window == "Rounds" then
 	local toprint = data.Rounds[options.Rounds][1]
 
 	love.graphics.push("all")
@@ -260,7 +260,7 @@ function drawSettingsPopup()
 		love.graphics.printf(toprint, 508, 252, 60, "center")
 	love.graphics.pop()
 
-	elseif settings.popup_window == "Timer" then
+	elseif popup_window == "Timer" then
 	local toprint = data.Timer[options.Timer][1]
 	love.graphics.push("all")
 		love.graphics.setColor(colors.OFF_WHITE)
@@ -271,7 +271,7 @@ function drawSettingsPopup()
 		love.graphics.printf(toprint, 510, 290, 70, "center")
 	love.graphics.pop()
 
-	elseif settings.popup_window == "Speed" then
+	elseif popup_window == "Speed" then
 	local toprint = data.Speed[options.Speed][1]
 	love.graphics.push("all")
 		love.graphics.setColor(colors.OFF_WHITE)
@@ -282,7 +282,7 @@ function drawSettingsPopup()
 		love.graphics.printf(toprint, 510, 333, 130, "center")
 	love.graphics.pop()
 
-	elseif settings.popup_window == "Music" then
+	elseif popup_window == "Music" then
 	local toprint = data.Music[options.Music][1]
 	love.graphics.push("all")
 		love.graphics.setColor(colors.OFF_WHITE)
@@ -293,7 +293,7 @@ function drawSettingsPopup()
 		love.graphics.printf(toprint, 510, 368, 90, "center")
 	love.graphics.pop()
 
-	elseif settings.popup_window == "Sound" then
+	elseif popup_window == "Sound" then
 	local toprint = data.Sound[options.Sound][1]
 	love.graphics.push("all")
 		love.graphics.setColor(colors.OFF_WHITE)
@@ -303,7 +303,7 @@ function drawSettingsPopup()
 		love.graphics.setFont(fonts.settings_options_small)
 		love.graphics.printf(toprint, 510, 403, 90, "center")
 	love.graphics.pop()
-	elseif settings.popup_window == "Controls" then
+	elseif popup_window == "Controls" then
 	love.graphics.push("all")
 		love.graphics.setColor(colors.OFF_WHITE)
 		love.graphics.draw(images.settings.texture, backgrounds.controls, 510, 245)
