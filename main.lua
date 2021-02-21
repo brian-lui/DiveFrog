@@ -19,15 +19,11 @@ local Sun = require 'Sun'
 local Frogson = require 'Frogson'
 
 require 'lovedebug'
-require 'AI'
-
-
 
 math.randomseed(os.time())
 math.random(); math.random(); math.random()
 
 utilities.checkVersion()
-
 
 -- build screen
 love.window.setMode(window.width, window.height)
@@ -230,7 +226,6 @@ function love.update(dt)
 end
 
 function newRound()
-
 	--Uncomment this for replays later. Too annoying atm sorry
 	--local keybuffer_string = json.encode(keybuffer)
 	--local filename = "saves/" .. os.date("%m%d%H%M") .. p1_char .. "v" ..
@@ -248,11 +243,9 @@ function newRound()
 	game.current_round = game.current_round + 1
 	game.background_color = nil
 	game.isScreenShaking = false
-	keybuffer = {false, false, false, false}
+	keybuffer = {}
 	particles.clear_buffers()
 	sounds.reset()
-	camera_scale_factor = 1
-
 
 	if not music.currentBGM:isPlaying() then music.currentBGM:play() end
 	if music.currentBGM2:isPlaying() then music.currentBGM2:pause() end
