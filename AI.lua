@@ -1,5 +1,6 @@
 local stage = require 'stage'
-AI = {}
+
+local AI = {}
 
 -- angle of attack, expressed as h_vel / v_vel. Lower = steeper angle
 AI.KillAngle = {
@@ -404,3 +405,5 @@ function AI.Jean._pilebunking(player, foe)
 		return false, false
 	end
 end
+
+return AI

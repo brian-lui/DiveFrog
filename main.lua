@@ -1,5 +1,6 @@
 local love = _G.love
 
+local AI = require 'AI'
 local camera = require 'camera'
 local draw = require 'draw'
 local images = require 'images'
