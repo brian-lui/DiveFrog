@@ -71,7 +71,7 @@ function love.draw()
 	elseif game.current_screen == "title" then
 		draw.draw_title()
 	elseif game.current_screen == "settings" then
-		drawSettingsMain()
+		draw.draw_settings_main()
 		drawSettingsPopup()
 	elseif game.current_screen == "replays" then
 		love.graphics.draw(images.replaysscreen, 0, 0, 0)

@@ -4,6 +4,7 @@ local camera = require 'camera'
 local colors = require 'colors'
 local fonts = require 'fonts'
 local images = require 'images'
+local settings = require 'settings'
 local stage = require 'stage'
 local particles = require 'particles'
 local title = require 'title'
@@ -574,6 +575,38 @@ function draw.draw_title()
 	love.graphics.pop()
 end
 
+function draw.draw_settings_main()
+	love.graphics.push("all")
+		love.graphics.draw(images.settings.background, 0, 0, 0)
+		love.graphics.draw(images.settings.logo, 232, 60)
+
+		love.graphics.setColor(colors.OFF_WHITE)
+		love.graphics.draw(images.settings.texture, 280, 260)
+
+		love.graphics.setLineWidth(3)
+		if settings.popup_window == "" then
+			love.graphics.setColor(colors.ORANGE)
+			if frame % 60 > 50 then
+				love.graphics.setColor(colors.WHITE)
+			end
+		else
+			love.graphics.setColor(colors.DULL_ORANGE)
+		end
+
+		love.graphics.rectangle("line", 290, 238 + 35 * settings.choices.option, 200, 34)
+
+		if settings.popup_window == "" then
+			love.graphics.setColor(colors.ORANGE)
+		else
+			love.graphics.setColor(colors.DULL_ORANGE)
+		end
+
+		love.graphics.setFont(fonts.settings)
+		for i = 1, #settings.choices.menu do
+			love.graphics.print(settings.choices.menu[i], 300, 240 + (35 * i))
+		end
+	love.graphics.pop()
+end
 
 function draw.draw_super_overlays(facing, frogface)
 	for i = 0, 44 do
