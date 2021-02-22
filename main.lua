@@ -71,8 +71,7 @@ function love.draw()
 	elseif game.current_screen == "title" then
 		draw.draw_title()
 	elseif game.current_screen == "settings" then
-		draw.draw_settings_main()
-		drawSettingsPopup()
+		draw.draw_settings()
 	elseif game.current_screen == "replays" then
 		love.graphics.draw(images.replaysscreen, 0, 0, 0)
 	end
@@ -120,32 +119,32 @@ function love.update(dt)
 	-- get button press state, and write to keybuffer table
 	if game.format == "2P" then
 		keybuffer[frame] = {
-			love.keyboard.isDown(buttons.p1jump),
-			love.keyboard.isDown(buttons.p1attack),
-			love.keyboard.isDown(buttons.p2jump),
-			love.keyboard.isDown(buttons.p2attack),
+			love.keyboard.isDown(settings.buttons.p1jump),
+			love.keyboard.isDown(settings.buttons.p1attack),
+			love.keyboard.isDown(settings.buttons.p2jump),
+			love.keyboard.isDown(settings.buttons.p2attack),
 		}
 	elseif game.format == "1P" then
 		local AIjump, AIattack = AI.Action(p2, p1)
 		keybuffer[frame] = {
-			love.keyboard.isDown(buttons.p1jump),
-			love.keyboard.isDown(buttons.p1attack),
+			love.keyboard.isDown(settings.buttons.p1jump),
+			love.keyboard.isDown(settings.buttons.p1attack),
 			AIjump,
 			AIattack,
 		}
 	elseif game.format == "Netplay1P" then
 		keybuffer[frame] = {
-			love.keyboard.isDown(buttons.p1jump),
-			love.keyboard.isDown(buttons.p1attack),
-			love.keyboard.isDown(buttons.p2jump),   -- get netplay data here
-			love.keyboard.isDown(buttons.p2attack), -- get netplay data here
+			love.keyboard.isDown(settings.buttons.p1jump),
+			love.keyboard.isDown(settings.buttons.p1attack),
+			love.keyboard.isDown(settings.buttons.p2jump),   -- get netplay data here
+			love.keyboard.isDown(settings.buttons.p2attack), -- get netplay data here
 		}
 	elseif game.format == "Netplay2P" then
 		keybuffer[frame] = {
-			love.keyboard.isDown(buttons.p1jump),   -- get netplay data here
-			love.keyboard.isDown(buttons.p1attack), -- get netplay data here
-			love.keyboard.isDown(buttons.p2jump),
-			love.keyboard.isDown(buttons.p2attack),
+			love.keyboard.isDown(settings.buttons.p1jump),   -- get netplay data here
+			love.keyboard.isDown(settings.buttons.p1attack), -- get netplay data here
+			love.keyboard.isDown(settings.buttons.p2jump),
+			love.keyboard.isDown(settings.buttons.p2attack),
 		}
 	end
 
@@ -285,11 +284,11 @@ function love.keypressed(key)
 	if key == "escape" then love.event.quit() end
 
 	if game.current_screen == "title" then
-		if key == buttons.p1attack or key == buttons.start then
+		if key == settings.buttons.p1attack or key == settings.buttons.start then
 			sounds.playCharSelectedSFX()
 			title.choices.action[title.choices.option]()
 
-		elseif key == buttons.p1jump or key == "down" then
+		elseif key == settings.buttons.p1jump or key == "down" then
 			sounds.playCharSelectSFX()
 			title.choices.option = title.choices.option % #title.choices.menu + 1
 
@@ -299,18 +298,18 @@ function love.keypressed(key)
 		end
 
 	elseif game.current_screen == "charselect" then
-		if key == buttons.p1attack or key == buttons.p2attack then
+		if key == settings.buttons.p1attack or key == settings.buttons.p2attack then
 			sounds.playCharSelectedSFX()
 			startGame()
 		end
 
-		if key == buttons.p1jump then
+		if key == settings.buttons.p1jump then
 			p1_char = p1_char % #available_chars + 1
 			draw.portraitsQuad = love.graphics.newQuad(0, (p1_char - 1) * 140, 200, 140, images.portraits:getDimensions())
 			sounds.playCharSelectSFX()
 		end
 
-		if key == buttons.p2jump then
+		if key == settings.buttons.p2jump then
 			p2_char = p2_char % #available_chars + 1
 			sounds.playCharSelectSFX()
 		end
@@ -319,13 +318,13 @@ function love.keypressed(key)
 		settings.receive_keypress(key)
 
 	elseif game.current_screen == "replays" then
-		if key == buttons.start then
+		if key == settings.buttons.start then
 			sounds.playCharSelectSFX()
 			game.current_screen = "title"
 		end
 
 	elseif game.current_screen == "match_end" then
-		if key ==  buttons.start then
+		if key ==  settings.buttons.start then
 			love.load()
 			game.current_screen = "title"
 		end

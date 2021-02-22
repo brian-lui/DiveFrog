@@ -11,58 +11,7 @@ local settings = {}
 
 settings.popup_window = ""
 
-local backgrounds = {
-	rounds = love.graphics.newQuad(
-		0,
-		0,
-		60,
-		60,
-		love.graphics.getWidth(images.settings.texture),
-		love.graphics.getHeight(images.settings.texture)
-	),
-	timer = love.graphics.newQuad(
-		0,
-		0,
-		70,
-		60,
-		love.graphics.getWidth(images.settings.texture),
-		love.graphics.getHeight(images.settings.texture)
-	),
-	speed = love.graphics.newQuad(
-		0,
-		0,
-		130,
-		60,
-		love.graphics.getWidth(images.settings.texture),
-		love.graphics.getHeight(images.settings.texture)
-	),
-	music = love.graphics.newQuad(
-		0,
-		0,
-		90,
-		60,
-		love.graphics.getWidth(images.settings.texture),
-		love.graphics.getHeight(images.settings.texture)
-	),
-	sound = love.graphics.newQuad(
-		0,
-		0,
-		90,
-		60,
-		love.graphics.getWidth(images.settings.texture),
-		love.graphics.getHeight(images.settings.texture)
-	),
-	controls = love.graphics.newQuad(
-		0,
-		0,
-		210,
-		225,
-		love.graphics.getWidth(images.settings.texture),
-		love.graphics.getHeight(images.settings.texture)
-	),
-}
-
-local data = {
+settings.data = {
 	Rounds = {{1, 1}, {3, 3}, {5, 5}, {7, 7}, {9, 9}},
 	Timer = {{10, 10}, {15, 15}, {20, 20}, {99, 99}},
 	Speed = {{"Normal", 1.5}, {"Fast", 1.8}, {"Faster", 2.2}, {"Too Fast", 2.7}},
@@ -70,22 +19,22 @@ local data = {
 	Sound = {{"Mute", 0}, {"50%", 0.5}, {"70%", 0.7}, {"Max", 1}},
 }
 
--- load options
-local options = {Rounds = 3, Timer = 2, Speed = 1, Music = 3, Sound = 3}
+-- load settings.options
+settings.options = {Rounds = 3, Timer = 2, Speed = 1, Music = 3, Sound = 3}
 if love.filesystem.getInfo("settings.txt") then
 	local settings_string = love.filesystem.read("settings.txt")
-	options = json.decode(settings_string)
+	settings.options = json.decode(settings_string)
 else
-	love.filesystem.write("settings.txt", json.encode(options))
+	love.filesystem.write("settings.txt", json.encode(settings.options))
 end
 
 -- load controls
-buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
+settings.buttons = {p1jump = 'a', p1attack = 's', p2jump = 'l', p2attack = ';', start = 'return'}
 if love.filesystem.getInfo("controls.txt") then
 	local controls_string = love.filesystem.read("controls.txt")
-	buttons = json.decode(controls_string)
+	settings.buttons = json.decode(controls_string)
 else
-	love.filesystem.write("controls.txt", json.encode(buttons))
+	love.filesystem.write("controls.txt", json.encode(settings.buttons))
 end
 
 settings.choices = {
@@ -107,11 +56,11 @@ settings.choices = {
 		function() settings.popup_window = "Controls" end,
 		function()
 			Params = {
-				Rounds = data.Rounds[options.Rounds][2],
-				Timer = data.Timer[options.Timer][2],
-				Speed = data.Speed[options.Speed][2],
-				Music = data.Music[options.Music][2],
-				Sound = data.Sound[options.Sound][2],
+				Rounds = settings.data.Rounds[settings.options.Rounds][2],
+				Timer = settings.data.Timer[settings.options.Timer][2],
+				Speed = settings.data.Speed[settings.options.Speed][2],
+				Music = settings.data.Music[settings.options.Music][2],
+				Sound = settings.data.Sound[settings.options.Sound][2],
 			}
 
 			game.best_to_x = Params.Rounds
@@ -119,8 +68,8 @@ settings.choices = {
 			game.speed = Params.Speed
 			music.currentBGM:setVolume(0.9 * Params.Music)
 
-			love.filesystem.write("settings.txt", json.encode(options))
-			love.filesystem.write("controls.txt", json.encode(buttons))
+			love.filesystem.write("settings.txt", json.encode(settings.options))
+			love.filesystem.write("controls.txt", json.encode(settings.buttons))
 
 			game.current_screen = 'title'
 		end,
@@ -128,27 +77,27 @@ settings.choices = {
 	option = 1
 }
 
-local controls_choices = {
+settings.controls = {
 	key = {{"p1jump"}, {"p1attack"}, {"p2jump"}, {"p2attack"}, {"start"}, "Back"},
 	assigning = false,
 	option = 1
 }
 
 Params = {
-	Rounds = data.Rounds[options.Rounds][2],
-	Timer = data.Timer[options.Timer][2],
-	Speed = data.Speed[options.Speed][2],
-	Music = data.Music[options.Music][2],
-	Sound = data.Sound[options.Sound][2],
+	Rounds = settings.data.Rounds[settings.options.Rounds][2],
+	Timer = settings.data.Timer[settings.options.Timer][2],
+	Speed = settings.data.Speed[settings.options.Speed][2],
+	Music = settings.data.Music[settings.options.Music][2],
+	Sound = settings.data.Sound[settings.options.Sound][2],
 }
 
 
 function settings.receive_keypress(key)
 	if settings.popup_window == "" then
-		if key == buttons.p1attack or key == "right" or key == "return" then
+		if key == settings.buttons.p1attack or key == "right" or key == "return" then
 			sounds.playCharSelectSFX()
 			settings.choices.action[settings.choices.option]()
-		elseif key == buttons.p1jump or key == "down" then
+		elseif key == settings.buttons.p1jump or key == "down" then
 			sounds.playCharSelectSFX()
 			settings.choices.option = settings.choices.option % #settings.choices.menu + 1
 		elseif key == "up" then
@@ -157,44 +106,44 @@ function settings.receive_keypress(key)
 		end
 
 	elseif settings.popup_window == "Controls" then
-		if controls_choices.assigning then
+		if settings.controls.assigning then
 			if not (key == "left" or key == "right" or key == "up" or key == "down") then
-				for _, v in pairs(controls_choices.key[controls_choices.option]) do
-					buttons[v] = key
+				for _, v in pairs(settings.controls.key[settings.controls.option]) do
+					settings.buttons[v] = key
 				end
-				controls_choices.assigning = false
+				settings.controls.assigning = false
 			end
 		else
-			if key == buttons.p1attack or key == "right" or key == "return" then
+			if key == settings.buttons.p1attack or key == "right" or key == "return" then
 				sounds.playCharSelectSFX()
 
-				if controls_choices.key[controls_choices.option] == "Back" then
+				if settings.controls.key[settings.controls.option] == "Back" then
 					settings.popup_window = ""
 				else
-					controls_choices.assigning = true
+					settings.controls.assigning = true
 				end
-			elseif key == buttons.p1jump or key == "down" then
+			elseif key == settings.buttons.p1jump or key == "down" then
 				sounds.playCharSelectSFX()
-				controls_choices.option = controls_choices.option % #controls_choices.key + 1
+				settings.controls.option = settings.controls.option % #settings.controls.key + 1
 			elseif key == "up" then
 				sounds.playCharSelectSFX()
-				controls_choices.option = (controls_choices.option - 2) % #controls_choices.key + 1
+				settings.controls.option = (settings.controls.option - 2) % #settings.controls.key + 1
 			elseif key == "left" then
 				settings.popup_window = ""
 			end
 		end
 	else
-		for k in pairs(data) do
+		for k in pairs(settings.data) do
 			if settings.popup_window == k then
-				if key == buttons.p1attack or key == "return" then
+				if key == settings.buttons.p1attack or key == "return" then
 					sounds.playCharSelectSFX()
 					settings.popup_window = ""
-				elseif key == buttons.p1jump or key == "down" then
+				elseif key == settings.buttons.p1jump or key == "down" then
 					sounds.playCharSelectSFX()
-					options[k] = options[k] % #data[k] + 1
+					settings.options[k] = settings.options[k] % #settings.data[k] + 1
 				elseif key == "up" then
 					sounds.playCharSelectSFX()
-					options[k] = (options[k] - 2) % #data[k] + 1
+					settings.options[k] = (settings.options[k] - 2) % #settings.data[k] + 1
 				end
 			end
 		end
@@ -204,98 +153,6 @@ end
 function settings.open()
 	settings.choices.option = 1
 	game.current_screen = "settings"
-end
-
-function drawSettingsPopup()
-	if settings.popup_window == "Rounds" then
-	local toprint = data.Rounds[options.Rounds][1]
-
-	love.graphics.push("all")
-		love.graphics.setColor(colors.OFF_WHITE)
-		love.graphics.draw(images.settings.texture, backgrounds.rounds, 510, 260)
-
-		love.graphics.setColor(colors.ORANGE)
-		love.graphics.setFont(fonts.settings_options_big)
-		love.graphics.printf(toprint, 508, 252, 60, "center")
-	love.graphics.pop()
-
-	elseif settings.popup_window == "Timer" then
-	local toprint = data.Timer[options.Timer][1]
-	love.graphics.push("all")
-		love.graphics.setColor(colors.OFF_WHITE)
-		love.graphics.draw(images.settings.texture, backgrounds.timer, 510, 295)
-
-		love.graphics.setColor(colors.ORANGE)
-		love .graphics.setFont(fonts.settings_options_big)
-		love.graphics.printf(toprint, 510, 290, 70, "center")
-	love.graphics.pop()
-
-	elseif settings.popup_window == "Speed" then
-	local toprint = data.Speed[options.Speed][1]
-	love.graphics.push("all")
-		love.graphics.setColor(colors.OFF_WHITE)
-		love.graphics.draw(images.settings.texture, backgrounds.speed, 510, 330)
-
-		love.graphics.setColor(colors.ORANGE)
-		love.graphics.setFont(fonts.settings_options_small)
-		love.graphics.printf(toprint, 510, 333, 130, "center")
-	love.graphics.pop()
-
-	elseif settings.popup_window == "Music" then
-	local toprint = data.Music[options.Music][1]
-	love.graphics.push("all")
-		love.graphics.setColor(colors.OFF_WHITE)
-		love.graphics.draw(images.settings.texture, backgrounds.music, 510, 365)
-
-		love.graphics.setColor(colors.ORANGE)
-		love.graphics.setFont(fonts.settings_options_small)
-		love.graphics.printf(toprint, 510, 368, 90, "center")
-	love.graphics.pop()
-
-	elseif settings.popup_window == "Sound" then
-	local toprint = data.Sound[options.Sound][1]
-	love.graphics.push("all")
-		love.graphics.setColor(colors.OFF_WHITE)
-		love.graphics.draw(images.settings.texture, backgrounds.sound, 510, 400)
-
-		love.graphics.setColor(colors.ORANGE)
-		love.graphics.setFont(fonts.settings_options_small)
-		love.graphics.printf(toprint, 510, 403, 90, "center")
-	love.graphics.pop()
-	elseif settings.popup_window == "Controls" then
-	love.graphics.push("all")
-		love.graphics.setColor(colors.OFF_WHITE)
-		love.graphics.draw(images.settings.texture, backgrounds.controls, 510, 245)
-
-		local toprint = {
-		{"P1 Jump", buttons.p1jump},
-		{"P1 Attack", buttons.p1attack},
-		{"P2 Jump", buttons.p2jump},
-		{"P2 Attack", buttons.p2attack},
-		{"Start", buttons.start},
-		{"Back", ""}
-		}
-
-		if controls_choices.assigning then
-		toprint[controls_choices.option][2] = "[      ]"
-		end
-
-		love.graphics.setFont(fonts.settings)
-
-		for i = 1, #toprint do
-		love.graphics.setColor(colors.ORANGE)
-		love.graphics.print(toprint[i][1], 525, 220 + 35 * i)
-
-		love.graphics.setColor(colors.GREEN)
-		love.graphics.print(toprint[i][2], 640, 220 + 35 * i)
-		end
-
-		love.graphics.setLineWidth(3)
-		love.graphics.setColor(colors.ORANGE)
-		love.graphics.rectangle("line", 520, 220 + 35 * controls_choices.option, 190, 34)
-
-	love.graphics.pop()
-	end
 end
 
 return settings

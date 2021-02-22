@@ -556,10 +556,10 @@ function draw.draw_title()
 		love.graphics.setFont(fonts.title)
 
 		local toprint = {
-			{"P1 Jump:", buttons.p1jump},
-			{"P1 Attack:", buttons.p1attack},
-			{"P2 Jump:", buttons.p2jump},
-			{"P2 Attack:", buttons.p2attack},
+			{"P1 Jump:", settings.buttons.p1jump},
+			{"P1 Attack:", settings.buttons.p1attack},
+			{"P2 Jump:", settings.buttons.p2jump},
+			{"P2 Attack:", settings.buttons.p2attack},
 		}
 		for i = 1, #toprint do
 			love.graphics.push("all")
@@ -575,7 +575,58 @@ function draw.draw_title()
 	love.graphics.pop()
 end
 
-function draw.draw_settings_main()
+local settings_backgrounds = {
+	rounds = love.graphics.newQuad(
+		0,
+		0,
+		60,
+		60,
+		love.graphics.getWidth(images.settings.texture),
+		love.graphics.getHeight(images.settings.texture)
+	),
+	timer = love.graphics.newQuad(
+		0,
+		0,
+		70,
+		60,
+		love.graphics.getWidth(images.settings.texture),
+		love.graphics.getHeight(images.settings.texture)
+	),
+	speed = love.graphics.newQuad(
+		0,
+		0,
+		130,
+		60,
+		love.graphics.getWidth(images.settings.texture),
+		love.graphics.getHeight(images.settings.texture)
+	),
+	music = love.graphics.newQuad(
+		0,
+		0,
+		90,
+		60,
+		love.graphics.getWidth(images.settings.texture),
+		love.graphics.getHeight(images.settings.texture)
+	),
+	sound = love.graphics.newQuad(
+		0,
+		0,
+		90,
+		60,
+		love.graphics.getWidth(images.settings.texture),
+		love.graphics.getHeight(images.settings.texture)
+	),
+	controls = love.graphics.newQuad(
+		0,
+		0,
+		210,
+		225,
+		love.graphics.getWidth(images.settings.texture),
+		love.graphics.getHeight(images.settings.texture)
+	),
+}
+
+function draw.draw_settings()
 	love.graphics.push("all")
 		love.graphics.draw(images.settings.background, 0, 0, 0)
 		love.graphics.draw(images.settings.logo, 232, 60)
@@ -605,6 +656,136 @@ function draw.draw_settings_main()
 		for i = 1, #settings.choices.menu do
 			love.graphics.print(settings.choices.menu[i], 300, 240 + (35 * i))
 		end
+
+		-- draw popups
+		if settings.popup_window == "Rounds" then
+			love.graphics.setColor(colors.OFF_WHITE)
+			love.graphics.draw(
+				images.settings.texture,
+				settings_backgrounds.rounds,
+				510,
+				260
+			)
+			love.graphics.setColor(colors.ORANGE)
+			love.graphics.setFont(fonts.settings_options_big)
+			love.graphics.printf(
+				settings.data.Rounds[settings.options.Rounds][1],
+				508,
+				252,
+				60,
+				"center"
+			)
+		elseif settings.popup_window == "Timer" then
+			love.graphics.setColor(colors.OFF_WHITE)
+			love.graphics.draw(
+				images.settings.texture,
+				settings_backgrounds.timer,
+				510,
+				295
+			)
+			love.graphics.setColor(colors.ORANGE)
+			love .graphics.setFont(fonts.settings_options_big)
+			love.graphics.printf(
+				settings.data.Timer[settings.options.Timer][1],
+				510,
+				290,
+				70,
+				"center"
+			)
+		elseif settings.popup_window == "Speed" then
+			love.graphics.setColor(colors.OFF_WHITE)
+			love.graphics.draw(
+				images.settings.texture,
+				settings_backgrounds.speed,
+				510,
+				330
+			)
+			love.graphics.setColor(colors.ORANGE)
+			love.graphics.setFont(fonts.settings_options_small)
+			love.graphics.printf(
+				settings.data.Speed[settings.options.Speed][1],
+				510,
+				333,
+				130,
+				"center"
+			)
+		elseif settings.popup_window == "Music" then
+			love.graphics.setColor(colors.OFF_WHITE)
+			love.graphics.draw(
+				images.settings.texture,
+				settings_backgrounds.music,
+				510,
+				365
+			)
+			love.graphics.setColor(colors.ORANGE)
+			love.graphics.setFont(fonts.settings_options_small)
+			love.graphics.printf(
+				settings.data.Music[settings.options.Music][1],
+				510,
+				368,
+				90,
+				"center"
+			)
+		elseif settings.popup_window == "Sound" then
+			love.graphics.setColor(colors.OFF_WHITE)
+			love.graphics.draw(
+				images.settings.texture,
+				settings_backgrounds.sound,
+				510,
+				400
+			)
+			love.graphics.setColor(colors.ORANGE)
+			love.graphics.setFont(fonts.settings_options_small)
+			love.graphics.printf(
+				settings.data.Sound[settings.options.Sound][1],
+				510,
+				403,
+				90,
+				"center"
+			)
+		elseif settings.popup_window == "Controls" then
+			love.graphics.setColor(colors.OFF_WHITE)
+			love.graphics.draw(
+				images.settings.texture,
+				settings_backgrounds.controls,
+				510,
+				245
+			)
+
+			local toprint = {
+				{"P1 Jump", settings.buttons.p1jump},
+				{"P1 Attack", settings.buttons.p1attack},
+				{"P2 Jump", settings.buttons.p2jump},
+				{"P2 Attack", settings.buttons.p2attack},
+				{"Start", settings.buttons.start},
+				{"Back", ""}
+			}
+
+			if settings.controls.assigning then
+				toprint[settings.controls.option][2] = "[      ]"
+			end
+
+			love.graphics.setFont(fonts.settings)
+
+			for i = 1, #toprint do
+				love.graphics.setColor(colors.ORANGE)
+				love.graphics.print(toprint[i][1], 525, 220 + 35 * i)
+
+				love.graphics.setColor(colors.GREEN)
+				love.graphics.print(toprint[i][2], 640, 220 + 35 * i)
+			end
+
+			love.graphics.setLineWidth(3)
+			love.graphics.setColor(colors.ORANGE)
+			love.graphics.rectangle(
+				"line",
+				520,
+				220 + 35 * settings.controls.option,
+				190,
+				34
+			)
+		end
+
 	love.graphics.pop()
 end
 
