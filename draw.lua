@@ -792,9 +792,26 @@ end
 function draw.draw_super_overlays(facing, frogface)
 	for i = 0, 44 do
 		local h_shift = -200 + math.sin(i / 38) * 400
-		particles.overlays.super_profile:repeatLoad(window.center, 200, h_shift, 0, facing, i, "post2")
+		particles.overlays.super_profile:repeatLoad(
+			window.center,
+			200,
+			h_shift,
+			0,
+			facing,
+			i,
+			"post2"
+		)
+
 		local frog_shift = -400 + math.sin(i / 38) * 400
-		frogface:repeatLoad(window.center, 200, frog_shift, 0, facing, i, "post3")
+		frogface:repeatLoad(
+			window.center,
+			200,
+			frog_shift,
+			0,
+			facing,
+			i,
+			"post3"
+		)
 	end
 end
 

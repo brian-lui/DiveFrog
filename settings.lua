@@ -1,8 +1,5 @@
 local love = _G.love
 
-local colors = require 'colors'
-local fonts = require 'fonts'
-local images = require 'images'
 local music = require 'music'
 local json = require 'dkjson'
 local sounds = require 'sounds'
@@ -55,22 +52,7 @@ settings.choices = {
 		function() settings.popup_window = "Sound" end,
 		function() settings.popup_window = "Controls" end,
 		function()
-			Params = {
-				Rounds = settings.data.Rounds[settings.options.Rounds][2],
-				Timer = settings.data.Timer[settings.options.Timer][2],
-				Speed = settings.data.Speed[settings.options.Speed][2],
-				Music = settings.data.Music[settings.options.Music][2],
-				Sound = settings.data.Sound[settings.options.Sound][2],
-			}
-
-			game.best_to_x = Params.Rounds
-			init_round_timer = Params.Timer * 60
-			game.speed = Params.Speed
-			music.currentBGM:setVolume(0.9 * Params.Music)
-
-			love.filesystem.write("settings.txt", json.encode(settings.options))
-			love.filesystem.write("controls.txt", json.encode(settings.buttons))
-
+			settings.update_options()
 			game.current_screen = 'title'
 		end,
 	},
@@ -91,6 +73,23 @@ Params = {
 	Sound = settings.data.Sound[settings.options.Sound][2],
 }
 
+function settings.update_options()
+	Params = {
+		Rounds = settings.data.Rounds[settings.options.Rounds][2],
+		Timer = settings.data.Timer[settings.options.Timer][2],
+		Speed = settings.data.Speed[settings.options.Speed][2],
+		Music = settings.data.Music[settings.options.Music][2],
+		Sound = settings.data.Sound[settings.options.Sound][2],
+	}
+
+	game.best_to_x = Params.Rounds
+	init_round_timer = Params.Timer * 60
+	game.speed = Params.Speed
+	music.currentBGM:setVolume(0.9 * Params.Music)
+
+	love.filesystem.write("settings.txt", json.encode(settings.options))
+	love.filesystem.write("controls.txt", json.encode(settings.buttons))
+end
 
 function settings.receive_keypress(key)
 	if settings.popup_window == "" then
@@ -141,9 +140,11 @@ function settings.receive_keypress(key)
 				elseif key == settings.buttons.p1jump or key == "down" then
 					sounds.playCharSelectSFX()
 					settings.options[k] = settings.options[k] % #settings.data[k] + 1
+					settings.update_options()
 				elseif key == "up" then
 					sounds.playCharSelectSFX()
 					settings.options[k] = (settings.options[k] - 2) % #settings.data[k] + 1
+					settings.update_options()
 				end
 			end
 		end
